@@ -153,7 +153,7 @@ export function Footer() {
     <footer id="contact" className="on-dark relative overflow-hidden bg-ink text-paper">
       <div className="relative">
         <FooterField className="pointer-events-none absolute inset-0" />
-        <Container className="relative pt-16 pb-10 lg:pt-20 lg:pb-14">
+        <Container className="relative pt-10 pb-10 sm:pt-16 lg:pt-20 lg:pb-14">
           <div className="rounded-[28px] border border-paper/15 bg-ink p-5 sm:p-10 lg:p-12">
             <div>
               <p className="text-lg font-semibold text-paper">Have a set of SOPs that might disagree?</p>
