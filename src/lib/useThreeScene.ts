@@ -84,6 +84,11 @@ export function useThreeScene(build: (api: SceneApi) => SceneHooks, options: Opt
         pointer.inside = Math.abs(pointer.x) <= 1 && Math.abs(pointer.y) <= 1;
       };
       window.addEventListener("pointermove", onMove, { passive: true });
+      // touchHover sends this (untrusted) a beat after the finger lifts: let the scene settle.
+      const onRelease = (e: PointerEvent) => {
+        if (!e.isTrusted && e.pointerType === "touch") pointer.inside = false;
+      };
+      document.documentElement.addEventListener("pointerleave", onRelease);
 
       let raf = 0;
       let t = 0;
@@ -128,6 +133,7 @@ export function useThreeScene(build: (api: SceneApi) => SceneHooks, options: Opt
         ro.disconnect();
         io.disconnect();
         window.removeEventListener("pointermove", onMove);
+        document.documentElement.removeEventListener("pointerleave", onRelease);
         hooks.dispose?.();
         scene.traverse((obj) => {
           const mesh = obj as THREE_NS.Mesh;

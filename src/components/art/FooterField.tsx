@@ -23,14 +23,24 @@ export function FooterField({ className = "" }: { className?: string }) {
       pointer.y = e.clientY - r.top;
       pointer.on = true;
     });
-    area.addEventListener("pointerleave", () => (pointer.on = false));
+    area.addEventListener("pointerleave", (e) => {
+      // A swipe turning into a scroll makes the browser fire its own pointerleave
+      // mid-gesture; on touch only touchHover's release (untrusted) lets go.
+      if (e.isTrusted && e.pointerType === "touch") return;
+      pointer.on = false;
+    });
 
     const build = () => {
-      gap = host.clientWidth < 640 ? 20 : 24;
+      const w = host.clientWidth;
+      // Even columns edge to edge, with the outer two centred in the 16px side gutters,
+      // so both sides of the contact card get a column on phones.
+      const n = Math.max(1, Math.round((w - 16) / (w < 640 ? 20 : 24)));
+      gap = (w - 16) / n;
       dots = [];
       const rnd = mulberry32(73);
       // Columns of different lengths: each column starts at the top and stops at its own point.
-      for (let x = gap / 2; x < host.clientWidth; x += gap) {
+      for (let i = 0; i <= n; i++) {
+        const x = 8 + i * gap;
         const end = host.clientHeight * (0.85 + rnd() * 0.15);
         for (let y = gap / 2; y < end; y += gap) dots.push({ x, y });
       }
@@ -59,7 +69,8 @@ export function FooterField({ className = "" }: { className?: string }) {
       p.clear();
       const t = reduced ? 0 : p.millis() / 1000;
       pointer.k += ((pointer.on ? 1 : 0) - pointer.k) * 0.08;
-      const reach = 170;
+      // On phones the card covers the middle, so a finger anywhere on it reaches the gutter dots.
+      const reach = p.width < 640 ? 240 : 170;
 
       // One path for every plain red dot; only dots near the pointer get their own fill.
       const ctx = p.drawingContext as CanvasRenderingContext2D;

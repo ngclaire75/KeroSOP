@@ -93,8 +93,15 @@ export function DotTerrain() {
           uniforms.uRes.value.copy(size);
           const narrow = w < 768;
           uniforms.uAxis.value = narrow ? 1 : 0;
-          camera.position.set(narrow ? 0 : -1, 3.4, 8);
-          camera.lookAt(narrow ? 0 : 2.5, -0.4, -4);
+          // Phones look further down so the field runs all the way to the bottom edge,
+          // under the buttons where a thumb lands.
+          if (narrow) {
+            camera.position.set(0, 4.2, 5.5);
+            camera.lookAt(0, -0.4, -5);
+          } else {
+            camera.position.set(-1, 3.4, 8);
+            camera.lookAt(2.5, -0.4, -4);
+          }
         },
         frame(t) {
           uniforms.uTime.value = t;
