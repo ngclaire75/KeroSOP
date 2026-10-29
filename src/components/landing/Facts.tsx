@@ -25,7 +25,7 @@ export function Facts() {
               <br />
               clauses.
             </p>
-            <MoleculeField className="relative order-last mt-6 h-48 sm:absolute sm:order-none sm:mt-0 sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[46%]" />
+            <MoleculeField className="relative order-last -mr-6 -mb-6 mt-6 h-48 sm:absolute sm:order-none sm:mt-0 sm:mr-0 sm:mb-0 sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[46%]" />
             <p className="pointer-events-none relative z-10 mt-6 max-w-[16rem] sm:mt-0 text-base leading-[1.5] text-paper/90 sm:max-w-[17rem]">
               Every finding shows the document, version, section, page and exact quote on each side. If we can’t point
               to it, we don’t show it.
