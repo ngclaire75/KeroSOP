@@ -23,11 +23,20 @@ export const metadata: Metadata = {
     "KeroSOP reads your policies, SOPs and training guides in Chinese and English, finds instructions that conflict, and shows both clauses word for word.",
 };
 
+// Runs before the page paints. Every first load starts at the very top: the
+// browser neither restores the last scroll position nor jumps to a #section.
+const bootScript = [
+  "document.documentElement.classList.add('js')",
+  "history.scrollRestoration='manual'",
+  "if(location.hash)history.replaceState(history.state,'',location.pathname+location.search)",
+  "window.scrollTo(0,0)",
+].join(";");
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${archivo.variable} ${notoSC.variable} antialiased`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="min-h-screen">{children}</body>
     </html>

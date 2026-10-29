@@ -18,8 +18,10 @@ export function SmoothScroll() {
   useEffect(() => installTouchHover(), []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (prefersReducedMotion()) return;
     const lenis = new Lenis({ autoRaf: false, lerp: 0.1, anchors: { offset: -88 } });
+    lenis.scrollTo(0, { immediate: true, force: true });
     window.__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
