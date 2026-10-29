@@ -22,6 +22,8 @@ function useStagger<E extends HTMLElement>(step = 80) {
       duration: 900,
       delay: stagger(step),
       ease: "outExpo",
+      // Drop the leftover transform so the text renders off the GPU layer.
+      onComplete: () => items.forEach((n) => (n.style.transform = "")),
     });
   });
 }

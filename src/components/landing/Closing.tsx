@@ -5,7 +5,6 @@ import { DotTerrain } from "@/components/three/DotTerrain";
 import { PinWordmark } from "@/components/three/PinWordmark";
 import { FooterField } from "@/components/art/FooterField";
 import { ProximityText } from "@/components/ProximityText";
-import { GlowBorder } from "@/components/GlowBorder";
 
 const plans = [
   {
@@ -155,40 +154,38 @@ export function Footer() {
       <div className="relative">
         <FooterField className="pointer-events-none absolute inset-0" />
         <Container className="relative pt-16 pb-10 lg:pt-20 lg:pb-14">
-          <GlowBorder className="rounded-[28px]">
-            <div className="rounded-[28px] border border-paper/15 bg-ink p-5 sm:p-10 lg:p-12">
-              <div>
-                <p className="text-lg font-semibold text-paper">Have a set of SOPs that might disagree?</p>
-                <a
-                  href="mailto:ngclaire75@gmail.com"
-                  className="display mt-4 inline-block text-[calc((100vw-80px)/10.3)] whitespace-nowrap sm:text-[clamp(1.6rem,7vw,6rem)]"
-                >
-                  <ProximityText text="ngclaire75@gmail.com" />
-                </a>
-                <p className="mt-8 max-w-[30rem] leading-[1.6] font-semibold text-paper">
-                  Finds conflicting instructions across your policies and SOPs, in Chinese and English, with the source
-                  for every finding.
-                </p>
-              </div>
-
-              <nav aria-label="Footer" className="mt-12 grid grid-cols-2 gap-8 sm:flex sm:gap-24">
-                {footerLinks.map((col) => (
-                  <div key={col.title}>
-                    <h3 className="text-sm font-bold text-paper">{col.title}</h3>
-                    <ul className="mt-5 grid gap-3">
-                      {col.links.map(([label, href]) => (
-                        <li key={label}>
-                          <a href={href} className="inline-flex">
-                            <span className="link-gradient">{label}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </nav>
+          <div className="rounded-[28px] border border-paper/15 bg-ink p-5 sm:p-10 lg:p-12">
+            <div>
+              <p className="text-lg font-semibold text-paper">Have a set of SOPs that might disagree?</p>
+              <a
+                href="mailto:ngclaire75@gmail.com"
+                className="display mt-4 inline-block text-[calc((100vw-80px)/10.3)] whitespace-nowrap sm:text-[clamp(1.6rem,7vw,6rem)]"
+              >
+                <ProximityText text="ngclaire75@gmail.com" />
+              </a>
+              <p className="mt-8 max-w-[30rem] leading-[1.6] font-semibold text-paper">
+                Finds conflicting instructions across your policies and SOPs, in Chinese and English, with the source
+                for every finding.
+              </p>
             </div>
-          </GlowBorder>
+
+            <nav aria-label="Footer" className="mt-12 grid grid-cols-2 gap-8 sm:flex sm:gap-24">
+              {footerLinks.map((col) => (
+                <div key={col.title}>
+                  <h3 className="text-sm font-bold text-paper">{col.title}</h3>
+                  <ul className="mt-5 grid gap-3">
+                    {col.links.map(([label, href]) => (
+                      <li key={label}>
+                        <a href={href} className="inline-flex">
+                          <span className="link-gradient">{label}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+          </div>
         </Container>
       </div>
 

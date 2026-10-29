@@ -171,55 +171,6 @@ html.js [data-stagger]:not([data-revealed]) > * {
   animation: ping-dot 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-/* Footer card outline: two red highlights orbit the border. Wrap the card. */
-@property --glow-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes glow-spin {
-  to {
-    --glow-angle: 360deg;
-  }
-}
-
-.glow-border {
-  position: relative;
-}
-/* GlowBorder sets data-live only while the card is visible. */
-.glow-border[data-live]::before {
-  animation-play-state: running;
-}
-.glow-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: conic-gradient(
-    from var(--glow-angle),
-    transparent 0deg 110deg,
-    var(--red) 160deg,
-    #ff8a8f 175deg,
-    transparent 180deg 290deg,
-    var(--red) 340deg,
-    #ff8a8f 355deg,
-    transparent 360deg
-  );
-  animation: glow-spin 7s linear infinite paused;
-  /* Crisp 1.5px ring on top of the card's border. */
-  z-index: 1;
-  padding: 1.5px;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box exclude,
-    linear-gradient(#000 0 0);
-}
-
 /* Footer links: hovering wipes the label from soft white into a
    red, pink and orange gradient. Both states live in one 200%-wide gradient,
    so only background-position animates. */

@@ -57,11 +57,8 @@ export function LifecycleTrack({ stages }: { stages: string[] }) {
         onUpdate: apply,
         scrollTrigger: {
           trigger: wrap,
-          start: "top 38%",
-          end: () => `+=${Math.max(800, window.innerHeight * 1.4)}`,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 1,
+          start: "top 85%",
+          end: "top 25%",
           scrub: true,
           invalidateOnRefresh: true,
         },
@@ -79,15 +76,17 @@ export function LifecycleTrack({ stages }: { stages: string[] }) {
     }
     const el = wordRef.current;
     if (!el || prefersReducedMotion()) return;
+    // Touch screens get a plain fade: iOS leaves artifacts around blurred text,
+    // and text snaps when a moved word's GPU layer is dropped.
+    const soft = !window.matchMedia("(hover: none)").matches;
     import("animejs").then(({ animate }) => {
       animate(el, {
         opacity: { from: 0, to: 1 },
-        // No blur on touch screens: iOS Safari leaves artifacts around blurred text.
-        ...(window.matchMedia("(hover: none)").matches ? {} : { filter: { from: "blur(10px)", to: "blur(0px)" } }),
-        translateY: { from: "0.12em", to: "0em" },
+        ...(soft ? { filter: { from: "blur(10px)", to: "blur(0px)" }, translateY: { from: "0.12em", to: "0em" } } : {}),
         duration: 450,
         ease: "outQuart",
         onComplete: () => {
+          el.style.opacity = "";
           el.style.filter = "";
           el.style.transform = "";
         },
@@ -173,6 +172,8 @@ export function RoleCards() {
       duration: 900,
       delay: stagger(120),
       ease: "outExpo",
+      // Drop the leftover transform so the card text renders off the GPU layer.
+      onComplete: () => cards.forEach((c) => (c.style.transform = "")),
     });
     const chips = el.querySelectorAll<HTMLElement>("[data-chip]");
     chips.forEach((c) => (c.style.opacity = "0"));
@@ -182,6 +183,7 @@ export function RoleCards() {
       duration: 600,
       delay: stagger(60, { start: 450 }),
       ease: "outBack",
+      onComplete: () => chips.forEach((c) => (c.style.transform = "")),
     });
   });
 

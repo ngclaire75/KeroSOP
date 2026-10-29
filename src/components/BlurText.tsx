@@ -51,7 +51,9 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
     const words = Array.from(el.querySelectorAll<HTMLElement>(".w"));
     const final = getComputedStyle(el).color;
     // iOS Safari paints stray magenta slivers between blurred inline words, and
-    // a blur per word is costly on phones: touch screens fade without it.
+    // a blur per word is costly on phones. Moving words also get their own GPU
+    // layer, and iOS re-rasterises the text when that layer is dropped, so the
+    // copy visibly snaps once the run ends. Touch screens get a still fade.
     const soft = !window.matchMedia("(hover: none)").matches;
     let anime: Promise<typeof import("animejs")> | null = null;
     let run: { pause: () => unknown } | null = null;
@@ -62,7 +64,7 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
         w.style.opacity = "0";
         if (soft) w.style.filter = `blur(${blur}px)`;
         w.style.color = tint;
-        w.style.transform = "translateY(0.2em)";
+        if (soft) w.style.transform = "translateY(0.2em)";
       });
 
     const play = async () => {
@@ -75,7 +77,7 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
         opacity: { to: 1 },
         ...(soft ? { filter: { to: "blur(0px)" } } : {}),
         color: { to: final },
-        translateY: { to: "0em" },
+        ...(soft ? { translateY: { to: "0em" } } : {}),
         duration: 1100,
         delay: stagger(step, { start: delay }),
         ease: "outQuart",

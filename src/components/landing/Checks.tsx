@@ -127,7 +127,7 @@ export function Checks() {
                   key={c.name}
                   aria-hidden={!shown}
                   className={`flex flex-col transition-[opacity,filter,visibility] duration-500 ease-out [grid-area:1/1] ${
-                    shown ? "visible opacity-100 blur-0" : "pointer-events-none invisible opacity-0 blur-[6px]"
+                    shown ? "visible opacity-100 blur-0" : "pointer-events-none invisible opacity-0 [@media(hover:hover)]:blur-[6px]"
                   }`}
                 >
                   <span className="text-sm font-semibold text-paper tabular-nums">
