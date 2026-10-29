@@ -74,6 +74,10 @@ export function EyeField({ className = "" }: { className?: string }) {
       const maxD = Math.hypot(p.width, p.height);
       const reach = 150;
 
+      // Batch dots by alpha level: a handful of fills instead of one per dot.
+      const ctx = p.drawingContext as CanvasRenderingContext2D;
+      const LEVELS = 24;
+      const paths = Array.from({ length: LEVELS }, () => new Path2D());
       for (const dot of dots) {
         // Sonar: a band travelling outward from the pupil, fading with distance.
         const phase = dot.d * 0.02 - t * 1.6;
@@ -89,9 +93,15 @@ export function EyeField({ className = "" }: { className?: string }) {
             alpha += f * 120;
           }
         }
-        p.fill(38, 38, 38, Math.min(255, alpha));
-        p.circle(dot.x, dot.y, size);
+        const level = Math.min(LEVELS - 1, Math.round((Math.min(255, alpha) / 255) * (LEVELS - 1)));
+        paths[level].moveTo(dot.x + size / 2, dot.y);
+        paths[level].arc(dot.x, dot.y, size / 2, 0, Math.PI * 2);
       }
+      paths.forEach((path, level) => {
+        if (!level) return;
+        ctx.fillStyle = `rgba(38,38,38,${level / (LEVELS - 1)})`;
+        ctx.fill(path);
+      });
     };
   });
 

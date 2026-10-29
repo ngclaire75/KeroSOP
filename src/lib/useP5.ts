@@ -35,6 +35,9 @@ export function useP5(sketch: Sketch) {
 
     import("p5").then(({ default: P5 }) => {
       if (cancelled) return;
+      // p5 2.x validates every drawing call's arguments (friendly errors);
+      // with hundreds of dots a frame that is most of the script time.
+      (P5 as unknown as { disableFriendlyErrors: boolean }).disableFriendlyErrors = true;
       instance = new P5((p) => sketchRef.current(p, host), host);
       if (!visible) instance.noLoop();
     });

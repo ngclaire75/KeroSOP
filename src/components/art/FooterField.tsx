@@ -61,6 +61,9 @@ export function FooterField({ className = "" }: { className?: string }) {
       pointer.k += ((pointer.on ? 1 : 0) - pointer.k) * 0.08;
       const reach = 170;
 
+      // One path for every plain red dot; only dots near the pointer get their own fill.
+      const ctx = p.drawingContext as CanvasRenderingContext2D;
+      const plain = new Path2D();
       for (const d of dots) {
         const n = p.noise(d.x * 0.006, d.y * 0.006, t * 0.12);
         const a = n * Math.PI * 4;
@@ -78,11 +81,18 @@ export function FooterField({ className = "" }: { className?: string }) {
             r += (255 - r) * f;
             g += (255 - g) * f;
             b += (255 - b) * f;
+            ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            continue;
           }
         }
-        p.fill(r, g, b);
-        p.circle(x, y, size);
+        plain.moveTo(x + size / 2, y);
+        plain.arc(x, y, size / 2, 0, Math.PI * 2);
       }
+      ctx.fillStyle = "rgb(227,6,19)";
+      ctx.fill(plain);
     };
   });
 

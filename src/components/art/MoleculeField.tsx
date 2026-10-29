@@ -71,8 +71,10 @@ export function MoleculeField({ className = "" }: { className?: string }) {
       const r = cell * 0.36;
       const t = p.millis() / 1000;
 
-      p.noStroke();
-      p.fill(0);
+      // Every dot is the same black: build one path and fill it once.
+      const ctx = p.drawingContext as CanvasRenderingContext2D;
+      const path = new Path2D();
+      const rr = r * 1.075;
       const reach = cell * 5;
       for (const d of solid) {
         if (!reduced) {
@@ -95,8 +97,11 @@ export function MoleculeField({ className = "" }: { className?: string }) {
           d.x += d.vx;
           d.y += d.vy;
         }
-        p.circle(d.x, d.y, r * 2.15);
+        path.moveTo(d.x + rr, d.y);
+        path.arc(d.x, d.y, rr, 0, Math.PI * 2);
       }
+      ctx.fillStyle = "#000";
+      ctx.fill(path);
     };
   });
 
