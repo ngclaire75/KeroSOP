@@ -3,11 +3,21 @@
 import type p5 from "p5";
 import { useP5 } from "@/lib/useP5";
 import { mulberry32, canvasDpr, prefersReducedMotion } from "@/lib/random";
+import { SCAN_EVENT } from "@/lib/scan";
+
+/** A scan line runs down the field this often, then hands over to the wordmark below. */
+const SCAN_EVERY = 7;
+const SCAN_TIME = 2;
+const LEVELS = 8;
+/** Length of the scan line's fading tail, in px. */
+const TAIL = 360;
 
 /**
  * Footer backdrop (p5.js): columns of red dots, each column a different
- * length, drifting on a slow Perlin current. Dots near
- * the pointer swell and brighten to white.
+ * length, drifting on a slow Perlin current. Dots near the pointer swell,
+ * brighten to white and lean out of its way. Every few seconds a scan line
+ * runs down the field, lighting the dots it passes with a tail behind it,
+ * and hands over to the wordmark's own scan when it reaches the bottom.
  */
 export function FooterField({ className = "" }: { className?: string }) {
   const ref = useP5((p: p5, host) => {
@@ -65,45 +75,59 @@ export function FooterField({ className = "" }: { className?: string }) {
       }).observe(host);
     };
 
+    let lastScanY = -1e3;
+
     p.draw = () => {
       p.clear();
       const t = reduced ? 0 : p.millis() / 1000;
+      const phase = reduced ? SCAN_TIME + 1 : (t + SCAN_EVERY - 2) % SCAN_EVERY;
+      const scanning = phase < SCAN_TIME;
+      const sp = phase / SCAN_TIME;
+      // The line runs on past the bottom until its tail has faded out, so nothing blinks off at the end.
+      const scanY = scanning ? sp * sp * (3 - 2 * sp) * (p.height + TAIL + 30) - 30 : -1e3;
+      if (lastScanY < p.height && scanY >= p.height) window.dispatchEvent(new Event(SCAN_EVENT));
+      lastScanY = scanY;
       pointer.k += ((pointer.on ? 1 : 0) - pointer.k) * 0.08;
       // On phones the card covers the middle, so a finger anywhere on it reaches the gutter dots.
       const reach = p.width < 640 ? 240 : 170;
 
-      // One path for every plain red dot; only dots near the pointer get their own fill.
+      // Dots are binned by how hot they are, red through white, one path per bin.
       const ctx = p.drawingContext as CanvasRenderingContext2D;
-      const plain = new Path2D();
+      const bins = Array.from({ length: LEVELS + 1 }, () => new Path2D());
       for (const d of dots) {
         const n = p.noise(d.x * 0.006, d.y * 0.006, t * 0.12);
         const a = n * Math.PI * 4;
-        const x = d.x + Math.cos(a) * 3;
-        const y = d.y + Math.sin(a) * 3;
+        let x = d.x + Math.cos(a) * 3;
+        let y = d.y + Math.sin(a) * 3;
         let size = 2 + n * 1.4;
-        let r = 227;
-        let g = 6;
-        let b = 19;
+        let f = 0;
         if (pointer.k > 0.01) {
-          const dist = Math.hypot(x - pointer.x, y - pointer.y);
-          if (dist < reach) {
-            const f = (1 - dist / reach) ** 2 * pointer.k;
+          const dx = x - pointer.x;
+          const dy = y - pointer.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < reach && dist > 0.01) {
+            f = (1 - dist / reach) ** 2 * pointer.k;
+            x += (dx / dist) * f * 14;
+            y += (dy / dist) * f * 14;
             size += f * 4;
-            r += (255 - r) * f;
-            g += (255 - g) * f;
-            b += (255 - b) * f;
-            ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
-            ctx.beginPath();
-            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
-            ctx.fill();
-            continue;
           }
         }
-        plain.moveTo(x + size / 2, y);
-        plain.arc(x, y, size / 2, 0, Math.PI * 2);
+        if (scanning) {
+          // A sharp leading edge with a tail fading up behind it.
+          const off = y - scanY;
+          const s = off > 0 ? Math.exp(-((off / 12) ** 2)) : Math.exp((off / TAIL) * 4.5) * 0.75;
+          size += s * 2.6;
+          f = Math.max(f, s);
+        }
+        const bin = Math.round(Math.min(1, f) * LEVELS);
+        bins[bin].moveTo(x + size / 2, y);
+        bins[bin].arc(x, y, size / 2, 0, Math.PI * 2);
       }
-      ctx.fillStyle = "rgb(227,6,19)";
-      ctx.fill(plain);
+      bins.forEach((path, i) => {
+        const k = i / LEVELS;
+        ctx.fillStyle = `rgb(${(227 + 28 * k) | 0},${(6 + 249 * k) | 0},${(19 + 236 * k) | 0})`;
+        ctx.fill(path);
+      });
     };
   });
 
