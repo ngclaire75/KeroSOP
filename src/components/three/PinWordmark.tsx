@@ -3,14 +3,17 @@
 import type * as T from "three";
 import { useThreeScene } from "@/lib/useThreeScene";
 
-const COLS = 116;
 const ROWS = 24;
+/** Grid width per layout. Phones get the short word on fewer columns, so each pin is bigger. */
+const COLS_WIDE = 116;
+const COLS_NARROW = 76;
+const WIDE = "(min-width: 640px)";
 
-/** Rasterise the word and sample it on a COLS×ROWS grid. */
-function sampleWord(text: string, family: string) {
+/** Rasterise the word and sample it on a cols×ROWS grid. */
+function sampleWord(text: string, family: string, cols: number) {
   const cell = 10;
   const canvas = document.createElement("canvas");
-  canvas.width = COLS * cell;
+  canvas.width = cols * cell;
   canvas.height = ROWS * cell;
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   const fit = (size: number) => {
@@ -27,7 +30,7 @@ function sampleWord(text: string, family: string) {
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   const on: boolean[] = [];
   for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++) {
+    for (let c = 0; c < cols; c++) {
       const x = Math.floor((c + 0.5) * cell);
       const y = Math.floor((r + 0.5) * cell);
       on.push(data[(y * canvas.width + x) * 4 + 3] > 120);
@@ -39,7 +42,7 @@ function sampleWord(text: string, family: string) {
  * The wordmark as a field of 3D pins. Pins rise toward the pointer and a slow
  * swell rolls across them.
  */
-export function PinWordmark({ text = "KEROSOP" }: { text?: string }) {
+export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: string; short?: string }) {
   const ref = useThreeScene(
     ({ THREE, scene, camera, host, pointer, reduced }) => {
       const family = getComputedStyle(host).fontFamily || "sans-serif";
@@ -63,15 +66,20 @@ export function PinWordmark({ text = "KEROSOP" }: { text?: string }) {
       const hit = new THREE.Vector3();
       const ndc = new THREE.Vector2();
       let strength = 0;
+      const wide = window.matchMedia(WIDE);
+      let isWide = wide.matches;
+      let cols = isWide ? COLS_WIDE : COLS_NARROW;
 
       const build = () => {
-        const on = sampleWord(text, family);
+        isWide = wide.matches;
+        cols = isWide ? COLS_WIDE : COLS_NARROW;
+        const on = sampleWord(isWide ? text : short, family, cols);
         if (pins) group.remove(pins);
         const lit: { x: number; y: number; h: number }[] = [];
         on.forEach((v, i) => {
-          const c = i % COLS;
-          const r = Math.floor(i / COLS);
-          const p = { x: c - (COLS - 1) / 2, y: (ROWS - 1) / 2 - r };
+          const c = i % cols;
+          const r = Math.floor(i / cols);
+          const p = { x: c - (cols - 1) / 2, y: (ROWS - 1) / 2 - r };
           if (v) lit.push({ ...p, h: 0.8 });
         });
         cells = lit;
@@ -84,8 +92,9 @@ export function PinWordmark({ text = "KEROSOP" }: { text?: string }) {
 
       return {
         resize(w, h) {
+          if (wide.matches !== isWide) build();
           const vHalf = Math.tan(((camera.fov / 2) * Math.PI) / 180);
-          const dist = Math.max((COLS + 2) / 2 / (vHalf * (w / h)), (ROWS + 4) / 2 / vHalf);
+          const dist = Math.max((cols + 2) / 2 / (vHalf * (w / h)), (ROWS + 4) / 2 / vHalf);
           camera.position.set(0, -ROWS * 0.55, dist);
           camera.lookAt(0, -1, 0);
         },
@@ -115,5 +124,5 @@ export function PinWordmark({ text = "KEROSOP" }: { text?: string }) {
     { fov: 24, clear: 0x000000 },
   );
 
-  return <div ref={ref} className="aspect-[116/30] w-full" />;
+  return <div ref={ref} className="aspect-[76/30] w-full sm:aspect-[116/30]" />;
 }
