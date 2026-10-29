@@ -3,13 +3,13 @@
 import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "@/lib/random";
 
-/** The poster eye. Its pupil follows the pointer within the iris. */
+/** The poster eye. Its pupil follows the pointer, or a finger on touch screens, within the iris. */
 export function Eye({ className = "" }: { className?: string }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const pupilRef = useRef<SVGGElement>(null);
 
   useEffect(() => {
-    if (prefersReducedMotion() || !window.matchMedia("(pointer: fine)").matches) return;
+    if (prefersReducedMotion()) return;
     const svg = svgRef.current;
     const pupil = pupilRef.current;
     if (!svg || !pupil) return;
@@ -20,19 +20,25 @@ export function Eye({ className = "" }: { className?: string }) {
     let x = 0;
     let y = 0;
 
+    const aim = (dx: number, dy: number, reach: number) => {
+      const len = Math.hypot(dx, dy) || 1;
+      const pull = Math.min(1, len / reach);
+      tx = (dx / len) * 26 * pull;
+      ty = (dy / len) * 26 * pull;
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
     const onMove = (e: PointerEvent) => {
       const box = svg.getBoundingClientRect();
       // Iris centre sits at (330, 150) of a 460×300 viewBox.
       const cx = box.left + (330 / 460) * box.width;
       const cy = box.top + (150 / 300) * box.height;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const len = Math.hypot(dx, dy) || 1;
-      const pull = Math.min(1, len / 500);
-      tx = (dx / len) * 26 * pull;
-      ty = (dy / len) * 26 * pull;
-      if (!raf) raf = requestAnimationFrame(tick);
+      // Full swing a little past the eye's own width, so a phone-sized eye still looks all the way round.
+      aim(e.clientX - cx, e.clientY - cy, Math.min(500, box.width * 1.1));
     };
+    // touchHover sends this once the finger has lifted for a beat: look back to the middle.
+    // (The browser's own pointerleave fires as soon as a swipe turns into a scroll, so skip it.)
+    const onRelease = (e: PointerEvent) => !e.isTrusted && e.pointerType === "touch" && aim(0, 0, 1);
 
     const tick = () => {
       x += (tx - x) * 0.14;
@@ -42,8 +48,10 @@ export function Eye({ className = "" }: { className?: string }) {
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onRelease);
     return () => {
       window.removeEventListener("pointermove", onMove);
+      document.documentElement.removeEventListener("pointerleave", onRelease);
       cancelAnimationFrame(raf);
     };
   }, []);

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 /** Bump after re-rendering the ad so browsers fetch the new file instead of a cached one. */
-const VIDEO_VERSION = 8;
+const VIDEO_VERSION = 9;
 const src = (ext: string) => `/video/kerosop-ad.${ext}?v=${VIDEO_VERSION}`;
 
 /**
@@ -66,7 +66,6 @@ export function HeroVideo({ className = "" }: { className?: string }) {
         disableRemotePlayback
         aria-label="A short animated explainer: KeroSOP reads policies, SOPs and training guides in Chinese and English, finds the clauses that disagree, and lets your reviewer approve the fix. Integrations for Google Drive, Google Docs, Dropbox, Box, Notion, Confluence and WeChat are on the way."
       >
-        <source src={src("webm")} type="video/webm" />
         <source src={src("mp4")} type="video/mp4" />
       </video>
     </div>
