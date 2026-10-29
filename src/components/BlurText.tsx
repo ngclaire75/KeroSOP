@@ -50,6 +50,9 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
     const { tint, blur, step, delay } = opts.current;
     const words = Array.from(el.querySelectorAll<HTMLElement>(".w"));
     const final = getComputedStyle(el).color;
+    // iOS Safari paints stray magenta slivers between blurred inline words, and
+    // a blur per word is costly on phones: touch screens fade without it.
+    const soft = !window.matchMedia("(hover: none)").matches;
     let anime: Promise<typeof import("animejs")> | null = null;
     let run: { pause: () => unknown } | null = null;
     let inView = false;
@@ -57,7 +60,7 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
     const hide = () =>
       words.forEach((w) => {
         w.style.opacity = "0";
-        w.style.filter = `blur(${blur}px)`;
+        if (soft) w.style.filter = `blur(${blur}px)`;
         w.style.color = tint;
         w.style.transform = "translateY(0.2em)";
       });
@@ -70,7 +73,7 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
       el.dataset.revealed = "1";
       run = animate(words, {
         opacity: { to: 1 },
-        filter: { to: "blur(0px)" },
+        ...(soft ? { filter: { to: "blur(0px)" } } : {}),
         color: { to: final },
         translateY: { to: "0em" },
         duration: 1100,

@@ -82,7 +82,8 @@ export function LifecycleTrack({ stages }: { stages: string[] }) {
     import("animejs").then(({ animate }) => {
       animate(el, {
         opacity: { from: 0, to: 1 },
-        filter: { from: "blur(10px)", to: "blur(0px)" },
+        // No blur on touch screens: iOS Safari leaves artifacts around blurred text.
+        ...(window.matchMedia("(hover: none)").matches ? {} : { filter: { from: "blur(10px)", to: "blur(0px)" } }),
         translateY: { from: "0.12em", to: "0em" },
         duration: 450,
         ease: "outQuart",

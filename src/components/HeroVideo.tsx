@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 /** Bump after re-rendering the ad so browsers fetch the new file instead of a cached one. */
-const VIDEO_VERSION = 5;
+const VIDEO_VERSION = 8;
 const src = (ext: string) => `/video/kerosop-ad.${ext}?v=${VIDEO_VERSION}`;
 
 /**

@@ -54,7 +54,11 @@ body {
 }
 html.js [data-blur]:not([data-revealed]) .w {
   opacity: 0;
-  filter: blur(12px);
+}
+@media (hover: hover) {
+  html.js [data-blur]:not([data-revealed]) .w {
+    filter: blur(12px);
+  }
 }
 
 html.js [data-stagger]:not([data-revealed]) > * {
