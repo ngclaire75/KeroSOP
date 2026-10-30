@@ -96,7 +96,9 @@ export function Nav() {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,color] duration-300 ${
-          open ? "bg-transparent text-paper" : onColour ? "bg-[#141414] text-paper" : "bg-transparent text-ink"
+          // The grey bar stays while the menu is open: the menu wipes in from the button, so a
+          // transparent header left the logo floating over the page until the wipe reached it.
+          onColour ? "bg-[#141414] text-paper" : "bg-transparent text-ink"
         }`}
       >
         <Container>
