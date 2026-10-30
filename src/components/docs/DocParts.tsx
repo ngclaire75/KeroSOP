@@ -54,7 +54,13 @@ export function DocHero({
       <section className="on-dark relative grid overflow-hidden rounded-[28px] bg-ink text-paper lg:h-[460px] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <GlyphCloud glyph={glyph} className="relative h-[280px] sm:h-[300px] lg:order-2 lg:h-full" />
         <div className="relative flex flex-col justify-end p-6 pt-0 sm:p-10 sm:pt-0 lg:p-14">
-          <BlurText startOn={HERO_START} className="font-mono text-[12px] tracking-[0.18em] text-paper/55 uppercase">
+          {/* Small mono label: a plain fade (no blur), which reads cleaner at this size. */}
+          <BlurText
+            startOn={HERO_START}
+            blur={0}
+            tint="rgba(255,255,255,0)"
+            className="font-mono text-[12px] tracking-[0.18em] text-paper/55 uppercase"
+          >
             {eyebrow}
           </BlurText>
           <Heading

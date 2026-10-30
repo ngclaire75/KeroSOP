@@ -138,6 +138,14 @@ function useBlurReveal<E extends HTMLElement>({
     return () => {
       io.disconnect();
       run?.pause();
+      // Back to the CSS-hidden state. Next keeps visited pages and shows them again
+      // later; without this the text flashes in full before its entrance replays.
+      delete el.dataset.revealed;
+      words.forEach((w) => {
+        w.style.opacity = "";
+        w.style.filter = "";
+        w.style.color = "";
+      });
     };
   }, []);
 

@@ -7,8 +7,7 @@ export function HelpCenter() {
     <Container className="py-14 sm:py-20">
       <section className="on-dark flex flex-col items-start justify-between gap-5 rounded-[28px] bg-[#111111] p-6 text-paper sm:gap-8 sm:p-10 lg:flex-row lg:items-end lg:p-14">
         <div>
-          <p className="font-mono text-[12px] tracking-[0.18em] text-[#ff8a93] uppercase">Still stuck?</p>
-          <Heading as="h2" className="mt-4 text-[clamp(2.2rem,4.6vw,4rem)]" lines={["Talk to a person."]} />
+          <Heading as="h2" className="text-[clamp(2.2rem,4.6vw,4rem)]" lines={["Talk to a person."]} />
           <p className="mt-4 max-w-[30rem] text-[16px] leading-[1.6] text-paper">
             Send us the question and, if it helps, the documents involved.
           </p>

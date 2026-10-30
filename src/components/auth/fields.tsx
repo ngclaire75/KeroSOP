@@ -363,13 +363,18 @@ export function Stagger({ children, className = "" }: { children: ReactNode; cla
     anime().then(({ animate, stagger }) => {
       if (!live) return;
       el.dataset.revealed = "1";
-      run = animate(el.children, {
+      // Text with its own word focus-in (headings, intros) already animates: fading it here too ran it twice.
+      const items = Array.from(el.children as HTMLCollectionOf<HTMLElement>).filter(
+        (c) => !c.querySelector("[data-blur]"),
+      );
+      if (!items.length) return;
+      run = animate(items, {
         // Opacity only: moving text re-rasterises it on sub-pixels, which reads as jitter.
         opacity: [0, 1],
         duration: 700,
         delay: stagger(60, { start: 60 }),
         ease: "outQuad",
-        onComplete: () => Array.from(el.children as HTMLCollectionOf<HTMLElement>).forEach((c) => (c.style.opacity = "")),
+        onComplete: () => items.forEach((c) => (c.style.opacity = "")),
       });
     });
     return () => {
