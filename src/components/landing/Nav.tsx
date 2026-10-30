@@ -151,12 +151,12 @@ export function Nav() {
 
               <div className="col-start-3 hidden shrink-0 items-center gap-2 justify-self-end lg:flex">
                 <a
-                  href="#signin"
+                  href="/signup"
                   className={`rounded-full px-4 py-2 text-[15px] font-medium transition-colors ${
                     onColour ? "text-paper/75 hover:text-paper" : "text-ink/65 hover:text-ink"
                   }`}
                 >
-                  Log in
+                  Sign up / Log in
                 </a>
                 <Button href="#book" size="sm" variant={onColour ? "white" : "black"}>
                   Book a sample audit

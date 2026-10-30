@@ -142,8 +142,9 @@ const footerLinks = [
     title: "Company",
     links: [
       ["Contact", "#contact"],
-      ["Privacy", "#privacy"],
-      ["Terms", "#terms"],
+      ["Help", "/help"],
+      ["Privacy", "/privacy"],
+      ["Terms", "/terms"],
     ],
   },
 ];

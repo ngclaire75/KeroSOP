@@ -27,18 +27,30 @@ type RevealOptions = {
   delay?: number;
   /** Kept for API compatibility; text now animates whenever it enters view. */
   immediate?: boolean;
+  /**
+   * Window event to wait for before the first run, so the text can start with
+   * something else (a hero's 3D intro). Falls back after 1.5s if it never fires.
+   */
+  startOn?: string;
 };
 
 /**
  * Word-by-word focus-in, in the spirit of butter.video: each word starts
- * blurred, faded and tinted, then sharpens into its final colour. It replays
+ * blurred, faded and tinted, then sharpens into its final colour. Words never
+ * move: easing a position settles in sub-pixel steps, which reads as jitter. It replays
  * every time the text scrolls back into view: once fully off screen the
  * words quietly reset, ready for the next entrance. Inline styles are
  * cleared after each run so nothing lingers.
  */
-function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, step = 40, delay = 0 }: RevealOptions) {
+function useBlurReveal<E extends HTMLElement>({
+  tint = "#e30613",
+  blur = 12,
+  step = 40,
+  delay = 0,
+  startOn,
+}: RevealOptions) {
   const ref = useRef<E>(null);
-  const opts = useRef({ tint, blur, step, delay });
+  const opts = useRef({ tint, blur, step, delay, startOn });
 
   useEffect(() => {
     const el = ref.current;
@@ -47,7 +59,18 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
       el.dataset.revealed = "1";
       return;
     }
-    const { tint, blur, step, delay } = opts.current;
+    const { tint, blur, step, delay, startOn } = opts.current;
+    // First run waits for the start signal (or a timeout); later entrances play straight away.
+    let gate: Promise<void> | null = startOn
+      ? new Promise<void>((go) => {
+          const done = () => {
+            window.removeEventListener(startOn, done);
+            go();
+          };
+          window.addEventListener(startOn, done);
+          setTimeout(done, 1500);
+        })
+      : null;
     const words = Array.from(el.querySelectorAll<HTMLElement>(".w"));
     const final = getComputedStyle(el).color;
     // iOS Safari paints stray magenta slivers between blurred inline words, and
@@ -64,12 +87,15 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
         w.style.opacity = "0";
         if (soft) w.style.filter = `blur(${blur}px)`;
         w.style.color = tint;
-        if (soft) w.style.transform = "translateY(0.2em)";
       });
 
     const play = async () => {
       anime ??= import("animejs");
       const { animate, stagger } = await anime;
+      if (gate) {
+        await gate;
+        gate = null;
+      }
       if (!inView) return;
       hide();
       el.dataset.revealed = "1";
@@ -77,7 +103,6 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
         opacity: { to: 1 },
         ...(soft ? { filter: { to: "blur(0px)" } } : {}),
         color: { to: final },
-        ...(soft ? { translateY: { to: "0em" } } : {}),
         duration: 1100,
         delay: stagger(step, { start: delay }),
         ease: "outQuart",
@@ -87,7 +112,6 @@ function useBlurReveal<E extends HTMLElement>({ tint = "#e30613", blur = 12, ste
             w.style.opacity = "";
             w.style.filter = "";
             w.style.color = "";
-            w.style.transform = "";
           });
         },
       });

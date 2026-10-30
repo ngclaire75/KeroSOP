@@ -18,6 +18,8 @@ const notoSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kerosop.site"),
+  alternates: { canonical: "/" },
   title: "KeroSOP — Find where your SOPs disagree",
   description:
     "KeroSOP reads your policies, SOPs and training guides in Chinese and English, finds instructions that conflict, and shows both clauses word for word.",

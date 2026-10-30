@@ -131,9 +131,60 @@ html.js [data-stagger]:not([data-revealed]) > * {
   outline: 2px solid var(--red);
   outline-offset: 3px;
 }
+/* The browser's own search clear button clashes with the field; Escape still clears it. */
+input[type="search"]::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* Auth inputs show focus on their own box (border + soft ring) instead. */
+.auth-input:focus-visible {
+  outline: none;
+}
 .on-dark :focus-visible,
 .on-red :focus-visible {
   outline-color: var(--paper);
+}
+
+/* Long-form copy on the Privacy and Terms pages. */
+.doc-body {
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgb(0 0 0 / 0.78);
+}
+.doc-body > * + * {
+  margin-top: 1rem;
+}
+.doc-body strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+.doc-body ul {
+  display: grid;
+  gap: 0.6rem;
+}
+.doc-body li {
+  position: relative;
+  padding-left: 1.4rem;
+}
+.doc-body li::before {
+  content: "";
+  position: absolute;
+  left: 0.2rem;
+  top: 0.72em;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--red);
+}
+.doc-body a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(0 0 0 / 0.25);
+  text-underline-offset: 4px;
+}
+.doc-body a:hover {
+  text-decoration-color: var(--red);
 }
 
 @keyframes kero-in {

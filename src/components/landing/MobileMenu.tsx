@@ -177,8 +177,8 @@ export function MobileMenu({
           <Button href="#book" variant="white" className="w-full" onClick={(e) => go(e, "#book")}>
             Book a sample audit
           </Button>
-          <Button href="#signin" variant="outline-light" className="w-full" onClick={onClose}>
-            Log in
+          <Button href="/signup" variant="outline-light" className="w-full" onClick={onClose}>
+            Sign up / Log in
           </Button>
         </div>
       </div>
