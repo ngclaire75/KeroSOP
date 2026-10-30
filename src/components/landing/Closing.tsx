@@ -141,7 +141,6 @@ const footerLinks = [
   {
     title: "Company",
     links: [
-      ["Contact", "#contact"],
       ["Help", "/help"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
