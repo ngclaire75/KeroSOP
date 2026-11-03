@@ -2,6 +2,8 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { sendAuth } from "@/lib/authEvents";
+import { explain, signUp } from "@/lib/auth";
+import { Social } from "@/components/auth/Social";
 import { BlurText, Heading } from "@/components/BlurText";
 import {
   Check,
@@ -18,9 +20,6 @@ import {
 
 type Key = "name" | "email" | "company" | "password" | "terms";
 type Errors = Partial<Record<Key, string>>;
-
-/** Demo submit: there is no auth backend yet, so this stands in for the request. */
-const pretendRequest = () => new Promise((r) => setTimeout(r, 1500));
 
 export function SignupForm() {
   const [form, setForm] = useState({ name: "", email: "", company: "", password: "" });
@@ -54,7 +53,15 @@ export function SignupForm() {
     if (next.terms) return;
 
     setState("busy");
-    await pretendRequest();
+    try {
+      await signUp({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+    } catch (err) {
+      const { field, message } = explain(err);
+      setState("idle");
+      setErrors({ [field]: message });
+      (field === "email" ? emailRef : passRef).current?.focus();
+      return;
+    }
     setState("done");
     sendAuth({ type: "success" });
     setTimeout(() => setVerify(true), 900);
@@ -90,7 +97,7 @@ export function SignupForm() {
           </button>
         </div>
         <p role="status" className="text-center text-[13px] text-mute">
-          Nothing after a few minutes? Check spam, or ask your IT team to allow mail from kerosop.site.
+          Nothing after a few minutes? Check spam, or ask your IT team to allow mail from kerosop-c907e.firebaseapp.com.
         </p>
       </Stagger>
     );
@@ -103,6 +110,15 @@ export function SignupForm() {
           Find the SOP instructions that contradict each other, in Chinese and English.
         </BlurText>
       </div>
+
+      <Social
+        verb="Sign up with"
+        disabled={state !== "idle"}
+        onSuccess={() => {
+          setState("done");
+          sendAuth({ type: "success" });
+        }}
+      />
 
       <form noValidate onSubmit={submit} className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">

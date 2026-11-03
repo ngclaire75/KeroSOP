@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { sendAuth } from "@/lib/authEvents";
+import { explain, keepPreference, logIn, remember as keepSession, resetPassword } from "@/lib/auth";
+import { Social } from "@/components/auth/Social";
 import { BlurText, Heading } from "@/components/BlurText";
 import {
   Check,
@@ -17,9 +19,6 @@ import {
 
 type Errors = Partial<Record<"email" | "password", string>>;
 
-/** Demo submit: there is no auth backend yet, so this stands in for the request. */
-const pretendRequest = () => new Promise((r) => setTimeout(r, 1300));
-
 export function LoginForm() {
   const [view, setView] = useState<"login" | "reset">("login");
   const [email, setEmail] = useState("");
@@ -30,6 +29,10 @@ export function LoginForm() {
   const [sent, setSent] = useState(false);
   const emailRef = useRef<FieldHandle>(null);
   const passRef = useRef<FieldHandle>(null);
+
+  useEffect(() => {
+    keepPreference().then(setRemember);
+  }, []);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,7 +47,15 @@ export function LoginForm() {
       return;
     }
     setState("busy");
-    await pretendRequest();
+    try {
+      if (view === "reset") await resetPassword(email.trim());
+      else await logIn({ email: email.trim(), password, keep: remember });
+    } catch (err) {
+      const { field, message } = explain(err);
+      setState("idle");
+      setErrors({ [view === "reset" ? "email" : field]: message });
+      return;
+    }
     if (view === "reset") {
       setState("idle");
       setSent(true);
@@ -104,6 +115,15 @@ export function LoginForm() {
         <BlurText className="mt-3 text-[16px] leading-[1.55] text-mute">Log in to your scans, findings and sign-offs.</BlurText>
       </div>
 
+      <Social
+        verb="Log in with"
+        disabled={state !== "idle"}
+        onSuccess={() => {
+          setState("done");
+          sendAuth({ type: "success" });
+        }}
+      />
+
       <form noValidate onSubmit={submit} className="flex flex-col gap-4">
         <Field
           ref={emailRef}
@@ -132,7 +152,13 @@ export function LoginForm() {
           }}
         />
         <div className="flex items-center justify-between gap-4 py-1">
-          <Check checked={remember} onChange={setRemember}>
+          <Check
+            checked={remember}
+            onChange={(v) => {
+              setRemember(v);
+              keepSession(v);
+            }}
+          >
             Keep me logged in
           </Check>
           <button
