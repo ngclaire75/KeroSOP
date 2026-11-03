@@ -183,7 +183,7 @@ export const PasswordField = forwardRef<FieldHandle, PasswordProps>(function Pas
           onMouseDown={(e) => e.preventDefault()}
           aria-label={shown ? "Hide password" : "Show password"}
           aria-pressed={shown}
-          className="inline-flex size-11 items-center justify-center rounded-xl text-mute transition-colors hover:bg-fog hover:text-ink"
+          className="inline-flex size-11 items-center justify-center rounded-xl text-mute transition-colors hover:text-ink"
         >
           <EyeIcon open={shown} />
         </button>

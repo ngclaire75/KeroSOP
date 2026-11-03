@@ -160,7 +160,7 @@ export function Nav() {
                 >
                   Sign up / Log in
                 </a>
-                <Button href="#book" size="sm" variant={onColour ? "white" : "black"}>
+                <Button href="/request-access" size="sm" variant={onColour ? "white" : "black"}>
                   Book a sample audit
                 </Button>
               </div>

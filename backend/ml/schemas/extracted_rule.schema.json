@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KEROSOP extracted SOP rule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["rule_id", "organization_id", "document_version_id", "source_span_ids", "exact_quote", "language", "topic", "actor", "action", "modality", "conditions", "exceptions", "effective_from", "effective_to", "uncertain_fields", "extraction_model"],
+  "properties": {
+    "rule_id": {"type": "string"},
+    "organization_id": {"type": "string"},
+    "document_version_id": {"type": "string"},
+    "source_span_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "exact_quote": {"type": "string", "minLength": 1},
+    "language": {"enum": ["en", "zh-CN", "zh-TW", "mixed"]},
+    "topic": {"type": "string"},
+    "actor": {"type": ["string", "null"]},
+    "action": {"type": ["string", "null"]},
+    "modality": {"enum": ["must", "must_not", "may", "should", "unknown"]},
+    "trigger": {"type": ["string", "null"]},
+    "deadline": {"type": ["object", "null"], "properties": {"value": {"type": "number"}, "unit": {"type": "string"}, "start_event": {"type": ["string", "null"]}}},
+    "conditions": {"type": "array", "items": {"type": "string"}},
+    "exceptions": {"type": "array", "items": {"type": "string"}},
+    "applicable_regions": {"type": "array", "items": {"type": "string"}},
+    "effective_from": {"type": ["string", "null"], "format": "date"},
+    "effective_to": {"type": ["string", "null"], "format": "date"},
+    "uncertain_fields": {"type": "array", "items": {"type": "string"}},
+    "extraction_model": {"type": "string"}
+  }
+}

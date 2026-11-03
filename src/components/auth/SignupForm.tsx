@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { sendAuth } from "@/lib/authEvents";
-import { explain, signUp } from "@/lib/auth";
+import { afterLogin, explain, signUp } from "@/lib/auth";
 import { Social } from "@/components/auth/Social";
 import { BlurText, Heading } from "@/components/BlurText";
 import {
@@ -55,6 +55,10 @@ export function SignupForm() {
     setState("busy");
     try {
       await signUp({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+      // remembered so workspace setup can start with the company name filled in
+      try {
+        localStorage.setItem(`kerosop:company:${form.email.trim().toLowerCase()}`, form.company.trim());
+      } catch {}
     } catch (err) {
       const { field, message } = explain(err);
       setState("idle");
@@ -81,7 +85,7 @@ export function SignupForm() {
         <div className="flex flex-wrap justify-center gap-3">
           <a
             href="mailto:"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-ink px-6 text-[15px] font-semibold text-paper transition-colors hover:bg-[#262626]"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-ink px-6 text-[15px] font-semibold text-paper transition-colors hover:bg-red"
           >
             Open email app
           </a>
@@ -117,6 +121,7 @@ export function SignupForm() {
         onSuccess={() => {
           setState("done");
           sendAuth({ type: "success" });
+          window.setTimeout(() => window.location.assign(afterLogin()), 900);
         }}
       />
 

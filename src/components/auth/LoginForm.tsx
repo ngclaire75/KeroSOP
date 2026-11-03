@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { sendAuth } from "@/lib/authEvents";
-import { explain, keepPreference, logIn, remember as keepSession, resetPassword } from "@/lib/auth";
+import { afterLogin, explain, keepPreference, logIn, remember as keepSession, resetPassword } from "@/lib/auth";
+import { useAuthUser } from "@/lib/app/nav";
 import { Social } from "@/components/auth/Social";
 import { BlurText, Heading } from "@/components/BlurText";
 import {
@@ -34,6 +35,12 @@ export function LoginForm() {
     keepPreference().then(setRemember);
   }, []);
 
+  // already signed in: go straight to the dashboard
+  const user = useAuthUser();
+  useEffect(() => {
+    if (user) window.location.replace(afterLogin());
+  }, [user]);
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const next: Errors = {};
@@ -63,6 +70,7 @@ export function LoginForm() {
     }
     setState("done");
     sendAuth({ type: "success" });
+    window.setTimeout(() => window.location.assign(afterLogin()), 900);
   };
 
   if (view === "reset")
@@ -121,6 +129,7 @@ export function LoginForm() {
         onSuccess={() => {
           setState("done");
           sendAuth({ type: "success" });
+          window.setTimeout(() => window.location.assign(afterLogin()), 900);
         }}
       />
 

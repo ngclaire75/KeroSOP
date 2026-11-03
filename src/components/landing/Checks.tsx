@@ -169,7 +169,7 @@ export function Checks() {
               >
                 <span
                   className={`relative block h-2.5 overflow-hidden rounded-full transition-[width,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    selected ? "w-10 bg-ink/15" : "w-2.5 bg-ink/20 group-hover:bg-ink/50 group-data-[hover]:bg-ink/50"
+                    selected ? "w-10 bg-ink/15" : "w-2.5 bg-ink/20 group-hover:bg-red group-data-[hover]:bg-red"
                   }`}
                 >
                   {selected &&

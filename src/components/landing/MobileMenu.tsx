@@ -174,7 +174,7 @@ export function MobileMenu({
             transition: `transform 0.8s ${EASE} ${shown ? 0.55 : 0}s, opacity 0.5s ${shown ? 0.55 : 0}s`,
           }}
         >
-          <Button href="#book" variant="white" className="w-full" onClick={(e) => go(e, "#book")}>
+          <Button href="/request-access" variant="white" className="w-full" onClick={onClose}>
             Book a sample audit
           </Button>
           <Button href="/signup" variant="outline-light" className="w-full" onClick={onClose}>

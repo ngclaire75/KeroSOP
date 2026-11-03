@@ -1,0 +1,29 @@
+# Local stack for machines with Docker (not used for the current preview, which runs
+# Postgres 17 + pgvector and Ollama from Homebrew). Untested here: no Docker on the build machine.
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: kerosop
+      POSTGRES_PASSWORD: kerosop
+      POSTGRES_DB: kerosop
+    ports: ["5433:5432"]
+    volumes: [db:/var/lib/postgresql/data]
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: [ollama:/root/.ollama]
+  api:
+    build: ./backend
+    depends_on: [db, ollama]
+    environment:
+      KEROSOP_DATABASE_URL: postgresql+psycopg://kerosop:kerosop@db:5432/kerosop
+      KEROSOP_APP_DATABASE_URL: postgresql+psycopg://kerosop_app:kerosop_app@db:5432/kerosop
+      KEROSOP_LLM_BASE_URL: http://ollama:11434
+      KEROSOP_STORAGE_DIR: /srv/storage
+    ports: ["8000:8000"]
+    volumes: [storage:/srv/storage]
+volumes:
+  db:
+  ollama:
+  storage:

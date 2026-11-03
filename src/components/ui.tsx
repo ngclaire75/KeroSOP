@@ -8,8 +8,8 @@ type Variant = "red" | "black" | "white" | "outline" | "outline-light";
 
 const variants: Record<Variant, string> = {
   red: "bg-red text-paper hover:bg-red-deep data-[hover]:bg-red-deep",
-  black: "bg-ink text-paper hover:bg-[#262626] data-[hover]:bg-[#262626]",
-  white: "bg-paper text-ink hover:bg-fog data-[hover]:bg-fog",
+  black: "bg-ink text-paper hover:bg-red data-[hover]:bg-red",
+  white: "bg-paper text-ink hover:bg-red hover:text-paper data-[hover]:bg-red data-[hover]:text-paper",
   outline: "border border-ink/20 text-ink hover:border-ink data-[hover]:border-ink",
   "outline-light": "border border-paper/30 text-paper hover:border-paper data-[hover]:border-paper",
 };

@@ -136,8 +136,12 @@ input[type="search"]::-webkit-search-cancel-button {
   appearance: none;
 }
 
-/* Auth inputs show focus on their own box (border + soft ring) instead. */
-.auth-input:focus-visible {
+/* Text fields never get the red ring: they show focus on their own box (border or fill) instead. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.auth-input:focus-visible,
+.quiet-focus:focus-visible {
   outline: none;
 }
 .on-dark :focus-visible,
@@ -257,4 +261,33 @@ a:focus-visible > .link-gradient {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Reports: print only the report itself. */
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #report,
+  #report * {
+    visibility: visible;
+  }
+  #report {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+}
+
+/* The dashboard hides every scrollbar; wheel, trackpad, touch and keyboard scrolling still work. */
+html.no-scrollbars,
+html.no-scrollbars * {
+  scrollbar-width: none;
+}
+html.no-scrollbars ::-webkit-scrollbar {
+  display: none;
 }

@@ -133,3 +133,15 @@ export async function resetPassword(email: string) {
   const { auth, sendPasswordResetEmail } = await load();
   await withContinue((opts) => sendPasswordResetEmail(auth, email, opts));
 }
+
+export async function logOut() {
+  const { auth, signOut } = await load();
+  await signOut(auth);
+}
+
+/** Where to go after signing in: the page that sent you to login, or the dashboard. */
+export function afterLogin() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+  return window.location.hostname.startsWith("app.") ? "/" : "/app";
+}

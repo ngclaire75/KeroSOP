@@ -19,7 +19,7 @@ const plans = [
       "PDF report",
     ],
     cta: "Book a sample audit",
-    href: "#book",
+    href: "/request-access",
     dark: false,
   },
   {
@@ -115,7 +115,7 @@ export function Cta() {
           and the clauses behind it.
         </BlurText>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-          <Button href="mailto:ngclaire75@gmail.com?subject=Sample%20audit" variant="black">
+          <Button href="/request-access" variant="black">
             Book a sample audit
           </Button>
           <Button href="#signup" variant="white">

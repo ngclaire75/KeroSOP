@@ -1,0 +1,63 @@
+<!-- Source: https://github.com/sparksuite/employee-handbook/blob/master/benefits/flexible-remote-work.html (CC0-1.0) -->
+← Back to home
+
+## Flexible remote work
+
+ To promote a healthy work-life balance, all full-time team members can work remotely up to 2 days each week,
+ with extra remote days available to accommodate unexpected situations (details below). Each team member has
+ full control over when they choose to use their remote days—no approval or advance notice needed.
+
+ Part-time team members may not be eligible for remote work due to in-office needs; this detail will be
+ made clear in any part-time job opening / offer letter.
+
+## Extra remote days
+
+ Full-time team members accrue one extra remote day on the first day of each quarter, up to a balance of 10
+ extra remote days. You can use these extra remote days to work remotely more than twice in a week. While
+ it’s up to each team member to decide how and when to use their extra remote days, we recommend reserving
+ these for unexpected situations.
+
+## Replenishing extra remote days
+
+ Full-time team members have the opportunity to earn half of an extra remote day in order to replenish a low
+ balance. When you have fewer than 3 extra remote days in your balance, this half extra remote day can be
+ earned by working 5 full days (i.e., without time off) entirely from the office within one workweek, and it
+ will be added to your balance on the following Wednesday.
+
+## Mixed days
+
+ If needed, you can work part of the day from the office and part of the day remotely. This counts as a
+ remote day, so you’ll need to have a remote day available to do this. If you need to switch your work
+ location, just be sure to inform your manager in advance and update your work location status.
+
+## Guidance
+
+ Be sure to choose and/or create a working environment that is suitable for productive work. This would
+ include:
+
+- A fast, reliable internet connection
+
+- Your laptop and any other supplies/gear you need
+
+- Noise-level and surroundings conducive to the type of work you do
+
+- Sufficient time to work as much as you would have at the office
+
+ When choosing which days to work remotely, take into consideration your commitments and responsibilities,
+ like whether you have meetings, company-wide events, etc. Be sure to notify team members who may be impacted
+ by you working remotely that day.
+
+ Working remotely generally requires more effort to ensure it’s effective and productive. It will take extra
+ work to ensure you’re still collaborating well with your teammates and exceeding their expectations. At the
+ end of the day, your teammates are counting on you just as much as when you’re at the office.
+
+## Why not 100% remote?
+
+ As a tech company, much of our work can be performed from anywhere. Yet, we’ve found that we’re more
+ collaborative and productive as a team when working from a co-located environment. Plus, working in-person
+ with fellow team members fosters a stronger team culture and more meaningful connections.
+
+ To make co-located working the best possible experience, we’ve invested heavily into creating one of the
+ most enjoyable office environments around, with plenty of snacks, indoor/outdoor break areas, ample private
+ offices, stellar coffee, standing desks, and so much more. Our office was designed with team member feedback
+ to be a place people genuinely want to work from.

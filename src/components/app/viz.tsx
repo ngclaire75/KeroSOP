@@ -1,0 +1,132 @@
+"use client";
+
+/**
+ * Generative pieces for the dashboard:
+ *  - IntegrityField (p5): the integrity score as a dot-matrix meter; open
+ *    high-risk issues pulse red; the pointer sends a ripple through it.
+ *  - ScanFlow (p5): clauses flowing through the scan pipeline stage by stage.
+ */
+import { useEffect, useRef } from "react";
+import type p5 from "p5";
+import { useP5 } from "@/lib/useP5";
+import { mulberry32, prefersReducedMotion } from "@/lib/random";
+
+/* ---------- IntegrityField ---------- */
+
+export function IntegrityField({ score, hot, warm }: { score: number; hot: number; warm: number }) {
+  const props = useRef({ score, hot, warm });
+  useEffect(() => {
+    props.current = { score, hot, warm };
+  }, [score, hot, warm]);
+
+  const ref = useP5((p: p5, host: HTMLDivElement) => {
+    const GAP = 13;
+    let cols = 0;
+    let rows = 0;
+    let shown = 0;
+    let ripple = { x: -999, y: -999, t: 99 };
+    const reduced = prefersReducedMotion();
+    const layout = () => {
+      cols = Math.ceil(host.clientWidth / GAP) + 1;
+      rows = Math.ceil(host.clientHeight / GAP) + 1;
+    };
+    p.setup = () => {
+      p.createCanvas(host.clientWidth, host.clientHeight);
+      p.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
+      p.noStroke();
+      layout();
+      if (reduced) shown = props.current.score;
+    };
+    p.windowResized = () => {
+      p.resizeCanvas(host.clientWidth, host.clientHeight);
+      layout();
+    };
+    host.onpointermove = (e) => {
+      const r = host.getBoundingClientRect();
+      if (ripple.t > 0.6) ripple = { x: e.clientX - r.left, y: e.clientY - r.top, t: 0 };
+    };
+    p.draw = () => {
+      const { score: target } = props.current;
+      shown += (target - shown) * 0.04;
+      ripple.t += 0.016;
+      p.clear();
+      const fillCols = Math.round((shown / 100) * cols);
+      for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+          const x = c * GAP;
+          const y = r * GAP;
+          const on = c < fillCols;
+          const d = Math.hypot(x - ripple.x, y - ripple.y);
+          const wave = Math.max(0, 1 - Math.abs(d - ripple.t * 420) / 40) * Math.max(0, 1 - ripple.t);
+          const size = (on ? 3.4 : 2.2) + wave * 4;
+          p.fill(255, 255, 255, on ? 210 : 46 + wave * 120);
+          p.circle(x + 6, y + 6, size);
+        }
+      }
+    };
+  });
+  return <div ref={ref} aria-hidden="true" className="absolute inset-0" />;
+}
+
+/* ---------- ScanFlow ---------- */
+
+export const FLOW_STAGES = ["Parsing", "Extracting", "Matching", "Validating", "Completed"];
+
+export function ScanFlow({ stage, items, findings }: { stage: number; items: number; findings: number }) {
+  const props = useRef({ stage, items, findings });
+  useEffect(() => {
+    props.current = { stage, items, findings };
+  }, [stage, items, findings]);
+
+  const ref = useP5((p: p5, host: HTMLDivElement) => {
+    type Dot = { x: number; y: number; lane: number; speed: number; red: boolean; jitter: number };
+    let dots: Dot[] = [];
+    const reduced = prefersReducedMotion();
+    const make = () => {
+      const rnd = mulberry32(3);
+      const n = Math.max(18, Math.min(140, props.current.items));
+      dots = Array.from({ length: n }, (_, i) => ({
+        x: -rnd() * 160,
+        y: 0,
+        lane: rnd(),
+        speed: 0.6 + rnd() * 1.6,
+        red: i < Math.max(0, props.current.findings * 2),
+        jitter: rnd() * 6.28,
+      }));
+    };
+    p.setup = () => {
+      p.createCanvas(host.clientWidth, host.clientHeight);
+      p.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
+      p.noStroke();
+      make();
+    };
+    p.windowResized = () => p.resizeCanvas(host.clientWidth, host.clientHeight);
+    p.draw = () => {
+      const { stage: s, findings: f } = props.current;
+      const W = p.width;
+      const H = p.height;
+      const col = W / FLOW_STAGES.length;
+      p.clear();
+      // stage columns: done stages solid, current one pulsing
+      for (let i = 0; i < FLOW_STAGES.length; i++) {
+        const done = i < s;
+        const cur = i === s;
+        for (let yy = 10; yy < H - 6; yy += 12) {
+          p.fill(0, 0, 0, done ? 70 : cur ? 40 + 30 * Math.sin(p.millis() / 180) : 18);
+          p.circle(col * (i + 1) - 1, yy, 2.4);
+        }
+      }
+      const limit = Math.min(W - 10, col * Math.min(FLOW_STAGES.length, s + 1) - 8);
+      for (const d of dots) {
+        if (!reduced) d.x += d.speed * (s >= FLOW_STAGES.length - 1 ? 0.6 : 1.6);
+        if (d.x > limit) d.x = s >= FLOW_STAGES.length - 1 ? limit - d.speed * 30 * d.lane : Math.max(0, limit - 90 - d.lane * 120);
+        if (reduced) d.x = limit * (0.3 + d.lane * 0.7);
+        const y = 16 + d.lane * (H - 32) + Math.sin(p.millis() / 400 + d.jitter) * 3;
+        const isRed = d.red && s >= 3 && f > 0;
+        p.fill(isRed ? p.color(227, 6, 19) : p.color(0, 0, 0, 200));
+        p.circle(Math.max(4, d.x), y, isRed ? 7 : 4.2);
+      }
+    };
+  });
+  return <div ref={ref} aria-hidden="true" className="absolute inset-0" />;
+}

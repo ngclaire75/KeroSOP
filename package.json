@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "cd backend && .venv/bin/python -m pytest -q"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "animejs": "^4.5.0",
     "firebase": "^12.19.0",
     "gsap": "^3.15.0",
@@ -17,9 +19,11 @@
     "p5": "^2.3.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "simple-icons": "^15.22.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@iconify-json/logos": "^1.2.18",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
