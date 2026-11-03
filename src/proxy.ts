@@ -1,30 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Two hosts, one Next.js app (like vanta.com and app.vanta.com):
- *  - kerosop.site: marketing pages. Login, sign-up and access requests move to
- *    the app host so the Firebase session lives where the dashboard is.
- *  - app.kerosop.site: the dashboard at the root ("/findings" serves the
- *    internal "/app/findings" route), plus login, sign-up and request access.
- * Any other host (localhost, Vercel previews) keeps the plain "/app/…" paths.
+ * The main domain serves marketing, auth and /app dashboard routes directly.
+ * Keep subdomain rewrites available if an app host is connected in the future.
  */
-const MAIN = new Set(["kerosop.site", "www.kerosop.site"]);
-const APP = "app.kerosop.site";
 const SHARED = ["/login", "/signup", "/request-access", "/privacy", "/terms", "/help"];
 
 export function proxy(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").split(":")[0];
-  const { pathname, search } = req.nextUrl;
-
-  if (MAIN.has(host)) {
-    if (pathname === "/app" || pathname.startsWith("/app/")) {
-      return NextResponse.redirect(new URL(`https://${APP}${pathname.slice(4) || "/"}${search}`), 308);
-    }
-    if (["/login", "/signup", "/request-access"].includes(pathname)) {
-      return NextResponse.redirect(new URL(`https://${APP}${pathname}${search}`), 307);
-    }
-    return NextResponse.next();
-  }
+  const { pathname } = req.nextUrl;
 
   if (host.startsWith("app.")) {
     if (pathname === "/app" || pathname.startsWith("/app/")) {
