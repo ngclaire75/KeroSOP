@@ -5,12 +5,7 @@ import { BrandLogo, INTEGRATIONS } from "@/components/app/BrandLogo";
 import { Icon } from "@/components/app/icons";
 import { PageHeader, orgName, useToast } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
-import { AUTHORITY_LABEL, type Authority } from "@/lib/app/types";
 
-const EXAMPLES = [
-  "https://github.com/basecamp/handbook/blob/master/benefits-and-perks.md",
-  "https://github.com/sparksuite/employee-handbook/blob/master/README.md",
-];
 /** Marks whose official colour is near-black are shown in white on the black cards. */
 const MONO = new Set(["github", "notion", "slack", "confluence"]);
 const CARD = "rounded-[10px] border border-white/[0.08] bg-[#0b0b0b] text-white";
@@ -39,12 +34,12 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
     <label className="flex flex-col gap-2">
       <span className="text-[13px] font-semibold text-white">{label}</span>
       {children}
-      {hint && <span className="text-[12px] leading-[1.5] text-white">{hint}</span>}
+      {hint && <span className="text-[13px] leading-[1.5] text-white">{hint}</span>}
     </label>
   );
 }
 
-/** Every description in a grid takes the same number of lines: if any wraps to two, they all get two; otherwise all stay on one. */
+/** Descriptions in the same row of cards take the same number of lines: if any wraps to two, the row gets two; otherwise it stays on one. */
 function useEvenLines() {
   const grid = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -55,8 +50,16 @@ function useEvenLines() {
       lines.forEach((el) => (el.style.minHeight = ""));
       const lh = lines[0] ? parseFloat(getComputedStyle(lines[0]).lineHeight) : 0;
       if (!lh) return;
-      const most = Math.max(...lines.map((el) => Math.round(el.offsetHeight / lh)));
-      lines.forEach((el) => (el.style.minHeight = `${most * lh}px`));
+      // cards in the same row share a top edge; each row matches its own longest description
+      const rows = new Map<number, HTMLElement[]>();
+      lines.forEach((el) => {
+        const top = Math.round((el.closest<HTMLElement>("button, div[class*='rounded']") ?? el).getBoundingClientRect().top);
+        rows.set(top, [...(rows.get(top) ?? []), el]);
+      });
+      rows.forEach((row) => {
+        const most = Math.max(...row.map((el) => Math.round(el.offsetHeight / lh)));
+        row.forEach((el) => (el.style.minHeight = `${most * lh}px`));
+      });
     };
     even();
     const ro = new ResizeObserver(even);
@@ -70,7 +73,6 @@ export default function IntegrationsPage() {
   const { ws, importUrl, updateSettings, me } = useWorkspace();
   const toast = useToast();
   const [url, setUrl] = useState("");
-  const [authority, setAuthority] = useState<Authority | "">("");
   const [busy, setBusy] = useState(false);
   const [hook, setHook] = useState(ws.settings.webhook);
   const importRef = useRef<HTMLInputElement>(null);
@@ -82,7 +84,7 @@ export default function IntegrationsPage() {
   const doImport = async () => {
     setBusy(true);
     try {
-      const r = await importUrl(url.trim(), { authority: authority || undefined, approval: "draft" });
+      const r = await importUrl(url.trim(), { authority: "department_sop", approval: "draft" });
       toast(`Imported as ${r.id} (draft, ${r.sections} sections)`);
       setUrl("");
     } catch (e) {
@@ -126,7 +128,7 @@ export default function IntegrationsPage() {
       <PageHeader title="Integrations" intro="Bring documents in from where they live and send alerts to where your team works. Each connection starts only when an admin sets it up." />
 
       {/* the two connections that work today */}
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4">
         <section className={`${CARD} flex flex-col p-6 sm:p-7`}>
           <div className="flex flex-col items-start gap-4 sm:flex-row">
             <Logo brand="github" />
@@ -139,34 +141,9 @@ export default function IntegrationsPage() {
             <Field label="File link" hint="Only github.com and raw.githubusercontent.com links are accepted.">
               <input ref={importRef} className={FIELD} placeholder="https://github.com/owner/repo/blob/main/policy.md" value={url} onChange={(e) => setUrl(e.target.value)} />
             </Field>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white">
-              Try
-              {EXAMPLES.map((x) => (
-                <button key={x} type="button" className="text-white underline decoration-white/25 underline-offset-2 hover:text-white hover:decoration-white" onClick={() => setUrl(x)}>
-                  {x.split("/")[3]} handbook
-                </button>
-              ))}
-            </div>
-            <fieldset className="m-0 min-w-0 p-0">
-              <legend className="mb-2 text-[13px] font-semibold text-white">Authority</legend>
-              <div className="flex flex-wrap gap-x-4 gap-y-2">
-                {(Object.entries(AUTHORITY_LABEL) as [Authority, string][]).map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={authority === value}
-                    onClick={() => setAuthority(value)}
-                    className="group relative border-0 bg-transparent p-0 text-left text-[13px] leading-6 font-medium text-white"
-                  >
-                    {label}
-                    <span aria-hidden="true" className={`pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left bg-white transition-transform duration-200 ease-out motion-reduce:transition-none ${authority === value ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100"}`} />
-                  </button>
-                ))}
-              </div>
-            </fieldset>
           </div>
           <div className="pt-4">
-            <button type="button" disabled={!canImport || busy || !url.trim() || !authority} onClick={doImport} className={`${BTN} bg-red text-white hover:bg-red-deep`}>
+            <button type="button" disabled={!canImport || busy || !url.trim()} onClick={doImport} className={`${BTN} bg-red text-white hover:bg-red-deep`}>
               Import document
             </button>
           </div>
