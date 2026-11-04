@@ -7,7 +7,7 @@
  * a time from page 1, with the quoted wording highlighted on its page. Sample
  * documents get real files built by the API.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { FileLogo } from "./FileLogo";
 import { Icon } from "./icons";
 import { download, fetchFile } from "@/lib/app/api";
@@ -267,10 +267,11 @@ function PdfPages({
       el.replaceChildren();
       const first = await pdf.getPage(1);
       const scale = width / first.getViewport({ scale: 1 }).width;
-      // draw sharper than the screen needs, so text stays crisp once fitted to the column (2x even on standard screens)
+      // Supersample every PDF page at 3x minimum, including standard screens.
+      // Keep a 4x ceiling to bound canvas memory on high-density displays.
       const ratio = Math.min(
-        3,
-        Math.max(2, window.devicePixelRatio || 1) * 1.25,
+        4,
+        Math.max(3, (window.devicePixelRatio || 1) * 1.5),
       );
       const found: number[] = [];
       for (let n = 1; n <= pdf.numPages; n++) {
@@ -380,6 +381,9 @@ function DocxPages({
   quote: string;
   onRendered(n: number, marked: number | null): void;
 }) {
+  // docx-preview emits global CSS. Each open document needs its own namespace
+  // so another document's Normal style cannot override its font or leading.
+  const styleClass = `docx-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const host = useRef<HTMLDivElement>(null);
   const styles = useRef<HTMLDivElement>(null);
   // pages are laid out at full size and scaled with a transform, not CSS zoom: Safari will not draw zoomed text below
@@ -405,15 +409,15 @@ function DocxPages({
           renderHeaders: true,
           renderFooters: true,
           ignoreLastRenderedPageBreak: false,
-          className: "docx",
+          className: styleClass,
         });
         if (cancelled) return;
         // no grey desk: the pages sit straight on the page, like the PDF ones
-        const wrapper = el.querySelector<HTMLElement>(".docx-wrapper");
+        const wrapper = el.querySelector<HTMLElement>(`.${styleClass}-wrapper`);
         if (wrapper)
           wrapper.style.cssText =
             "background:transparent;padding:0;display:block";
-        const pages = [...el.querySelectorAll<HTMLElement>("section.docx")];
+        const pages = [...el.querySelectorAll<HTMLElement>(`section.${styleClass}`)];
         pages.forEach((p, i) => {
           p.dataset.page = String(i + 1);
           p.style.margin = "0";
@@ -425,7 +429,7 @@ function DocxPages({
         });
         const marked = markDocxQuote(el, quote);
         const markedPage = marked
-          ? Number(marked.closest<HTMLElement>("section.docx")?.dataset.page) ||
+          ? Number(marked.closest<HTMLElement>(`section.${styleClass}`)?.dataset.page) ||
             null
           : null;
         const z = width / (pages[0]?.offsetWidth || 794);
@@ -440,7 +444,7 @@ function DocxPages({
     return () => {
       cancelled = true;
     };
-  }, [blob, quote, width]);
+  }, [blob, quote, width, styleClass]);
 
   // the scale is applied by now, so positions and heights are final
   useEffect(() => {

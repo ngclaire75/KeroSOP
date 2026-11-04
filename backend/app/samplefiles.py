@@ -24,7 +24,7 @@ CJK = re.compile(r"[㐀-鿿　-〿＀-￯]")
 RED, INK, MUTE, LINE = "#E30613", "#171717", "#62625F", "#E5E5E3"
 MIN_PAGES = 10
 # bump whenever the generated files change: stored copies from an older revision are rebuilt on next download
-REVISION = 2
+REVISION = 3
 
 AUTHORITY = {
     "corporate_policy": ("Corporate policy", "公司政策"),
@@ -215,6 +215,11 @@ def build_pdf(meta: dict, sections: list[dict], pages: int | None = None) -> byt
         "cellh": ParagraphStyle("ch", fontName=bold, fontSize=10.5, leading=13, textColor=white, **wrap),
         "label": ParagraphStyle("cl", fontName=reg, fontSize=10, leading=13, textColor=mute, **wrap),
     }
+    if zh:
+        # CJK glyphs need a larger optical size; page furniture stays unchanged.
+        for style in st.values():
+            style.fontSize *= 1.12
+            style.leading *= 1.12
     W = A4[0] - 44 * mm  # text, tables and the header rule share the 22 mm margins (the frame's 6 pt padding is taken out of the margin below)
     TOP, BOTTOM = 28 * mm, 26 * mm  # the body starts ~8 mm under the header rule, as in the Word version
     H = A4[1] - TOP - BOTTOM - 12  # frame height less its padding
@@ -333,11 +338,11 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
     d = Document()
     normal = d.styles["Normal"]
     normal.font.name = latin
-    normal.font.size = Pt(12.5)
+    normal.font.size = Pt(14 if zh else 12.5)
     normal.font.color.rgb = ink
     normal.element.rPr.rFonts.set(qn("w:eastAsia"), east)
     normal.paragraph_format.space_after = Pt(6)
-    normal.paragraph_format.line_spacing = Pt(21 if zh else 19)  # the PDF's leading
+    normal.paragraph_format.line_spacing = Pt(23.52 if zh else 19)  # the PDF's leading
 
     first = d.sections[0]
     first.page_width, first.page_height = Cm(21), Cm(29.7)
@@ -348,11 +353,13 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
     first.header_distance, first.footer_distance = Cm(1.1), Cm(0.8)
     text_width = first.page_width - first.left_margin - first.right_margin
 
-    def run(par, text, *, size=None, color=None, b=False):
+    def run(par, text, *, size=None, color=None, b=False, furniture=False):
         r = par.add_run(text)
         r.bold = b
-        if size:
-            r.font.size = Pt(size)
+        # docx-preview applies the document's default run style (11 pt) on
+        # spans, overriding a font size inherited from the Normal paragraph.
+        # Set it on every run so Word and the browser both use the PDF sizes.
+        r.font.size = Pt((size if size is not None else 12.5) * (1.12 if zh and not furniture else 1))
         if color is not None:
             r.font.color.rgb = color
         r.font.name = latin  # creates the run's font element, so the East Asian font can be set on it
@@ -410,7 +417,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         for par in list(hd.paragraphs):
             hd._element.remove(par._p)
         logo = lambda par: LOGO.exists() and par.add_run().add_picture(str(LOGO), width=Cm(0.95))
-        row = bar(hd, [logo, lambda par: run(par, "Harbour & Co. Retail", size=12, color=ink, b=True), lambda par: run(par, f"{meta.get('code', '')} · v{meta['version']}", size=11, color=red, b=True)],
+        row = bar(hd, [logo, lambda par: run(par, "Harbour & Co. Retail", size=12, color=ink, b=True, furniture=True), lambda par: run(par, f"{meta.get('code', '')} · v{meta['version']}", size=11, color=red, b=True, furniture=True)],
                   [Cm(1.25), text_width - Cm(1.25) - Cm(5), Cm(5)])
         # the red rule is the row's bottom border, which every viewer draws in colour
         for cell in row.rows[0].cells:
@@ -429,7 +436,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         ft.is_linked_to_previous = False
         for par in list(ft.paragraphs):
             ft._element.remove(par._p)
-        row = bar(ft, [lambda par: run(par, L["footer"], size=10, color=mute), lambda par: run(par, L["page"].format(n=n, t=t), size=11, color=ink, b=True)], [text_width - Cm(4.5), Cm(4.5)])
+        row = bar(ft, [lambda par: run(par, L["footer"], size=10, color=mute, furniture=True), lambda par: run(par, L["page"].format(n=n, t=t), size=11, color=ink, b=True, furniture=True)], [text_width - Cm(4.5), Cm(4.5)])
         # the PDF footer's thin grey rule sits above the footer line
         for cell in row.rows[0].cells:
             tc_b = OxmlElement("w:tcBorders")
@@ -443,7 +450,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         tail = ft.add_paragraph()
         tail.paragraph_format.space_after = Pt(0)
         tail.paragraph_format.line_spacing = Pt(1)
-        run(tail, "", size=1)
+        run(tail, "", size=1, furniture=True)
 
     def table(rows, widths, head=False):
         t = d.add_table(rows=len(rows), cols=len(rows[0]))
@@ -456,7 +463,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
                 par = cell.paragraphs[0]
                 par.paragraph_format.space_before = Pt(3)
                 par.paragraph_format.space_after = Pt(3)
-                par.paragraph_format.line_spacing = 1.1
+                par.paragraph_format.line_spacing = Pt((13 if head and i == 0 else 14) * (1.12 if zh else 1))
                 if head and i == 0:
                     shade(cell, "171717")
                     run(par, val, size=10.5, color=white, b=True)
@@ -466,8 +473,8 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         return t
 
     # estimate, in points, how much of a page a unit takes at the PDF's sizes (12.5 pt text on 19 or 21 pt lines)
-    lh = 21 if zh else 19
-    cpl = 36 if zh else 74
+    lh = 23.52 if zh else 19
+    cpl = 32 if zh else 74
     lines = lambda text: max(1, math.ceil(len(text) / cpl))
     measure = lambda u: (12 + 20 + 5 if u["head"] else 0) + lines(u["text"]) * lh + 6
     body = 640  # A4 less margins, header and footer, with room to spare: an overfull page would spill past A4
@@ -487,9 +494,12 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         footer(sec, n, total)
         if n == 1:
             k = d.add_paragraph()
+            k.paragraph_format.line_spacing = Pt(14.56 if zh else 13)
+            k.paragraph_format.space_after = Pt(8)
             run(k, L["auth"] if zh else L["auth"].upper(), size=10, color=red, b=True)
             t = d.add_paragraph()
-            t.paragraph_format.space_after = Pt(10)
+            t.paragraph_format.line_spacing = Pt(40.32 if zh else 36)
+            t.paragraph_format.space_after = Pt(12)
             run(t, meta["title"], size=30, color=ink, b=True)
             rows = L["rows"]
             table([[rows[i][0], rows[i][1], rows[i + 3][0], rows[i + 3][1]] for i in range(3)], [Cm(2.8), Cm(5.5), Cm(2.8), Cm(5.5)])
@@ -499,7 +509,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
                 h = d.add_paragraph()
                 h.paragraph_format.space_before = Pt(0 if starts_page else 12)
                 h.paragraph_format.space_after = Pt(5)
-                h.paragraph_format.line_spacing = Pt(20)
+                h.paragraph_format.line_spacing = Pt(22.4 if zh else 20)
                 h.paragraph_format.keep_with_next = True
                 h.paragraph_format.page_break_before = starts_page
                 starts_page = False
@@ -527,6 +537,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
             ):
                 h = d.add_paragraph()
                 h.paragraph_format.space_before = Pt(12)
+                h.paragraph_format.line_spacing = Pt(22.4 if zh else 20)
                 h.paragraph_format.keep_with_next = True
                 run(h, title, size=15, color=ink, b=True)
                 table([list(cols)] + [list(map(str, r)) for r in rows], widths, head=True)
