@@ -254,14 +254,29 @@ export function Label({ children, htmlFor, hint }: { children: ReactNode; htmlFo
 
 export function Input({ label, hint, className = "", ...props }: ComponentProps<"input"> & { label?: string; hint?: string }) {
   const id = useId();
+  const [ownValue, setOwnValue] = useState(props.defaultValue ?? "");
+  const dateValue = String(props.value ?? ownValue);
   return (
     <div className={`min-w-0 ${className}`}>
       {label && <Label htmlFor={id} hint={hint}>{label}</Label>}
       <div className="relative min-w-0">
-        <input id={id} className={`${FIELD} block h-10 min-w-0 max-w-full ${props.type === "date" ? "app-date-input" : ""}`} {...props} />
-        {props.type === "date" && !(props.value ?? props.defaultValue) && (
-          <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[14px] text-mute">Select date</span>
-        )}
+        {props.type === "date" ? (
+          <>
+            {/* Keep the native picker; draw its value ourselves so Safari and Chrome align identically. */}
+            <input id={id} className="peer block h-10 w-full min-w-0 max-w-full cursor-pointer opacity-0 disabled:cursor-not-allowed" {...props} onClick={(event) => {
+              props.onClick?.(event);
+              if (!event.defaultPrevented && !props.readOnly) {
+                try { event.currentTarget.showPicker?.(); } catch { /* Native focus still opens the picker on iOS. */ }
+              }
+            }} onChange={(event) => {
+              setOwnValue(event.target.value);
+              props.onChange?.(event);
+            }} />
+            <span aria-hidden="true" className={`${FIELD} pointer-events-none absolute inset-0 flex h-10 items-center peer-hover:border-ink/30 peer-focus:border-ink ${dateValue ? "" : "text-mute!"}`}>
+              {dateValue ? dateValue.split("-").reverse().join("/") : "Select date"}
+            </span>
+          </>
+        ) : <input id={id} className={`${FIELD} block h-10 min-w-0 max-w-full`} {...props} />}
       </div>
     </div>
   );

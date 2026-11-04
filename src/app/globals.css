@@ -136,19 +136,6 @@ input[type="search"]::-webkit-search-cancel-button {
   appearance: none;
 }
 
-/* iOS date controls otherwise contribute an intrinsic width to grid columns. */
-.app-date-input {
-  appearance: none;
-  -webkit-appearance: none;
-}
-.app-date-input::-webkit-date-and-time-value {
-  min-width: 0;
-  text-align: left;
-}
-.app-date-input[value=""]::-webkit-datetime-edit {
-  color: transparent;
-}
-
 /* Text fields never get the red ring: they show focus on their own box (border or fill) instead. */
 input:focus-visible,
 select:focus-visible,
