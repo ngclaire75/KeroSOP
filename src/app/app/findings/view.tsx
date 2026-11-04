@@ -20,7 +20,7 @@ const STATUSES = Object.keys(STATUS_LABEL) as Status[];
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
 /** Desktop columns: finding, risk, status, owner, age, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_88px_152px_160px_64px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_select]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[8px] font-semibold";
 type View = "open" | "review" | Status | "all";
 type Sort = "risk" | "oldest" | "newest";
 

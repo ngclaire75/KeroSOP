@@ -299,48 +299,47 @@ export function Textarea({ label, hint, className = "", maxWords = 200, onChange
   );
 }
 
+/** A labelled field built on MenuSelect, so every dropdown in the app opens the same custom menu. */
 export function Select({
   label,
   options,
   className = "",
-  ...props
-}: ComponentProps<"select"> & { label?: string; options: (string | { value: string; label: string })[] }) {
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  name,
+  "aria-label": ariaLabel,
+}: {
+  label?: string;
+  options: (string | { value: string; label: string })[];
+  className?: string;
+  value?: string;
+  defaultValue?: string;
+  onChange?(e: { target: { value: string; name?: string } }): void;
+  disabled?: boolean;
+  name?: string;
+  "aria-label"?: string;
+}) {
   const id = useId();
   const items = options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
-  // a native select cuts long text off (Safari never shows an ellipsis), so the chosen label is drawn on top, ending in "…"
-  const [own, setOwn] = useState(String(props.defaultValue ?? items[0]?.value ?? ""));
-  const current = props.value !== undefined ? String(props.value) : own;
-  const shown = items.find((o) => o.value === current)?.label ?? "";
+  const [own, setOwn] = useState(String(defaultValue ?? items[0]?.value ?? ""));
+  const current = value !== undefined ? String(value) : own;
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className}`}>
       {label && <Label htmlFor={id}>{label}</Label>}
-      <div className="relative">
-        <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-9 left-0 flex items-center truncate px-3.5 text-[14px]">
-          <span className="truncate">{shown}</span>
-        </span>
-        <select
-          id={id}
-          className={`${FIELD} h-10 appearance-none pr-9 text-transparent! [&>option]:text-ink`}
-          {...props}
-          onChange={(e) => {
-            setOwn(e.target.value);
-            props.onChange?.(e);
-          }}
-        >
-          {options.map((o) =>
-            typeof o === "string" ? (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ) : (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ),
-          )}
-        </select>
-        <Icon name="down" className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-mute" />
-      </div>
+      <MenuSelect
+        id={id}
+        aria-label={ariaLabel ?? label ?? ""}
+        value={current}
+        disabled={disabled}
+        options={items}
+        onChange={(v) => {
+          setOwn(v);
+          onChange?.({ target: { value: v, name } });
+        }}
+      />
+      {name && <input type="hidden" name={name} value={current} />}
     </div>
   );
 }
@@ -381,14 +380,17 @@ export function ListFooter({ paged, className = "" }: { paged: ReturnType<typeof
  * A select whose menu always opens below the field. A native select on macOS opens its menu
  * over the chosen option, so with a long list the menu jumps up and down depending on the value.
  */
-export function MenuSelect({ value, onChange, options, className = "", "aria-label": ariaLabel }: {
+export function MenuSelect({ value, onChange, options, className = "", disabled, id: given, "aria-label": ariaLabel }: {
   value: string;
   onChange(value: string): void;
   options: { value: string; label: string }[];
   className?: string;
+  disabled?: boolean;
+  id?: string;
   "aria-label": string;
 }) {
-  const id = useId();
+  const own = useId();
+  const id = given ?? own;
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
@@ -425,10 +427,13 @@ export function MenuSelect({ value, onChange, options, className = "", "aria-lab
   };
 
   return (
-    <div ref={root} className={`relative ${className}`}>
+    // min-w-0 at every level so a long label truncates instead of widening its grid or flex parent
+    <div ref={root} className={`relative min-w-0 max-w-full ${className}`}>
       <button
         type="button"
+        id={id}
         role="combobox"
+        disabled={disabled}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -436,9 +441,9 @@ export function MenuSelect({ value, onChange, options, className = "", "aria-lab
         aria-activedescendant={open ? `${id}-${active}` : undefined}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
-        className={`${FIELD} flex h-10 items-center pr-9 text-left`}
+        className={`${FIELD} flex h-10 min-w-0 items-center pr-9 text-left disabled:cursor-not-allowed disabled:opacity-60`}
       >
-        <span className="truncate">{options[chosen]?.label ?? ""}</span>
+        <span className="min-w-0 flex-1 truncate">{options[chosen]?.label ?? ""}</span>
       </button>
       <Icon name="down" className={`pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-mute transition-transform ${open ? "rotate-180" : ""}`} />
       {open && (
@@ -451,7 +456,7 @@ export function MenuSelect({ value, onChange, options, className = "", "aria-lab
               aria-selected={i === chosen}
               onPointerMove={() => setActive(i)}
               onClick={() => pick(i)}
-              className={`cursor-pointer px-3.5 py-2 text-[14px] leading-[1.4] transition-colors ${i === active ? "text-red" : "text-ink"} ${i === chosen ? "font-semibold" : "font-normal"}`}
+              className={`cursor-pointer px-3.5 py-2 text-[14px] leading-[1.4] [overflow-wrap:anywhere] transition-colors ${i === active ? "text-red" : "text-ink"} ${i === chosen ? "font-semibold" : "font-normal"}`}
             >
               {o.label}
             </li>

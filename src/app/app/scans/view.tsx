@@ -14,7 +14,7 @@ import { type Doc, type Scan, type ScanStage } from "@/lib/app/types";
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
 /** Desktop columns: scan, documents, started, duration, result, status, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_104px_104px_72px_168px_124px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_select]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[8px] font-semibold";
 const SCANNERS = ["owner", "admin", "editor", "reviewer", "approver"];
 
 type State = "running" | "completed" | "partial" | "failed";

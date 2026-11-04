@@ -53,7 +53,7 @@ export default function EvidenceComparison() {
         </div>
       ) : (
         <>
-          <div className="grid gap-2 pb-5 sm:grid-cols-[minmax(0,560px)]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 pb-5 sm:grid-cols-[minmax(0,560px)]">
             <MenuSelect
               aria-label="Finding"
               value={id}
