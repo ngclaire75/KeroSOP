@@ -46,3 +46,6 @@ next-env.d.ts
 /backend/ml/*.log
 __pycache__/
 .pytest_cache/
+
+# pdf.js worker and character maps, copied on install (scripts/copy-pdfjs.mjs)
+/public/pdfjs/

@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
-from . import llm, mailer, scans, service
+from . import llm, mailer, samplefiles, scans, service
 from .auth import Identity, identify
 from .config import settings
 from .db import system, tenant
@@ -287,11 +287,37 @@ def delete_doc(code: str, ctx: Ctx = Depends(workspace)):
 @app.get("/v1/documents/{code}/versions/{version}/file")
 def download(code: str, version: str, ctx: Ctx = Depends(workspace)):
     with tenant(ctx.org, ctx.me.user_id) as conn:
-        v = one(conn, """SELECT v.storage_key, d.file_name FROM document_versions v JOIN documents d ON d.id = v.document_id
+        v = one(conn, """SELECT v.id, v.document_id, v.storage_key, v.pages, v.effective_date, d.file_name, d.title, d.kind, d.owner_name, d.department, d.authority
+                         FROM document_versions v JOIN documents d ON d.id = v.document_id
                          WHERE d.code = :c AND v.version = :v""", c=code, v=version)
-    if not v or not v["storage_key"]:
+    if not v:
         raise HTTPException(404, "No original file is stored for this version.")
-    return FileResponse(settings.storage_dir / v["storage_key"], filename=v["file_name"])
+    if not v["storage_key"] or not (settings.storage_dir / v["storage_key"]).exists():
+        v = _sample_file(ctx, code, version, v)
+    # no caching: a file can be rebuilt (sample documents) and must never be served stale
+    return FileResponse(settings.storage_dir / v["storage_key"], filename=v["file_name"], headers={"Cache-Control": "no-store"})
+
+
+def _sample_file(ctx: Ctx, code: str, version: str, v: dict) -> dict:
+    """Sample documents were created from text: build the real PDF or Word file once, store it, and serve that."""
+    with system() as conn:
+        demo = one(conn, "SELECT is_demo FROM organizations WHERE id = :o", o=ctx.org)
+    if not demo or not demo["is_demo"]:
+        raise HTTPException(404, "No original file is stored for this version.")
+    with tenant(ctx.org, ctx.me.user_id) as conn:
+        sections = rows(conn, "SELECT ref, heading, page, text FROM source_spans WHERE version_id = :v ORDER BY ordinal", v=v["id"])
+        earlier = rows(conn, """SELECT version, uploaded_at, uploaded_by, note FROM document_versions
+                                WHERE document_id = :d ORDER BY uploaded_at""", d=v["document_id"])
+    history = [(h["version"], samplefiles.date_label(h["uploaded_at"]), h["uploaded_by"] or "—", h["note"] or "Issued")
+               for h in earlier if [int(x) for x in h["version"].split(".") if x.isdigit()] <= [int(x) for x in version.split(".") if x.isdigit()]]
+    meta = {"title": v["title"], "owner": v["owner_name"], "department": v["department"], "authority": v["authority"], "version": version, "code": code,
+            "effective": samplefiles.date_label(v["effective_date"]), "history": history}
+    data, ext = samplefiles.build(v["kind"], meta, sections, v["pages"])
+    name = re.sub(r"\.[^.]+$", "", v["file_name"]) + "." + ext
+    key = _store(ctx.org, v["id"], name, data)
+    with system() as conn:
+        conn.execute(text("UPDATE document_versions SET storage_key = :k WHERE id = :i"), {"k": key, "i": v["id"]})
+    return {**v, "storage_key": key, "file_name": name}
 
 
 # ---------- scans ----------

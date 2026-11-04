@@ -5,6 +5,18 @@ import { sectionOf } from "@/lib/app/labels";
 import type { Doc, Evidence } from "@/lib/app/types";
 import { AUTHORITY_LABEL } from "@/lib/app/types";
 
+/** Shown when a quote was found word for word in the stored source version. */
+export function VerifiedBadge() {
+  return (
+    <span title="This exact text was found in the stored source version" className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#16703d]">
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 shrink-0" fill="currentColor">
+        <path d="m8.6 22.5l-1.9-3.2l-3.6-.8l.35-3.7L1 12l2.45-2.8l-.35-3.7l3.6-.8l1.9-3.2L12 2.95l3.4-1.45l1.9 3.2l3.6.8l-.35 3.7L23 12l-2.45 2.8l.35 3.7l-3.6.8l-1.9 3.2l-3.4-1.45zm2.35-6.95L16.6 9.9l-1.4-1.45l-4.25 4.25l-2.15-2.1L7.4 12z" />
+      </svg>
+      Verified
+    </span>
+  );
+}
+
 /** One cited clause: document, version, section, page, the exact quote, and whether it was verified word for word. */
 export function EvidenceCard({ e, doc, label, context = false }: { e: Evidence; doc?: Doc; label: string; context?: boolean }) {
   const section = doc ? sectionOf(doc, e.version, e.sectionId) : undefined;
@@ -29,12 +41,7 @@ export function EvidenceCard({ e, doc, label, context = false }: { e: Evidence; 
           )}
         </div>
         {e.verified ? (
-          <span title="This exact text was found in the stored source version" className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#16703d]">
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 shrink-0" fill="currentColor">
-              <path d="m8.6 22.5l-1.9-3.2l-3.6-.8l.35-3.7L1 12l2.45-2.8l-.35-3.7l3.6-.8l1.9-3.2L12 2.95l3.4-1.45l1.9 3.2l3.6.8l-.35 3.7L23 12l-2.45 2.8l.35 3.7l-3.6.8l-1.9 3.2l-3.4-1.45zm2.35-6.95L16.6 9.9l-1.4-1.45l-4.25 4.25l-2.15-2.1L7.4 12z" />
-            </svg>
-            Verified
-          </span>
+          <VerifiedBadge />
         ) : (
           <Chip tone="red">Unverified</Chip>
         )}

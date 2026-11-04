@@ -15,6 +15,10 @@ const BODY: Record<FileKind, string> = {
 
 const NAME: Record<FileKind, string> = { pdf: "PDF", docx: "Word document", md: "Markdown", txt: "Plain text" };
 
-export function FileLogo({ kind, className = "size-8" }: { kind: FileKind; className?: string }) {
-  return <svg role="img" aria-label={NAME[kind]} viewBox="0 0 32 32" className={className} dangerouslySetInnerHTML={{ __html: BODY[kind] }} />;
+/** The PDF page drawn fully white instead of grey (the Evidence Comparison toolbar). */
+const WHITE_PAGE = (body: string) => body.replace(/#(909090|f4f4f4|7a7b7c)/gi, "#ffffff");
+
+export function FileLogo({ kind, className = "size-8", whitePage = false }: { kind: FileKind; className?: string; whitePage?: boolean }) {
+  const body = whitePage && kind === "pdf" ? WHITE_PAGE(BODY[kind]) : BODY[kind];
+  return <svg role="img" aria-label={NAME[kind]} viewBox="0 0 32 32" className={className} dangerouslySetInnerHTML={{ __html: body }} />;
 }

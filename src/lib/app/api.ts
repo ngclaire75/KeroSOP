@@ -82,3 +82,11 @@ export async function download(path: string, name: string) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
+
+/** The original file as a Blob, for viewing it in place (the API builds sample files on first request). */
+export async function fetchFile(path: string) {
+  // always the stored file as it is now: browsers (Safari especially) would otherwise reuse an older copy
+  const res = await fetch(`${API}${path}`, { cache: "no-store", headers: { Authorization: `Bearer ${await token()}`, "X-Org-Id": currentOrg } });
+  if (!res.ok) throw new ApiError("The original file is not available.", res.status);
+  return res.blob();
+}
