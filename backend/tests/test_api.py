@@ -51,8 +51,8 @@ def test_admin_demo_workspace_is_flagged(admin):
     org = admin.post("/v1/admin/demo").json()["organization"]
     admin.org = org
     ws = admin.get("/v1/workspace").json()
-    assert ws["sample"] is True and len(ws["docs"]) == 10
-    assert [f["id"] for f in ws["findings"]][:1] and {f["id"] for f in ws["findings"]} == {f"SOP-00{i}" for i in range(1, 7)}
+    assert ws["sample"] is True and len(ws["docs"]) == 40
+    assert {f"SOP-00{i}" for i in range(1, 7)} <= {f["id"] for f in ws["findings"]}
     assert all(e["verified"] for f in ws["findings"] for e in f["evidence"])
 
 

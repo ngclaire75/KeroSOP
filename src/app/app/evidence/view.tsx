@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { DocViewer } from "@/components/app/DocViewer";
 import { BaselineLogo, VerifiedBadge } from "@/components/app/Evidence";
-import { AppLink, Empty, Marked, PageHeader, Select } from "@/components/app/ui";
+import { AppLink, Empty, Marked, MenuSelect, PageHeader } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Finding, type Risk, type Status } from "@/lib/app/types";
 
@@ -12,7 +12,7 @@ const RISK_RANK: Record<Risk, number> = { high: 0, medium: 1, low: 2 };
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 12, color: "#171717" };
 const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
 const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
-const SEL = "[&_select]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[8px] [&_button]:font-semibold";
 
 export default function EvidenceComparison() {
   const { ws } = useWorkspace();
@@ -54,10 +54,10 @@ export default function EvidenceComparison() {
       ) : (
         <>
           <div className="grid gap-2 pb-5 sm:grid-cols-[minmax(0,560px)]">
-            <Select
+            <MenuSelect
               aria-label="Finding"
               value={id}
-              onChange={(e) => choose(e.target.value)}
+              onChange={choose}
               options={ordered.map((x) => ({ value: x.id, label: `${x.id} · ${x.title}${OPEN.includes(x.status) ? "" : ` (${STATUS_LABEL[x.status]})`}` }))}
               className={SEL}
             />

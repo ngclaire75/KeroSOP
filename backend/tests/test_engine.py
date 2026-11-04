@@ -164,7 +164,7 @@ def test_prompt_injection_text_is_just_text():
 
 def test_sample_workspace_produces_the_blueprint_findings():
     from app.seed import sample_findings
-    got = [f"{f['id']} {f['type']} {f['risk']} {f['status']}" for f in sample_findings()]
+    got = [f"{f['id']} {f['type']} {f['risk']} {f['status']}" for f in sample_findings()][:6]
     assert got == [
         "SOP-001 contradiction high detected", "SOP-002 missing_step high under_review", "SOP-003 outdated medium detected",
         "SOP-004 ambiguity medium closed", "SOP-005 responsibility high under_review", "SOP-006 contradiction high detected",

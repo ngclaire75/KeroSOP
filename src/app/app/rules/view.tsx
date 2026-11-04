@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FileLogo } from "@/components/app/FileLogo";
 import { Icon } from "@/components/app/icons";
-import { AppLink, Btn, Drawer, Empty, Marked, PageHeader, SearchInput, Select } from "@/components/app/ui";
+import { AppLink, Btn, Drawer, Empty, Marked, PageHeader, SearchInput, Select, ListFooter, usePaged } from "@/components/app/ui";
 import { TopicTicks, type Tick } from "@/components/app/viz";
 import { RuleOrbit, type OrbitRule } from "@/components/three/RuleOrbit";
 import { eventLabel, fmtValue, topicLabel } from "@/lib/app/labels";
@@ -54,6 +54,9 @@ export default function RuleRegistry() {
   const [scope, setScope] = useState<Scope>("current");
   const [openId, setOpenId] = useState<string | null>(null);
   const [hover, setHover] = useState(-1);
+  // Rows slide under a still pointer while the topic list scrolls; ignore those hovers so it doesn't judder.
+  const scrolling = useRef(false);
+  const scrollEnd = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // deep links: ?rule=R-0001, ?topic=refund, ?doc=D-001
   useEffect(() => {
@@ -130,6 +133,7 @@ export default function RuleRegistry() {
       )
       .sort((a, b) => Number(cited.by.has(b.id)) - Number(cited.by.has(a.id)) || a.topic.localeCompare(b.topic) || a.id.localeCompare(b.id));
   }, [ws.rules, q, scope, topic, modality, doc, docOf, cited.by]);
+  const paged = usePaged(rows);
 
   const clear = () => {
     setQ("");
@@ -210,7 +214,10 @@ export default function RuleRegistry() {
                   </button>
                 )}
               </header>
-              <div className="relative mx-5 mt-3 mb-4" onPointerLeave={() => setHover(-1)}>
+              {/* Six topics show at once; the rest scroll, ticks and all. */}
+              <div className="mx-5 mt-3 mb-4 overflow-y-auto overscroll-none" style={{ maxHeight: TOPIC_ROW * 6 }}
+                onScroll={() => { scrolling.current = true; setHover(-1); clearTimeout(scrollEnd.current); scrollEnd.current = setTimeout(() => { scrolling.current = false; }, 160); }}>
+              <div className="relative" onPointerLeave={() => setHover(-1)}>
                 <TopicTicks rows={ticks} row={TOPIC_ROW} x0={144} x1={52} active={activeTopic} hover={hover} />
                 <ul>
                   {topics.map((t, i) => {
@@ -221,7 +228,7 @@ export default function RuleRegistry() {
                         <button
                           type="button"
                           aria-pressed={on}
-                          onPointerEnter={() => setHover(i)}
+                          onPointerEnter={(e) => { if (!scrolling.current && e.pointerType !== "touch") setHover(i); }}
                           onFocus={() => setHover(i)}
                           onBlur={() => setHover(-1)}
                           onClick={() => setTopic(on ? "all" : t.id)}
@@ -236,6 +243,7 @@ export default function RuleRegistry() {
                     );
                   })}
                 </ul>
+              </div>
               </div>
             </section>
           </div>
@@ -280,7 +288,7 @@ export default function RuleRegistry() {
 
           {rows.length ? (
             <ul className="flex flex-col gap-2">
-              {rows.map((r) => (
+              {paged.items.map((r) => (
                 <RuleRow key={r.id} rule={r} docTitle={docOf.get(r.docId)?.title ?? r.docId} findings={cited.by.get(r.id) ?? []} onOpen={() => openRule(r.id)} />
               ))}
             </ul>
@@ -289,9 +297,7 @@ export default function RuleRegistry() {
               <Empty icon="search" title="No rules match" body="Try another search or clear the filters." action={<Btn onClick={clear}>Clear filters</Btn>} />
             </div>
           )}
-          <p className="pt-4 text-[12px] text-mute">
-            Showing {rows.length} of {ws.rules.length}
-          </p>
+          <ListFooter paged={paged} />
         </>
       )}
 

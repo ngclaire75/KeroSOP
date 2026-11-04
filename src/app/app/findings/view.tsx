@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { CountUp } from "@/components/app/charts";
 import { EvidenceCard } from "@/components/app/Evidence";
 import { Icon } from "@/components/app/icons";
-import { Btn, Drawer, Empty, Input, PageHeader, SearchInput, Select, Textarea, ago, fmtDate, fmtDateTime, useToast } from "@/components/app/ui";
+import { Btn, Drawer, Empty, Input, PageHeader, SearchInput, Select, Textarea, ago, fmtDate, fmtDateTime, useToast, ListFooter, usePaged } from "@/components/app/ui";
 import { IntegrityField } from "@/components/app/viz";
 import { useWorkspace } from "@/lib/app/store";
 import { prefersReducedMotion } from "@/lib/random";
@@ -114,6 +114,7 @@ export default function FindingsPage() {
             : RISK_RANK[a.risk] - RISK_RANK[b.risk] || a.createdAt.localeCompare(b.createdAt),
       );
   }, [ws.findings, view, risk, type, dept, q, sort]);
+  const paged = usePaged(rows);
 
   // rows fade in, one after another, whenever the filter changes what is shown (no movement, so text never shifts)
   const signature = rows.map((f) => f.id).join();
@@ -267,7 +268,7 @@ export default function FindingsPage() {
 
           {rows.length ? (
             <ul ref={listRef} className="flex flex-col gap-2">
-              {rows.map((f) => (
+              {paged.items.map((f) => (
                 <FindingRow key={f.id} f={f} onOpen={() => openFinding(f.id)} />
               ))}
             </ul>
@@ -276,9 +277,7 @@ export default function FindingsPage() {
               <Empty icon="search" title="No findings match" body="Try another search or clear the filters." action={<Btn onClick={clear}>Clear filters</Btn>} />
             </div>
           )}
-          <p className="pt-4 text-[12px] text-mute">
-            Showing {rows.length} of {ws.findings.length}
-          </p>
+          <ListFooter paged={paged} />
         </>
       )}
 

@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Btn, Card, CardHead, Marked, PageHeader, Select, Toggle, fmtDate, fmtDateTime, useToast, orgName } from "@/components/app/ui";
+import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
+import { CountUp } from "@/components/app/charts";
+import { Btn, Card, CardHead, ListFooter, Marked, PageHeader, Select, Toggle, fmtDate, fmtDateTime, useToast, orgName, usePaged } from "@/components/app/ui";
 import { LogoMark } from "@/components/ui";
 import { useWorkspace } from "@/lib/app/store";
-import { AUTHORITY_LABEL, RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Finding } from "@/lib/app/types";
+import { RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Finding } from "@/lib/app/types";
 
 type Kind = "audit" | "executive" | "change";
+
+const FINDINGS_PAGE = 4;
 const KIND: Record<Kind, { title: string; hint: string }> = {
   audit: { title: "Audit report", hint: "Every finding with both quoted clauses, reviewer status and history." },
   executive: { title: "Executive summary", hint: "One page: risk, progress and what needs a decision." },
@@ -74,6 +78,17 @@ export default function ReportsPage() {
 
   const counts = (pred: (f: Finding) => boolean) => ws.findings.filter(pred).length;
   const changed = ws.findings.filter((f) => f.revision?.newVersion);
+  const listed = kind === "executive" ? findings.filter((f) => f.risk === "high").slice(0, 8) : findings;
+  const paged = usePaged(listed, FINDINGS_PAGE);
+  const [printing, setPrinting] = useState(false);
+  useEffect(() => {
+    // flushSync so the full list is on the page before the print dialog snapshots it.
+    const before = () => flushSync(() => setPrinting(true));
+    const after = () => setPrinting(false);
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+    return () => { window.removeEventListener("beforeprint", before); window.removeEventListener("afterprint", after); };
+  }, []);
 
   return (
     <>
@@ -142,7 +157,7 @@ export default function ReportsPage() {
             ].map(([k, v]) => (
               <div key={k as string}>
                 <p className="text-[12px] text-mute">{k}</p>
-                <p className="display text-[32px]">{v}</p>
+                <p className="display mt-3 text-[32px]"><CountUp value={v as number} /></p>
               </div>
             ))}
           </section>
@@ -152,14 +167,6 @@ export default function ReportsPage() {
             <p>
               Last scan: {lastScan ? `${lastScan.name} (${lastScan.id}), ${fmtDateTime(lastScan.finishedAt ?? lastScan.startedAt)}, ${lastScan.docIds.length} documents` : "none yet"}. Analysis: KeroSOP rules engine
               {lastScan?.model?.reasoning ? ` with AI review by ${lastScan.model.reasoning} (prompt ${lastScan.model.prompt}, model ${lastScan.model.digest})` : " (AI review not used)"}. Every quote below was matched word for word against the stored document version.
-            </p>
-            <p className="mt-2">
-              Documents in force ({ws.docs.filter((d) => d.approval === "approved").length}):{" "}
-              {ws.docs
-                .filter((d) => d.approval === "approved")
-                .map((d) => `${d.title} v${d.versions[d.current]?.version} (${AUTHORITY_LABEL[d.authority]})`)
-                .join("; ") || "none"}
-              .
             </p>
             {excluded.length > 0 && (
               <p className="mt-2">
@@ -189,7 +196,8 @@ export default function ReportsPage() {
             <section className="pt-5">
               <h3 className="mb-3 text-[14px] font-bold">{kind === "executive" ? "Decisions needed" : "Findings"}</h3>
               {findings.length === 0 && <p className="text-[13px] text-mute">No findings match this report.</p>}
-              {(kind === "executive" ? findings.filter((f) => f.risk === "high").slice(0, 8) : findings).map((f) => (
+              {/* Four at a time on screen; printing or saving as PDF always includes every finding. */}
+              {(printing ? listed : paged.items).map((f) => (
                 <div key={f.id} className="mb-4 break-inside-avoid pb-4 last:mb-0 last:pb-0">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="text-[14px] font-bold">
@@ -216,6 +224,7 @@ export default function ReportsPage() {
                   </p>
                 </div>
               ))}
+              {listed.length > 0 && <ListFooter paged={paged} className="print:hidden" />}
             </section>
           )}
 

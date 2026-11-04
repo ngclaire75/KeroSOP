@@ -34,7 +34,7 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
                 for s in v["sections"]:
                     span_ids[s["id"]] = str(one(conn, "SELECT id FROM source_spans WHERE version_id = :v AND ref = :r", v=vid, r=s["ref"])["id"])
             rebuild_rules(conn, org, doc)
-        conn.execute(text("UPDATE organizations SET seq = jsonb_set(seq, '{doc}', '11') WHERE id = :o"), {"o": org})
+        conn.execute(text("UPDATE organizations SET seq = jsonb_set(seq, '{doc}', CAST(:n AS jsonb)) WHERE id = :o"), {"o": org, "n": str(len(demo_docs()) + 1)})
         docs = {r["code"]: r for r in conn.execute(text("SELECT id, code FROM documents")).mappings()}
         vers = {(r["document_id"], r["version"]): r["id"] for r in conn.execute(text("SELECT id, document_id, version FROM document_versions")).mappings()}
         notes = {
@@ -43,7 +43,8 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
                         (28, "Ahmad Faris", "Both inventory documents now name the Area Supervisor. Re-scan came back clean.")],
         }
         updated_on = {"SOP-002": DAY(14), "SOP-004": DAY(28, 15), "SOP-005": DAY(20)}
-        for f in sample_findings():
+        findings = sample_findings()
+        for f in findings:
             created = DAY(28, 15) if f["scan"] == "SCAN-002" else DAY(6)
             fid = one(conn, """INSERT INTO findings (organization_id, code, type, risk, status, title, explanation, why, authority, recommendation, topic, department,
                                fingerprint, owner_name, scan_code, reverified, created_at, updated_at)
@@ -66,11 +67,12 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
                                      decision, decided_by, decided_at, new_version) VALUES (:o,:f,:d,:c,:p,'Ahmad Faris',:pa,'approved','Grace Tan',:da,'1.1')"""),
                              {"o": org, "f": fid, "d": docs["D-009"]["id"], "c": "Stock discrepancies above 5 units must be escalated.",
                               "p": "Stock discrepancies above 5 units must be escalated to the Area Supervisor.", "pa": DAY(22), "da": DAY(24)})
-        conn.execute(text("UPDATE organizations SET seq = jsonb_set(jsonb_set(seq, '{finding}', '7'), '{scan}', '3') WHERE id = :o"), {"o": org})
+        conn.execute(text("UPDATE organizations SET seq = jsonb_set(jsonb_set(seq, '{finding}', CAST(:n AS jsonb)), '{scan}', '3') WHERE id = :o"),
+                     {"o": org, "n": str(len(findings) + 1)})
         all_docs = [r["id"] for r in docs.values()]
         first, latest = demo_counts()
         for code, scan_name, day, by, rev, new, counts in [
-            ("SCAN-001", "Initial audit, all documents", 6, name, None, ["SOP-001", "SOP-002", "SOP-003", "SOP-004", "SOP-005"], first),
+            ("SCAN-001", "Initial audit, all documents", 6, name, None, [f["id"] for f in findings if f["scan"] == "SCAN-001"], first),
             ("SCAN-002", "Re-scan after inventory updates", 28, "Ahmad Faris", "SOP-004", ["SOP-006"], latest),
         ]:
             conn.execute(text("""INSERT INTO scan_jobs (organization_id, code, name, doc_ids, stage, counts, new_findings, reverify, started_by, started_at, finished_at)
@@ -78,7 +80,7 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
                          {"o": org, "c": code, "n": scan_name, "d": all_docs, "counts": json.dumps(counts), "nf": new, "r": rev, "b": by, "t": DAY(day, 9)})
         for day, h, actor, action, target, href, detail in [
             (1, 9, name, "created the workspace", "Harbour & Co. Retail", None, None),
-            (6, 9, name, "completed a scan", "SCAN-001", "/scans", "10 documents · 5 new findings"),
+            (6, 9, name, "completed a scan", "SCAN-001", "/scans", f"{len(all_docs)} documents · {sum(f['scan'] == 'SCAN-001' for f in findings)} new findings"),
             (9, 11, "Ahmad Faris", "confirmed", "SOP-004", "/findings/SOP-004", None),
             (14, 10, "Ahmad Faris", "moved to review", "SOP-002", "/findings/SOP-002", None),
             (20, 10, "Marcus Lee", "moved to review", "SOP-005", "/findings/SOP-005", None),

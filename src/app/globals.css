@@ -322,3 +322,30 @@ canvas {
   touch-action: pan-x pan-y pinch-zoom !important;
 }
 
+
+/* Policy Map: red markers travelling along links cited in an open finding. */
+.map-runner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e30613;
+  offset-anchor: center;
+  animation: map-travel 5.5s linear infinite;
+  pointer-events: none;
+}
+/* Finding links are dotted and drift toward the cited document. */
+.map-line-hot {
+  stroke-dasharray: 0.1 5;
+  animation: map-flow 1.2s linear infinite;
+}
+.map-motion[data-paused="true"] .map-runner,
+.map-motion[data-paused="true"] .map-line-hot { animation-play-state: paused; }
+@keyframes map-flow { to { stroke-dashoffset: -5.1; } }
+@keyframes map-travel { to { offset-distance: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .map-runner { display: none; animation: none; }
+  .map-line-hot { animation: none; }
+}

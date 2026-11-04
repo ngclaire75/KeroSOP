@@ -345,6 +345,123 @@ export function Select({
   );
 }
 
+/* ---------- paging ---------- */
+
+export const PAGE_SIZE = 10;
+
+/** Ten rows at a time by default. A different result count (a filter or search changed) goes back to page one. */
+export function usePaged<T>(rows: T[], size = PAGE_SIZE) {
+  const [page, setPage] = useState(0);
+  const [count, setCount] = useState(rows.length);
+  if (count !== rows.length) { setCount(rows.length); setPage(0); }
+  const pages = Math.max(1, Math.ceil(rows.length / size));
+  const current = Math.min(page, pages - 1);
+  return { page: current, pages, size, total: rows.length, setPage, items: rows.slice(current * size, (current + 1) * size) };
+}
+
+/** "Showing 1–10 of 40" with Previous and Next on the same line, in the same small type. */
+export function ListFooter({ paged, className = "" }: { paged: ReturnType<typeof usePaged<unknown>>; className?: string }) {
+  const { page, pages, size, total, setPage } = paged;
+  const from = total ? page * size + 1 : 0, to = Math.min(total, (page + 1) * size);
+  const step = "font-semibold transition-colors hover:text-ink disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink";
+  return (
+    <div className={`flex items-center justify-between gap-4 pt-4 text-[12px] text-mute ${className}`}>
+      <p role="status">Showing {from}–{to} of {total}</p>
+      {pages > 1 && (
+        <div className="flex items-center gap-4">
+          <button type="button" className={step} disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
+          <button type="button" className={step} disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A select whose menu always opens below the field. A native select on macOS opens its menu
+ * over the chosen option, so with a long list the menu jumps up and down depending on the value.
+ */
+export function MenuSelect({ value, onChange, options, className = "", "aria-label": ariaLabel }: {
+  value: string;
+  onChange(value: string): void;
+  options: { value: string; label: string }[];
+  className?: string;
+  "aria-label": string;
+}) {
+  const id = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const chosen = Math.max(0, options.findIndex((o) => o.value === value));
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [open]);
+
+  // Keep the highlighted option in view inside the menu without scrolling the page.
+  useEffect(() => {
+    const ul = list.current, li = ul?.children[active] as HTMLElement | undefined;
+    if (!open || !ul || !li) return;
+    if (li.offsetTop < ul.scrollTop) ul.scrollTop = li.offsetTop;
+    else if (li.offsetTop + li.offsetHeight > ul.scrollTop + ul.clientHeight) ul.scrollTop = li.offsetTop + li.offsetHeight - ul.clientHeight;
+  }, [open, active]);
+
+  const show = () => { setActive(chosen); setOpen(true); };
+  const pick = (i: number) => { setOpen(false); if (options[i] && options[i].value !== value) onChange(options[i].value); };
+  const onKey = (e: React.KeyboardEvent) => {
+    const last = options.length - 1;
+    if (!open) {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) { e.preventDefault(); show(); }
+      return;
+    }
+    const move: Record<string, number> = { ArrowDown: Math.min(last, active + 1), ArrowUp: Math.max(0, active - 1), Home: 0, End: last };
+    if (e.key in move) { e.preventDefault(); setActive(move[e.key]); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(active); }
+    else if (e.key === "Escape" || e.key === "Tab") setOpen(false);
+  };
+
+  return (
+    <div ref={root} className={`relative ${className}`}>
+      <button
+        type="button"
+        role="combobox"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${id}-list`}
+        aria-activedescendant={open ? `${id}-${active}` : undefined}
+        onClick={() => (open ? setOpen(false) : show())}
+        onKeyDown={onKey}
+        className={`${FIELD} flex h-10 items-center pr-9 text-left`}
+      >
+        <span className="truncate">{options[chosen]?.label ?? ""}</span>
+      </button>
+      <Icon name="down" className={`pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-mute transition-transform ${open ? "rotate-180" : ""}`} />
+      {open && (
+        <ul ref={list} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[320px] overflow-y-auto overscroll-contain rounded-[12px] border border-line bg-paper py-1.5 shadow-[0_12px_32px_#0000001a]">
+          {options.map((o, i) => (
+            <li
+              key={o.value}
+              id={`${id}-${i}`}
+              role="option"
+              aria-selected={i === chosen}
+              onPointerMove={() => setActive(i)}
+              onClick={() => pick(i)}
+              className={`cursor-pointer px-3.5 py-2 text-[14px] leading-[1.4] transition-colors ${i === active ? "text-red" : "text-ink"} ${i === chosen ? "font-semibold" : "font-normal"}`}
+            >
+              {o.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function SearchInput({ value, onChange, placeholder = "Search", className = "" }: { value: string; onChange(v: string): void; placeholder?: string; className?: string }) {
   return (
     <div className={`relative ${className}`}>

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 import { FileLogo } from "@/components/app/FileLogo";
 import { Icon } from "@/components/app/icons";
-import { Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, Textarea, ago, fmtDate, orgName, useToast } from "@/components/app/ui";
+import { Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, Textarea, ago, fmtDate, orgName, useToast, ListFooter, usePaged } from "@/components/app/ui";
 import { download } from "@/lib/app/api";
 import { useWorkspace, type UploadMeta } from "@/lib/app/store";
 import { AUTHORITY_LABEL, type Approval, type Authority, type Doc, type FileKind, type Lang, type Status } from "@/lib/app/types";
@@ -105,6 +105,7 @@ export default function DocumentsPage() {
           : updated(b).localeCompare(updated(a)),
     );
   }, [ws.docs, tab, dept, authority, kind, q, sort, stats.open]);
+  const paged = usePaged(rows);
 
   const filtered = tab !== "all" || q || dept !== "all" || authority !== "all" || kind !== "all";
   const clear = () => {
@@ -196,7 +197,7 @@ export default function DocumentsPage() {
 
           {rows.length ? (
             <ul className="flex flex-col gap-2">
-              {rows.map((d) => (
+              {paged.items.map((d) => (
                 <DocRow key={d.id} doc={d} rules={stats.rules.get(d.id) ?? 0} open={stats.open.get(d.id) ?? 0} onOpen={() => openDoc(d.id)} />
               ))}
             </ul>
@@ -205,9 +206,7 @@ export default function DocumentsPage() {
               <Empty icon="search" title="No documents match" body="Try another search or clear the filters." action={filtered && <Btn onClick={clear}>Clear filters</Btn>} />
             </div>
           )}
-          <p className="pt-4 text-[12px] text-mute">
-            Showing {rows.length} of {ws.docs.length}
-          </p>
+          <ListFooter paged={paged} />
         </>
       )}
 

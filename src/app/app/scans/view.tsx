@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FileLogo } from "@/components/app/FileLogo";
 import { Icon } from "@/components/app/icons";
-import { AppLink, Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, ago, fmtDateTime, useToast } from "@/components/app/ui";
+import { AppLink, Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, ago, fmtDateTime, useToast, ListFooter, usePaged } from "@/components/app/ui";
 import { FLOW_STAGES, ScanFlow } from "@/components/app/viz";
 import { api } from "@/lib/app/api";
 import { useWorkspace } from "@/lib/app/store";
@@ -97,6 +97,7 @@ export default function ScanCenter() {
       (s) => (state === "all" || stateOf(s) === state) && (!needle || [s.name, s.id, s.by].some((x) => x?.toLowerCase().includes(needle))),
     );
   }, [ws.scans, q, state]);
+  const paged = usePaged(rows);
 
   const last = ws.scans.find((s) => stateOf(s) !== "running");
   const scan = ws.scans.find((s) => s.id === openId) ?? null;
@@ -175,7 +176,7 @@ export default function ScanCenter() {
 
           {rows.length ? (
             <ul className="flex flex-col gap-2">
-              {rows.map((s) => (
+              {paged.items.map((s) => (
                 <ScanRow key={s.id} scan={s} onOpen={() => openScan(s.id)} />
               ))}
             </ul>
@@ -198,9 +199,7 @@ export default function ScanCenter() {
               />
             </div>
           )}
-          <p className="pt-4 text-[12px] text-mute">
-            Showing {rows.length} of {ws.scans.length}
-          </p>
+          <ListFooter paged={paged} />
         </>
       )}
 
