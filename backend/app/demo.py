@@ -12,6 +12,16 @@ from .service import add_version, audit, default_org_rows, one, rebuild_rules
 
 DAY = lambda d, h=10: f"2026-10-{d:02d}T{h:02d}:00:00+00:00"  # noqa: E731
 
+# Proposed wording for the findings seed.RESOLVING puts at revision stages. The current text is the
+# cited clause, so approving one in the demo publishes a real new document version.
+# finding -> (document, author, day, new wording, decision, decided by, decision note)
+REVISIONS = {
+    "SOP-011": ("D-012", "Daniel Koh", 29, "Staff must submit expense claims within 30 calendar days of the purchase date.", None, None, None),
+    "SOP-015": ("D-016", "Lim Wei Ling", 30, "客服人员必须在收到投诉后2个工作日内回复顾客。", None, None, None),
+    "SOP-017": ("D-017", "Nur Aisyah", 26, "Office employees may work remotely for up to 3 days per week.", "rejected", "Grace Tan",
+                "The Remote Work Policy governs. Keep it at 2 days and correct the New Starter Handbook instead."),
+}
+
 
 def create_demo(user_id: UUID, name: str, email: str) -> UUID:
     with system() as conn:
@@ -47,10 +57,10 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
         for f in findings:
             created = DAY(28, 15) if f["scan"] == "SCAN-002" else DAY(6)
             fid = one(conn, """INSERT INTO findings (organization_id, code, type, risk, status, title, explanation, why, authority, recommendation, topic, department,
-                               fingerprint, owner_name, scan_code, reverified, created_at, updated_at)
-                               VALUES (:o,:c,:t,:r,:s,:ti,:ex,:w,:a,:rec,:to,:de,:fp,:ow,:sc,:rv,:ca,:ua) RETURNING id""",
+                               fingerprint, owner_name, due_date, scan_code, reverified, created_at, updated_at)
+                               VALUES (:o,:c,:t,:r,:s,:ti,:ex,:w,:a,:rec,:to,:de,:fp,:ow,:du,:sc,:rv,:ca,:ua) RETURNING id""",
                       o=org, c=f["id"], t=f["type"], r=f["risk"], s=f["status"], ti=f["title"], ex=f["explanation"], w=f["why"], a=f["authority"],
-                      rec=f["recommendation"], to=f["topic"], de=f["department"], fp=f["dedupKey"], ow=f["owner"], sc=f["scan"], rv=f["reverified"], ca=created,
+                      rec=f["recommendation"], to=f["topic"], de=f["department"], fp=f["dedupKey"], ow=f["owner"], du=f.get("dueDate"), sc=f["scan"], rv=f["reverified"], ca=created,
                       ua=updated_on.get(f["id"], created))["id"]
             for i, e in enumerate(f["evidence"]):
                 doc = docs.get(e["docId"])
@@ -62,6 +72,16 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
             for day, by, body in notes.get(f["id"], []):
                 conn.execute(text("INSERT INTO comments (organization_id, finding_id, author, body, created_at) VALUES (:o,:f,:a,:b,:t)"),
                              {"o": org, "f": fid, "a": by, "b": body, "t": DAY(day)})
+            if f["id"] in REVISIONS:
+                code, by, day, proposed, decision, decided_by, note = REVISIONS[f["id"]]
+                e = next(e for e in f["evidence"] if e["docId"] == code)
+                conn.execute(text("""INSERT INTO revision_proposals (organization_id, finding_id, document_id, span_id, current_text, proposed_text, proposed_by, proposed_at,
+                                     decision, decided_by, decided_at) VALUES (:o,:f,:d,:s,:c,:p,:b,:pa,:de,:db,:da)"""),
+                             {"o": org, "f": fid, "d": docs[code]["id"], "s": span_ids.get(e["sectionId"]), "c": e["quote"], "p": proposed, "b": by,
+                              "pa": DAY(day, 11), "de": decision, "db": decided_by, "da": DAY(day + 1, 15) if decision else None})
+                if note:
+                    conn.execute(text("INSERT INTO comments (organization_id, finding_id, author, body, created_at) VALUES (:o,:f,:a,:b,:t)"),
+                                 {"o": org, "f": fid, "a": decided_by, "b": note, "t": DAY(day + 1, 15)})
             if f["id"] == "SOP-004":
                 conn.execute(text("""INSERT INTO revision_proposals (organization_id, finding_id, document_id, current_text, proposed_text, proposed_by, proposed_at,
                                      decision, decided_by, decided_at, new_version) VALUES (:o,:f,:d,:c,:p,'Ahmad Faris',:pa,'approved','Grace Tan',:da,'1.1')"""),

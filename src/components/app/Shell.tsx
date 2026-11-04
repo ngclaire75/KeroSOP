@@ -81,7 +81,6 @@ function useCounts() {
   const { ws, running } = useWorkspace();
   return {
     "/findings": ws.findings.filter((f) => ["detected", "under_review"].includes(f.status)).length,
-    "/resolution": ws.findings.filter((f) => ["confirmed", "assigned", "revision_proposed", "approved", "rejected", "rescanned"].includes(f.status)).length,
     "/scans": running.length,
   } as Record<string, number>;
 }

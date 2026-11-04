@@ -12,8 +12,8 @@ type View = { z: number; x: number; y: number };
 
 const MAX_ZOOM = 4;
 const HOME: View = { z: 1, x: 0, y: 0 };
-const CARD_W = 200;
-const CARD_H = 88;
+const CARD_W = 216;
+const CARD_H = 96;
 const GAP = 18;
 const PAD = 40;
 
@@ -247,11 +247,8 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
   const ordered = [...links.filter((l) => !l.findings.length), ...links.filter((l) => l.findings.length)];
 
   const dots = links.filter((l) => l.findings.length && (!selected || l.a === selected || l.b === selected)).slice(0, 32).flatMap((link) => {
-    const a = positions.find((n) => n.id === link.a), b = positions.find((n) => n.id === link.b);
-    if (!a || !b) return [];
-    const cx = (a.x + b.x) / 2;
-    const path = `M ${a.x} ${a.y} C ${a.x * .55 + cx * .45} ${a.y * .55 + height / 2 * .45}, ${b.x * .55 + cx * .45} ${b.y * .55 + height / 2 * .45}, ${b.x} ${b.y}`;
-    return [{ id: link.id, path }];
+    const path = curve(link);
+    return path ? [{ id: link.id, path }] : [];
   });
 
   const neighbors = new Set(links.filter((l) => l.a === selected || l.b === selected).flatMap((l) => [l.a, l.b]));
@@ -272,10 +269,10 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
           </div>
           {docs.map((doc, i) => {
             const point = positions[i];
-            return <button key={doc.id} type="button" aria-pressed={selected === doc.id} onClick={() => onSelect(doc.id)} className="absolute flex h-[88px] w-[200px] -translate-x-1/2 -translate-y-1/2 flex-col justify-center rounded-[10px] border bg-white isolate z-10 px-3.5 py-3 text-center shadow-[0_2px_8px_#00000006] transition-[border-color,box-shadow] hover:border-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink" style={{ left: point.x, top: point.y, borderColor: selected === doc.id ? "#000" : "#e5e5e3" }}>
+            return <button key={doc.id} type="button" aria-pressed={selected === doc.id} onClick={() => onSelect(doc.id)} className="absolute flex h-[96px] w-[216px] -translate-x-1/2 -translate-y-1/2 flex-col justify-center rounded-[10px] border bg-black isolate z-10 px-3.5 py-3 text-center text-white shadow-[0_2px_8px_#00000014] transition-[border-color,box-shadow] hover:!border-white/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink" style={{ left: point.x, top: point.y, borderColor: selected === doc.id ? "#e30613" : "#2a2a2a" }}>
               <span className="flex w-full min-w-0 flex-col items-center" style={{ opacity: selected && selected !== doc.id && !neighbors.has(doc.id) ? .4 : 1 }}>
               <span className="line-clamp-2 text-[15px] leading-[1.4] font-bold">{doc.title}</span>
-              <span className="mt-1 max-w-full truncate text-[13px] text-mute">{AUTHORITY_LABEL[doc.authority]}</span>
+              <span className="mt-1 max-w-full truncate text-[13px] text-white/60">{AUTHORITY_LABEL[doc.authority]}</span>
               </span>
             </button>;
           })}

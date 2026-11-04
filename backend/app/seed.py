@@ -321,6 +321,17 @@ def demo_counts() -> tuple[dict, dict]:
     return {**first, "suppressed": 0}, {**now, "suppressed": 0}
 
 
+# Later findings placed along the resolution path so Review & Approve has work at every stage:
+# id -> (status, owner, due date). Proposals for these live in demo.REVISIONS.
+RESOLVING = {
+    "SOP-007": ("confirmed", None, None),
+    "SOP-008": ("assigned", "Grace Tan", "2026-11-12"),
+    "SOP-019": ("assigned", "Ahmad Faris", "2026-11-03"),
+    "SOP-011": ("revision_proposed", "Daniel Koh", "2026-11-10"),
+    "SOP-015": ("revision_proposed", "Lim Wei Ling", "2026-11-18"),
+    "SOP-017": ("rejected", "Nur Aisyah", "2026-11-20"),
+}
+
 ORDER = ["contradiction|refund|submission", "missing_step|B-purchase", "outdated|leave", "responsibility|discount", "contradiction|refund|response"]
 
 
@@ -350,6 +361,7 @@ def sample_findings() -> list[dict]:
             out.append({**ambiguity, "id": "SOP-004", "status": "closed", "owner": "Ahmad Faris", "reverified": "resolved", "scan": "SCAN-001"})
             n += 1
         status, owner = states.get(n, ("detected", None))
-        out.append({**d, "id": f"SOP-{n:03d}", "status": status, "owner": owner, "reverified": None, "scan": "SCAN-002" if n == 6 else "SCAN-001"})
+        status, owner, due = RESOLVING.get(f"SOP-{n:03d}", (status, owner, None))
+        out.append({**d, "id": f"SOP-{n:03d}", "status": status, "owner": owner, "dueDate": due, "reverified": None, "scan": "SCAN-002" if n == 6 else "SCAN-001"})
         n += 1
     return out
