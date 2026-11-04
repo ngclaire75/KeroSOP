@@ -113,11 +113,15 @@ function Side({ e, letter, doc }: { e: Evidence; letter: string; doc?: Doc }) {
     // side by side, both sides share rows, so the files line up and the quote cards are always the same height
     <div className="flex min-w-0 flex-col gap-3 xl:row-span-2 xl:grid xl:grid-rows-subgrid">
       {e.baseline || !doc ? (
-        <section style={ROW_STYLE} className="flex min-h-[200px] flex-col justify-center px-5 py-6">
-          <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>
+        <div className="flex h-full min-w-0 flex-col gap-3">
+          <div className="flex h-8 shrink-0 items-center">
+            <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>
+          </div>
+          <section style={ROW_STYLE} className="flex min-h-[200px] flex-1 aspect-[210/297] flex-col justify-center px-5 py-6">
           <p className="mt-1 text-[15px] font-bold">{e.baseline ? `Approved baseline: ${e.baseline}` : "The document has since been deleted"}</p>
           <p className="mt-1 text-[13px] text-mute">{e.baseline ? "A required process set in Settings, not a file." : "The quote below is kept for the audit trail."}</p>
-        </section>
+          </section>
+        </div>
       ) : (
         <DocViewer doc={doc} evidence={e} label={`${letter} · ${doc.id} · v${e.version}`} />
       )}
