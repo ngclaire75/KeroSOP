@@ -19,6 +19,8 @@ class Settings:
     cors_origins: list[str] = field(
         default_factory=lambda: _list("KEROSOP_CORS_ORIGINS", "http://localhost:3417,http://app.localhost:3417,https://app.kerosop.site,https://kerosop.site")
     )
+    # Vercel preview deployments of this project, e.g. kerosop-abc123-clayclays-projects.vercel.app
+    cors_origin_regex: str = os.getenv("KEROSOP_CORS_ORIGIN_REGEX", r"https://kerosop-[a-z0-9-]+-clayclays-projects\.vercel\.app")
     storage_dir: Path = Path(os.getenv("KEROSOP_STORAGE_DIR", Path(__file__).resolve().parent.parent / "storage"))
     max_upload_mb: int = int(os.getenv("KEROSOP_MAX_UPLOAD_MB", "20"))
     # OpenAI-compatible model endpoint: Ollama locally, vLLM or a hosted Qwen3 in production.

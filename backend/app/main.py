@@ -24,7 +24,7 @@ from .parsing import ParseError, parse
 from .service import Denied, Invalid, audit, one, rows
 
 app = FastAPI(title="KeroSOP API", version="0.2.0", description="Evidence-first SOP integrity auditing.")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["*"], allow_headers=["*"], allow_credentials=False)
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_origin_regex=settings.cors_origin_regex or None, allow_methods=["*"], allow_headers=["*"], allow_credentials=False)
 
 
 @app.exception_handler(Denied)
