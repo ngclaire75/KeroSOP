@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { limitWords, textWords } from "@/lib/text-limit";
 import {
   createContext,
   useCallback,
@@ -258,12 +259,19 @@ export function Input({ label, hint, className = "", ...props }: ComponentProps<
   );
 }
 
-export function Textarea({ label, hint, className = "", ...props }: ComponentProps<"textarea"> & { label?: string; hint?: string }) {
+export function Textarea({ label, hint, className = "", maxWords = 200, onChange, ...props }: ComponentProps<"textarea"> & { label?: string; hint?: string; maxWords?: number }) {
   const id = useId();
+  const [count, setCount] = useState(() => textWords(String(props.value ?? props.defaultValue ?? "")).length);
+  const words = props.value !== undefined ? textWords(String(props.value)).length : count;
   return (
     <div className={className}>
       {label && <Label htmlFor={id} hint={hint}>{label}</Label>}
-      <textarea id={id} className={`${FIELD} min-h-[96px] py-2.5 leading-[1.5]`} {...props} />
+      <textarea id={id} aria-describedby={`${id}-limit`} className={`${FIELD} h-[108px] resize-none overflow-y-auto py-2.5 leading-[1.5]`} {...props} onChange={(e) => {
+        e.target.value = limitWords(e.target.value, maxWords);
+        setCount(textWords(e.target.value).length);
+        onChange?.(e);
+      }} />
+      <p id={`${id}-limit`} className="mt-1 text-right text-[12px] tabular-nums text-mute">{words}/{maxWords} words</p>
     </div>
   );
 }

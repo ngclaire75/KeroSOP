@@ -614,7 +614,7 @@ function Actions({ f }: { f: Finding }) {
             options={cited.map((e, i) => ({ value: String(i), label: `Clause ${String.fromCharCode(65 + i)} · ${ws.docs.find((d) => d.id === e.docId)?.title ?? e.docId} §${e.sectionRef}` }))}
           />
         )}
-        <Textarea label="Replacement wording" value={proposed} onChange={(e) => setProposed(e.target.value)} />
+        <Textarea label="Replacement wording" maxWords={500} value={proposed} onChange={(e) => setProposed(e.target.value)} />
         <div className="flex justify-end gap-2">
           <Btn
             variant="ink"

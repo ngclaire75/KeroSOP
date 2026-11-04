@@ -100,7 +100,7 @@ export default function ScanCenter() {
 
   const last = ws.scans.find((s) => stateOf(s) !== "running");
   const scan = ws.scans.find((s) => s.id === openId) ?? null;
-  const aiLine = !ai ? "checking the model" : ai.enabled && ai.reachable && ai.ready ? `AI review on (${ai.reasoning})` : "rules engine only";
+  const aiLine = !ai ? "checking the model" : ai.enabled && ai.reachable && ai.ready ? `AI review on (${ai.reasoning})` : "";
 
   return (
     <>
@@ -109,7 +109,7 @@ export default function ScanCenter() {
         intro={
           <>
             {plural(ws.scans.length, "scan")}
-            {last ? ` · Last finished ${ago(last.finishedAt ?? last.startedAt)}` : ""} · {aiLine}. The rules engine compares every clause first; Qwen3 only reviews the pairs it cannot
+            {last ? ` · Last finished ${ago(last.finishedAt ?? last.startedAt)}` : ""}{aiLine ? ` · ${aiLine}` : ""}. The rules engine compares every clause first; Qwen3 only reviews the pairs it cannot
             decide, and every quote is checked against the source before a finding exists.
           </>
         }

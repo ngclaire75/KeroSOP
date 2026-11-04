@@ -8,6 +8,7 @@
  * workspace opens straight away and the browser goes on to the dashboard.
  */
 import Image from "next/image";
+import { limitWords, textWords } from "@/lib/text-limit";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { BrandLogo, INTEGRATIONS } from "@/components/app/BrandLogo";
@@ -208,12 +209,12 @@ export function RequestAccess() {
                       ))}
                     </div>
                   </fieldset>
-                  <Field label="What would you like to check first?" hint={`${form.useCase.length}/${NOTE_MAX}`} wide>
+                  <Field label="What would you like to check first?" hint={`${textWords(form.useCase).length}/60 words · ${form.useCase.length}/${NOTE_MAX} characters`} wide>
                     <textarea
                       className={`${INPUT} h-[156px] resize-none overflow-hidden py-3.5 leading-[1.55]`}
                       maxLength={NOTE_MAX}
                       value={form.useCase}
-                      onChange={(e) => setForm({ ...form, useCase: e.target.value.slice(0, NOTE_MAX) })}
+                      onChange={(e) => setForm({ ...form, useCase: limitWords(e.target.value.slice(0, NOTE_MAX), 60) })}
                       placeholder="e.g. Our refund policy and the Chinese customer service SOPs seem to disagree."
                     />
                   </Field>
