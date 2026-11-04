@@ -475,10 +475,19 @@ export const useToast = () => useContext(ToastCtx);
 
 export function ToastHost({ children }: { children: ReactNode }) {
   const [list, setList] = useState<Toast[]>([]);
+  // one toast per message: the same message again, while it is still showing, only keeps it up longer
+  const timers = useRef(new Map<string, { id: number; timer: number }>());
   const push = useCallback((text: string, tone: Toast["tone"] = "ok") => {
-    const id = Date.now() + Math.random();
-    setList((l) => [...l, { id, text, tone }]);
-    window.setTimeout(() => setList((l) => l.filter((t) => t.id !== id)), 4200);
+    const key = `${tone}:${text}`;
+    const shown = timers.current.get(key);
+    const id = shown?.id ?? Date.now() + Math.random();
+    if (shown) window.clearTimeout(shown.timer);
+    else setList((l) => [...l, { id, text, tone }]);
+    const timer = window.setTimeout(() => {
+      timers.current.delete(key);
+      setList((l) => l.filter((t) => t.id !== id));
+    }, 4200);
+    timers.current.set(key, { id, timer });
   }, []);
   return (
     <ToastCtx.Provider value={push}>
