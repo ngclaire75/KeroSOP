@@ -96,11 +96,15 @@ function Comparison({ f }: { f: Finding }) {
         </AppLink>
       </section>
 
-      {/* stacked on smaller screens, with a little more room between the two clauses */}
-      <div className={`grid gap-12 xl:gap-4 ${f.evidence.length > 1 ? "xl:grid-cols-2" : ""}`}>
-        {f.evidence.map((e, i) => (
+      {f.evidence.map((e, i) => e.baseline ? (
+        <Side key={i} e={e} letter={String.fromCharCode(65 + i)} />
+      ) : null)}
+
+      {/* Baselines live above the source files rather than occupying a document column. */}
+      <div className={`grid gap-12 xl:gap-4 ${f.evidence.filter((e) => !e.baseline).length > 1 ? "xl:grid-cols-2" : ""}`}>
+        {f.evidence.map((e, i) => !e.baseline ? (
           <Side key={i} e={e} letter={String.fromCharCode(65 + i)} doc={ws.docs.find((d) => d.id === e.docId)} />
-        ))}
+        ) : null)}
       </div>
     </div>
   );
@@ -109,14 +113,27 @@ function Comparison({ f }: { f: Finding }) {
 function Side({ e, letter, doc }: { e: Evidence; letter: string; doc?: Doc }) {
   const label = `Clause ${letter}`;
   const zh = /[一-鿿]/.test(e.quote);
+  if (e.baseline) return (
+    <section>
+      <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>
+      <p className="mt-1 text-[15px] font-bold">Approved baseline: {e.baseline}</p>
+      <p className="mt-1 text-[13px] text-mute">A required process set in Settings, not a file.</p>
+      <div className="mt-3 flex items-start gap-3">
+        <blockquote lang={zh ? "zh" : "en"} className="text-[15px] leading-[1.65]">
+          <Marked text={e.quote} mark={e.highlight} />
+        </blockquote>
+        {e.verified ? <VerifiedBadge /> : <span className={`${PILL} bg-red text-white`}>Unverified</span>}
+      </div>
+    </section>
+  );
   return (
     // side by side, both sides share rows, so the files line up and the quote cards are always the same height
     <div className="flex min-w-0 flex-col gap-3 xl:row-span-2 xl:grid xl:grid-rows-subgrid">
-      {e.baseline || !doc ? (
+      {!doc ? (
         <section style={ROW_STYLE} className="flex min-h-[200px] flex-col justify-center px-5 py-6">
           <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>
-          <p className="mt-1 text-[15px] font-bold">{e.baseline ? `Approved baseline: ${e.baseline}` : "The document has since been deleted"}</p>
-          <p className="mt-1 text-[13px] text-mute">{e.baseline ? "A required process set in Settings, not a file." : "The quote below is kept for the audit trail."}</p>
+          <p className="mt-1 text-[15px] font-bold">The document has since been deleted</p>
+          <p className="mt-1 text-[13px] text-mute">The quote below is kept for the audit trail.</p>
         </section>
       ) : (
         <DocViewer doc={doc} evidence={e} label={`${letter} · ${doc.id} · v${e.version}`} />
