@@ -61,7 +61,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         disablePictureInPicture
         disableRemotePlayback
         aria-label="A short animated explainer: KeroSOP reads policies, SOPs and training guides in Chinese and English, finds the clauses that disagree, and lets your reviewer approve the fix. Integrations for Google Drive, Google Docs, Dropbox, Box, Notion, Confluence and WeChat are on the way."
