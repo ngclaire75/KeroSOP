@@ -118,7 +118,7 @@ export function Cta() {
           <Button href="/request-access" variant="black">
             Book a sample audit
           </Button>
-          <Button href="#signup" variant="white">
+          <Button href="/signup" variant="white">
             Sign up for free
           </Button>
         </div>

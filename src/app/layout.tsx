@@ -23,6 +23,19 @@ export const metadata: Metadata = {
   title: "KeroSOP — Find where your SOPs disagree",
   description:
     "KeroSOP reads your policies, SOPs and training guides in Chinese and English, finds instructions that conflict, and shows both clauses word for word.",
+  // the share image itself comes from app/opengraph-image.jpg and app/twitter-image.jpg
+  openGraph: {
+    type: "website",
+    url: "https://kerosop.site",
+    siteName: "KeroSOP",
+    title: "KeroSOP — Find where your SOPs disagree",
+    description: "Not a chatbot. A quality check for the rules your staff follow, in Chinese and English, with both clauses quoted word for word.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KeroSOP — Find where your SOPs disagree",
+    description: "Not a chatbot. A quality check for the rules your staff follow, in Chinese and English, with both clauses quoted word for word.",
+  },
 };
 
 // Runs before the page paints. Every first load starts at the very top: the
