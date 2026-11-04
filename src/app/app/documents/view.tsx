@@ -598,7 +598,7 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
         >
           <div className="flex items-center gap-3" aria-hidden="true">
             {KINDS.map((k) => (
-              <FileLogo key={k} kind={k} className="size-10" />
+              <FileLogo key={k} kind={k} className="size-10" monochrome={k === "md" || k === "txt"} />
             ))}
           </div>
           <div>
