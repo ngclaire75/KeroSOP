@@ -255,9 +255,14 @@ export function Label({ children, htmlFor, hint }: { children: ReactNode; htmlFo
 export function Input({ label, hint, className = "", ...props }: ComponentProps<"input"> & { label?: string; hint?: string }) {
   const id = useId();
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className}`}>
       {label && <Label htmlFor={id} hint={hint}>{label}</Label>}
-      <input id={id} className={`${FIELD} h-10`} {...props} />
+      <div className="relative min-w-0">
+        <input id={id} className={`${FIELD} block h-10 min-w-0 max-w-full ${props.type === "date" ? "app-date-input" : ""}`} {...props} />
+        {props.type === "date" && !(props.value ?? props.defaultValue) && (
+          <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[14px] text-mute">Select date</span>
+        )}
+      </div>
     </div>
   );
 }

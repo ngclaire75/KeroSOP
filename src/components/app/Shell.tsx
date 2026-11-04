@@ -438,6 +438,9 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
 
       <header className="sticky top-0 z-30 bg-[#0b0b0b]/90 text-paper backdrop-blur-md">
         <div className="flex h-16 items-center gap-2 px-3 sm:px-4 lg:pr-5 lg:pl-1">
+          <AppLink href="/" aria-label="KeroSOP dashboard" className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-red lg:hidden">
+            <LogoMark tone="paper" className="h-6 w-auto" />
+          </AppLink>
           <button ref={menuTrigger} type="button" aria-expanded={menu} onClick={() => setMenu(true)} className="order-last inline-flex size-11 items-center justify-center rounded-full lg:hidden" aria-label="Open menu">
             <span className="relative block h-3 w-5" aria-hidden="true">
               <span className="absolute top-0 left-0 h-[2px] w-5 bg-current" />
