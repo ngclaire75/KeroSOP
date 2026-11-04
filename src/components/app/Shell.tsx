@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { hasOpenPanel, usePanelLock } from "@/lib/use-panel-lock";
 import { LogoMark } from "@/components/ui";
 import { logOut } from "@/lib/auth";
 import { NAV, appHref, appPath, isAppPageEnabled, useAuthUser, type AuthUser } from "@/lib/app/nav";
@@ -189,6 +190,8 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
   const [scope, setScope] = useState<Scope>("all");
   const [i, setI] = useState(0);
   const list = useRef<HTMLUListElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  usePanelLock(open, panel, onClose);
 
   const all = useMemo<Cmd[]>(() => {
     const actions: Cmd[] = [
@@ -222,15 +225,6 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
     return Object.fromEntries(SCOPES.map((s) => [s.id, s.id === "all" ? m.length : m.filter((c) => c.scope === s.id).length]));
   }, [all, term]);
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
   // keep the highlighted row in view while moving with the keyboard
   useEffect(() => {
     list.current?.querySelector<HTMLElement>(`[data-idx="${i}"]`)?.scrollIntoView({ block: "nearest" });
@@ -255,7 +249,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
 
   return (
     <div className="fixed inset-0 z-[85] flex items-start justify-center bg-ink/30 px-3 pt-[10vh] backdrop-blur-[3px] sm:px-4" onMouseDown={(e) => e.target === e.currentTarget && close()}>
-      <div role="dialog" aria-modal="true" aria-label="Search" className="flex max-h-[76vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[20px] bg-paper shadow-[0_24px_80px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]">
+      <div ref={panel} role="dialog" aria-modal="true" aria-label="Search" className="flex max-h-[76vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[20px] bg-paper shadow-[0_24px_80px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]">
         <div className="flex items-center gap-3 px-5">
           <Icon name="search" className="size-5 text-mute" />
           <input
@@ -386,6 +380,7 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
   const [palette, setPalette] = useState(false);
   const mobileMenu = useRef<HTMLDivElement>(null);
   const menuTrigger = useRef<HTMLButtonElement>(null);
+  usePanelLock(menu, mobileMenu, () => setMenu(false));
 
   useEffect(() => {
     if (!menu) return;
@@ -393,11 +388,8 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
     const wide = window.matchMedia("(min-width: 1024px)");
     const closeOnDesktop = () => { if (wide.matches) setMenu(false); };
     wide.addEventListener("change", closeOnDesktop);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     mobileMenu.current?.querySelector<HTMLButtonElement>("button")?.focus();
     return () => {
-      document.body.style.overflow = previousOverflow;
       wide.removeEventListener("change", closeOnDesktop);
       trigger?.focus();
     };
@@ -411,6 +403,7 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (hasOpenPanel()) return;
       const typing = /input|textarea|select/i.test((e.target as HTMLElement)?.tagName ?? "");
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();

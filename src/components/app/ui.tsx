@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { limitWords, textWords } from "@/lib/text-limit";
+import { usePanelLock } from "@/lib/use-panel-lock";
 import {
   createContext,
   useCallback,
@@ -379,20 +380,6 @@ export function Tabs<T extends string>({ value, onChange, tabs }: { value: T; on
 
 /* ---------- overlays ---------- */
 
-function useEscape(open: boolean, onClose: () => void) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onClose]);
-}
-
 function useEnter(open: boolean, from: Record<string, [number | string, number | string]>) {
   const ref = useRef<HTMLDivElement>(null);
   const fromRef = useRef(from);
@@ -401,7 +388,6 @@ function useEnter(open: boolean, from: Record<string, [number | string, number |
     const el = ref.current;
     // once in place, drop the leftover transform so the text inside renders on whole pixels and stays still
     import("animejs").then(({ animate }) => animate(el, { ...fromRef.current, duration: 420, ease: "outQuart", onComplete: () => el.style.removeProperty("transform") }));
-    el.querySelector<HTMLElement>("[data-autofocus], input, textarea, select, button")?.focus();
   }, [open]);
   return ref;
 }
@@ -424,8 +410,8 @@ export function Modal({
   /** On phones, take the whole screen instead of rising as a sheet. */
   fullOnMobile?: boolean;
 }) {
-  useEscape(open, onClose);
   const ref = useEnter(open, { opacity: [0, 1], translateY: [16, 0] });
+  usePanelLock(open, ref, onClose);
   // close only when the whole click happens on the backdrop, not when a press or drag merely ends there
   const downOnBackdrop = useRef(false);
   if (!open) return null;
@@ -456,8 +442,8 @@ export function Modal({
 }
 
 export function Drawer({ open, onClose, title, children, footer }: { open: boolean; onClose(): void; title: ReactNode; children: ReactNode; footer?: ReactNode }) {
-  useEscape(open, onClose);
   const ref = useEnter(open, { translateX: [40, 0], opacity: [0, 1] });
+  usePanelLock(open, ref, onClose);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[70] flex justify-end bg-ink/30 backdrop-blur-[1px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
