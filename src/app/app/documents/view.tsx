@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 import { FileLogo } from "@/components/app/FileLogo";
 import { Icon } from "@/components/app/icons";
-import { Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, Tabs, Textarea, ago, fmtDate, orgName, useToast } from "@/components/app/ui";
+import { Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, Textarea, ago, fmtDate, orgName, useToast } from "@/components/app/ui";
 import { download } from "@/lib/app/api";
 import { useWorkspace, type UploadMeta } from "@/lib/app/store";
 import { AUTHORITY_LABEL, type Approval, type Authority, type Doc, type FileKind, type Lang, type Status } from "@/lib/app/types";
@@ -106,8 +106,9 @@ export default function DocumentsPage() {
     );
   }, [ws.docs, tab, dept, authority, kind, q, sort, stats.open]);
 
-  const filtered = q || dept !== "all" || authority !== "all" || kind !== "all";
+  const filtered = tab !== "all" || q || dept !== "all" || authority !== "all" || kind !== "all";
   const clear = () => {
+    setTab("all");
     setQ("");
     setDept("all");
     setAuthority("all");
@@ -136,7 +137,7 @@ export default function DocumentsPage() {
       />
 
       {ws.docs.length === 0 ? (
-        <div className="rounded-[10px] border border-dashed border-line">
+        <div style={ROW_STYLE}>
           <Empty
             title="No documents yet"
             body="Upload your policies, SOPs and training guides. KeroSOP reads each section, extracts the rules and keeps every version."
@@ -145,19 +146,21 @@ export default function DocumentsPage() {
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-3 pb-5">
-            <Tabs<Tab>
-              value={tab}
-              onChange={setTab}
-              tabs={[
-                { id: "all", label: "All" },
-                { id: "approved", label: "Approved" },
-                { id: "draft", label: "Drafts" },
-                { id: "archived", label: "Archived" },
-              ]}
-            />
-            <div className="grid grid-cols-2 gap-2 xl:grid-cols-[minmax(240px,1fr)_190px_190px_150px_190px]">
+          <div className="pb-5">
+            <div className="grid grid-cols-2 gap-2 xl:grid-cols-[minmax(200px,1fr)_150px_170px_180px_140px_170px]">
               <SearchInput value={q} onChange={setQ} placeholder="Search title, code, file or owner" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+              <Select
+                aria-label="Status"
+                value={tab}
+                onChange={(e) => setTab(e.target.value as Tab)}
+                options={[
+                  { value: "all", label: "All statuses" },
+                  { value: "approved", label: "Approved" },
+                  { value: "draft", label: "Drafts" },
+                  { value: "archived", label: "Archived" },
+                ]}
+                className={SEL}
+              />
               <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} options={[{ value: "all", label: "All departments" }, ...depts]} className={SEL} />
               <Select
                 aria-label="Authority"
@@ -176,7 +179,7 @@ export default function DocumentsPage() {
                   { value: "name", label: "Name, A to Z" },
                   { value: "findings", label: "Most open findings" },
                 ]}
-                className={SEL}
+                className={`col-span-2 xl:col-span-1 ${SEL}`}
               />
             </div>
           </div>
@@ -198,7 +201,7 @@ export default function DocumentsPage() {
               ))}
             </ul>
           ) : (
-            <div className="rounded-[10px] border border-dashed border-line">
+            <div style={ROW_STYLE}>
               <Empty icon="search" title="No documents match" body="Try another search or clear the filters." action={filtered && <Btn onClick={clear}>Clear filters</Btn>} />
             </div>
           )}
@@ -369,10 +372,16 @@ function DocDrawer({ doc, rules, open, depts, onClose, onNewVersion }: { doc: Do
       <div className="flex flex-col gap-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {canEdit ? (
-            <Tabs<Approval>
+            <Select
+              aria-label="Status"
               value={doc.approval}
-              onChange={(a) => a !== doc.approval && run(() => updateDocument(doc.id, { approval: a }), `Marked ${APPROVAL[a].toLowerCase()}`)}
-              tabs={(Object.keys(APPROVAL) as Approval[]).map((id) => ({ id, label: APPROVAL[id] }))}
+              disabled={busy}
+              onChange={(e) => {
+                const a = e.target.value as Approval;
+                if (a !== doc.approval) run(() => updateDocument(doc.id, { approval: a }), `Marked ${APPROVAL[a].toLowerCase()}`);
+              }}
+              options={(Object.keys(APPROVAL) as Approval[]).map((value) => ({ value, label: APPROVAL[value] }))}
+              className={`w-[180px] ${SEL}`}
             />
           ) : (
             <StatusPill doc={doc} />
@@ -392,8 +401,9 @@ function DocDrawer({ doc, rules, open, depts, onClose, onNewVersion }: { doc: Do
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-[13px] font-bold">Details</h3>
             {canEdit && !editing && (
-              <button type="button" onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5 text-[13px] font-semibold underline-offset-4 hover:text-red hover:underline">
-                <Icon name="edit" className="size-4" /> Edit
+              <button type="button" onClick={() => setEditing(true)} className="inline-flex h-8 items-center gap-1.5 text-[13px] leading-none font-semibold transition-colors hover:text-red">
+                <Icon name="edit" className="size-4 -translate-y-0.5" />
+                <span className="underline-offset-4 [button:hover>&]:underline">Edit</span>
               </button>
             )}
           </div>

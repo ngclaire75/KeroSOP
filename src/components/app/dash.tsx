@@ -466,8 +466,7 @@ export function Pipeline({ stages }: { stages: Stage[] }) {
       <ol className="flex flex-col gap-1">
         {stages.map((s, i) => (
           <li key={s.label}>
-            <AppLink href={s.href} className="group grid grid-cols-[18px_minmax(0,1fr)_32px] items-center gap-x-3 rounded-[10px] py-1.5">
-              <span className="text-[11px] font-semibold text-mute tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+            <AppLink href={s.href} className="group grid grid-cols-[minmax(0,1fr)_32px] items-center gap-x-3 rounded-[10px] py-1.5">
               <span className="min-w-0">
                 <span className="block truncate text-[13px] font-medium">{s.label}</span>
                 <span className="mt-1.5 block h-2 overflow-hidden rounded-full bg-fog">
