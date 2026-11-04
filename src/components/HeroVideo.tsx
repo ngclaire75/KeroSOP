@@ -71,7 +71,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
       <button
         type="button"
         aria-label={playing ? "Pause video" : "Play video"}
-        className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/75 text-white backdrop-blur-sm transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:size-14"
+        className="group absolute inset-0 grid place-items-center rounded-[28px] text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
         onClick={() => {
           const video = ref.current;
           if (!video) return;
@@ -84,9 +84,11 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           }
         }}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="currentColor">
-          {playing ? <path d="M6 4h4v16H6zm8 0h4v16h-4z" /> : <path d="M7 4v16l14-8z" />}
-        </svg>
+        <span className={`grid size-12 place-items-center rounded-full bg-black/75 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none sm:size-14 ${playing ? "opacity-0 group-focus-visible:opacity-100" : "opacity-100"}`}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="currentColor">
+            {playing ? <path d="M6 4h4v16H6zm8 0h4v16h-4z" /> : <path d="M7 4v16l14-8z" />}
+          </svg>
+        </span>
       </button>
     </div>
   );
