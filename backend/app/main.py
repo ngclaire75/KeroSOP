@@ -187,7 +187,7 @@ def _ingest(ctx: Ctx, name: str, data: bytes, meta: dict) -> dict:
             code, title, doc_id = doc["code"], doc["title"], doc["id"]
             action = "uploaded a new version of"
         else:
-            code = service.next_code(conn, ctx.org, "doc", "D")
+            code = service.next_code(conn, ctx.org, "doc")
             title = (meta.get("title") or re.sub(r"\.[^.]+$", "", name)).strip()[:200]
             doc_id = one(conn, """INSERT INTO documents (organization_id, code, title, file_name, kind, owner_name, department, authority, approval, language, scope, parse_issue, created_by)
                                   VALUES (:o,:c,:t,:f,:k,:ow,:de,:a,:ap,:l,:s,:p,:u) RETURNING id""",
@@ -361,7 +361,7 @@ def start_scan(body: ScanBody, ctx: Ctx = Depends(workspace)):
         ids = [r["id"] for r in rows(conn, "SELECT id FROM documents WHERE code = ANY(:c)", c=body.docIds)]
         if not ids:
             raise Invalid("Choose at least one document.")
-        code = service.next_code(conn, ctx.org, "scan", "SCAN")
+        code = service.next_code(conn, ctx.org, "scan")
         job = one(conn, """INSERT INTO scan_jobs (organization_id, code, name, doc_ids, reverify, use_ai, started_by, counts)
                            VALUES (:o,:c,:n,:d,:r,:ai,:b,'{}'::jsonb) RETURNING id""",
                   o=ctx.org, c=code, n=body.name, d=ids, r=body.reverify, ai=body.useAi and settings.llm_enabled, b=ctx.me.name)["id"]

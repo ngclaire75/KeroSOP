@@ -1,5 +1,6 @@
 """Acceptance tests from the master specification, through the HTTP API and the database."""
 import io
+import re
 
 import pytest
 from sqlalchemy import text
@@ -52,7 +53,11 @@ def test_admin_demo_workspace_is_flagged(admin):
     admin.org = org
     ws = admin.get("/v1/workspace").json()
     assert ws["sample"] is True and len(ws["docs"]) == 40
-    assert {f"SOP-00{i}" for i in range(1, 7)} <= {f["id"] for f in ws["findings"]}
+    # every record carries a random six-digit code, and the history links follow the renamed records
+    assert all(re.fullmatch(r"F\d{6}", f["id"]) for f in ws["findings"]) and len({f["id"] for f in ws["findings"]}) == len(ws["findings"])
+    assert all(re.fullmatch(r"S\d{6}", d["id"]) for d in ws["docs"]) and all(re.fullmatch(r"D\d{6}", s["id"]) for s in ws["scans"])
+    assert all(re.fullmatch(r"R\d{6}", r["id"]) for r in ws["rules"])
+    assert not any(re.search(r"\b(?:SOP|SCAN|D)-\d", f"{a['target']} {a['href'] or ''}") for a in ws["audit"])
     assert all(e["verified"] for f in ws["findings"] for e in f["evidence"])
 
 

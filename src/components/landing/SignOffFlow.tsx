@@ -109,7 +109,7 @@ export function LifecycleTrack({ stages }: { stages: string[] }) {
             {pad(active + 1)}
             <span className="text-ink/25"> / {pad(n)}</span>
           </span>
-          Following SOP-001
+          Following F640381
         </p>
       </div>
 

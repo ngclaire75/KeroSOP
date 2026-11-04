@@ -58,7 +58,7 @@ export default function RuleRegistry() {
   const scrolling = useRef(false);
   const scrollEnd = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // deep links: ?rule=R-0001, ?topic=refund, ?doc=D-001
+  // deep links: ?rule=R115927, ?topic=refund, ?doc=S482913
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     queueMicrotask(() => {

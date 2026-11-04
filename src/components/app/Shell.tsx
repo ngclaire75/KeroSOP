@@ -310,7 +310,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
           {results.length === 0 && (
             <li className="flex flex-col items-center px-6 py-14 text-center">
               <p className="text-[15px] font-semibold">Nothing matches “{q}”</p>
-              <p className="mt-1 text-[13px] text-mute">{scope === "all" ? "Try a finding ID such as SOP-004, or part of a clause." : "Try searching everything instead."}</p>
+              <p className="mt-1 text-[13px] text-mute">{scope === "all" ? "Try a finding ID such as F640381, or part of a clause." : "Try searching everything instead."}</p>
               {scope !== "all" && (
                 <button type="button" onClick={() => setScope("all")} className="mt-4 rounded-full border border-line px-3.5 py-1.5 text-[13px] font-semibold hover:border-ink/40">
                   Search everything

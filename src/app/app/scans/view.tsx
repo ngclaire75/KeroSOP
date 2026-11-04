@@ -71,7 +71,7 @@ export default function ScanCenter() {
       .catch(() => setAi({ enabled: false, reachable: false, reason: "Could not check the model server." }));
   }, []);
 
-  // deep links: ?new=1 opens the composer, ?scan=SCAN-001 a scan's details
+  // deep links: ?new=1 opens the composer, ?scan=D207554 a scan's details
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     queueMicrotask(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { animate } from "animejs";
 import type { Doc } from "@/lib/app/types";
 import { AUTHORITY_LABEL } from "@/lib/app/types";
@@ -12,8 +12,8 @@ type View = { z: number; x: number; y: number };
 
 const MAX_ZOOM = 4;
 const HOME: View = { z: 1, x: 0, y: 0 };
-const CARD_W = 216;
-const CARD_H = 96;
+const CARD_W = 96; // room kept for a node: its dot and document ID
+const CARD_H = 40;
 const GAP = 18;
 const PAD = 40;
 
@@ -24,11 +24,11 @@ function layout(ids: string[]) {
   const stretch = 1.5; // wider than tall to suit the panel
   // Rings step far enough apart that cards on neighbouring rings clear each other at the
   // top (vertically) and at the sides (horizontally); each ring's angular spacing does the same.
-  const step = Math.max(CARD_H + GAP, (CARD_W + GAP) / stretch) + 8;
+  const step = Math.max(CARD_H + GAP, (CARD_W + GAP) / stretch) + 56; // generous: small nodes need room for their lines
   let radius = step * 1.15, i = 0;
   while (i < ids.length) {
     const rx = radius * stretch, ry = radius;
-    const capacity = Math.max(1, Math.floor(Math.PI * 2 / Math.max((CARD_W + GAP) / rx, (CARD_H + GAP) / ry)));
+    const capacity = Math.max(1, Math.floor(Math.PI * 2 / Math.max((CARD_W + GAP + 60) / rx, (CARD_H + GAP + 30) / ry)));
     const count = Math.min(capacity, ids.length - i);
     // Balance the last ring instead of crowding one side.
     const offset = (pts.length % 2) * Math.PI / count;
@@ -64,6 +64,42 @@ function layout(ids: string[]) {
   return { width, height, positions: pts.map((p) => ({ id: p.id, x: p.x + shiftX, y: p.y + shiftY })) };
 }
 
+type Pt = { x: number; y: number };
+type Size = { w: number; h: number };
+const LINE_GAP = 2; // space kept between a line and an ID it would otherwise cross
+const DOT_SLOT = 14; // the dot sits centred in this square, exactly on the node's position
+const LABEL_TOP = DOT_SLOT / 2 + 4; // the ID starts this far below the node's position
+
+const lerp = (a: Pt, b: Pt, t: number): Pt => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+const along = (p: Pt[], t: number): Pt => {
+  const [a, b, c] = [lerp(p[0], p[1], t), lerp(p[1], p[2], t), lerp(p[2], p[3], t)];
+  return lerp(lerp(a, b, t), lerp(b, c, t), t);
+};
+/** The part of a cubic Bézier between t0 and t1, as its own four control points (de Casteljau). */
+function slice(p: Pt[], t0: number, t1: number): Pt[] {
+  const split = (q: Pt[], t: number) => {
+    const [a, b, c] = [lerp(q[0], q[1], t), lerp(q[1], q[2], t), lerp(q[2], q[3], t)];
+    const [d, e] = [lerp(a, b, t), lerp(b, c, t)];
+    const m = lerp(d, e, t);
+    return { left: [q[0], a, d, m], right: [m, e, c, q[3]] };
+  };
+  return split(split(p, t1).left, t1 ? t0 / t1 : 0).right;
+}
+/** Where the curve leaves (from 0) or reaches (from 1) a node: it runs right up to the dot's edge,
+ * but stops LINE_GAP short of the ID if it would reach the ID first. Dot and ID are separate shapes,
+ * so a line coming from the side never stops in the empty corner of a combined box. */
+function edge(p: Pt[], n: Pt, r: number, label: Size, from: 0 | 1) {
+  const inside = (t: number) => {
+    const q = along(p, t);
+    if (Math.hypot(q.x - n.x, q.y - n.y) <= r) return true;
+    return Math.abs(q.x - n.x) <= label.w / 2 + LINE_GAP && q.y >= n.y + LABEL_TOP - LINE_GAP && q.y <= n.y + LABEL_TOP + label.h + LINE_GAP;
+  };
+  let lo: number = from, hi = 0.5;
+  if (inside(hi)) return hi;
+  for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (inside(mid)) lo = mid; else hi = mid; }
+  return hi;
+}
+
 export default function PolicyGraph({ docs, links, selected, onSelect }: Props) {
   const viewport = useRef<HTMLDivElement>(null);
   const scene = useRef<HTMLDivElement>(null);
@@ -73,6 +109,19 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
   const key = docs.map((d) => d.id).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { width, height, positions } = useMemo(() => layout(docs.map((d) => d.id)), [key]);
+  // Each node's rendered box (layout px, unaffected by zoom), so lines can stop just outside it.
+  const [sizes, setSizes] = useState<Record<string, Size>>({});
+  useLayoutEffect(() => {
+    const el = scene.current;
+    if (!el) return;
+    const measure = () => {
+      const next: Record<string, Size> = {};
+      el.querySelectorAll<HTMLElement>("[data-label]").forEach((n) => { next[n.dataset.label!] = { w: n.offsetWidth, h: n.offsetHeight }; });
+      setSizes((old) => (JSON.stringify(old) === JSON.stringify(next) ? old : next));
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+  }, [key]);
   const fit = availableWidth ? Math.min(1, Math.max(1, availableWidth - 32) / width) : 1;
   const [view, setView] = useState<View>(HOME);
   const viewRef = useRef(view);
@@ -237,11 +286,23 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
     return () => { observer.disconnect(); document.removeEventListener("visibilitychange", update); };
   }, []);
 
+  // Lines run node to node, trimmed where they meet each node's box so they never cross its ID.
   const curve = (link: PolicyLink) => {
     const a = positions.find((n) => n.id === link.a), b = positions.find((n) => n.id === link.b);
     if (!a || !b) return null;
-    const cx = (a.x + b.x) / 2;
-    return `M ${a.x} ${a.y} C ${a.x * .55 + cx * .45} ${a.y * .55 + height / 2 * .45}, ${b.x * .55 + cx * .45} ${b.y * .55 + height / 2 * .45}, ${b.x} ${b.y}`;
+    // Every link bends: both control points sit off the straight line by a share of its length,
+    // towards the middle of the map (or a fixed side when the link already runs through it).
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len, ny = dx / len;
+    const toward = (width / 2 - (a.x + b.x) / 2) * nx + (height / 2 - (a.y + b.y) / 2) * ny;
+    const bend = (Math.abs(toward) < 1 ? 1 : Math.sign(toward)) * Math.max(24, len * .22);
+    const full = [a, { x: a.x + dx * .25 + nx * bend, y: a.y + dy * .25 + ny * bend }, { x: a.x + dx * .75 + nx * bend, y: a.y + dy * .75 + ny * bend }, b];
+    const radius = (id: string) => (id === selected ? 7 : 5);
+    const label = (id: string) => sizes[id] ?? { w: 64, h: 18 };
+    const t0 = edge(full, a, radius(a.id), label(a.id), 0), t1 = edge(full, b, radius(b.id), label(b.id), 1);
+    if (t1 - t0 < 0.02) return null;
+    const [p0, p1, p2, p3] = slice(full, t0, t1);
+    return `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
   };
   // Finding links draw last so they sit on top of topic links.
   const ordered = [...links.filter((l) => !l.findings.length), ...links.filter((l) => l.findings.length)];
@@ -251,12 +312,12 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
     return path ? [{ id: link.id, path }] : [];
   });
 
+  const flagged = new Set(links.filter((l) => l.findings.length).flatMap((l) => [l.a, l.b]));
   const neighbors = new Set(links.filter((l) => l.a === selected || l.b === selected).flatMap((l) => [l.a, l.b]));
   return (
     <div ref={viewport} className="w-full py-4" role="region" aria-label="Policy relationship map. Select a document for its connections.">
       <div ref={frame} onClickCapture={swallowDragClick} className={`relative mx-auto overflow-hidden rounded-[10px] ${zoomed ? "cursor-grab active:cursor-grabbing" : ""}`} style={{ width: boxW, height: boxH, touchAction: zoomed ? "none" : "pan-x pan-y" }}>
         <div ref={scene} className="absolute top-0 left-0 origin-top-left" style={{ width, height, transform: `translate(${view.x}px, ${view.y}px) scale(${fit * view.z})` }}>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(#e5e5e3 0.75px, transparent 0.75px)", backgroundSize: "24px 24px" }} />
           <div ref={motionLayer} aria-hidden="true" className={`map-motion pointer-events-none absolute inset-0`}>
             <svg width={width} height={height} className="absolute inset-0" fill="none" strokeLinecap="round">{ordered.map((l) => {
               const d = curve(l);
@@ -269,11 +330,16 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
           </div>
           {docs.map((doc, i) => {
             const point = positions[i];
-            return <button key={doc.id} type="button" aria-pressed={selected === doc.id} onClick={() => onSelect(doc.id)} className="absolute flex h-[96px] w-[216px] -translate-x-1/2 -translate-y-1/2 flex-col justify-center rounded-[10px] border bg-black isolate z-10 px-3.5 py-3 text-center text-white shadow-[0_2px_8px_#00000014] transition-[border-color,box-shadow] hover:!border-white/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink" style={{ left: point.x, top: point.y, borderColor: selected === doc.id ? "#e30613" : "#2a2a2a" }}>
-              <span className="flex w-full min-w-0 flex-col items-center" style={{ opacity: selected && selected !== doc.id && !neighbors.has(doc.id) ? .4 : 1 }}>
-              <span className="line-clamp-2 text-[15px] leading-[1.4] font-bold">{doc.title}</span>
-              <span className="mt-1 max-w-full truncate text-[13px] text-white/60">{AUTHORITY_LABEL[doc.authority]}</span>
+            const on = selected === doc.id;
+            const hot = flagged.has(doc.id);
+            // A node: a dot with the document ID under it. The full name shows on hover and in the details panel.
+            return <button key={doc.id} data-node={doc.id} type="button" aria-pressed={on} aria-label={`${doc.title} (${doc.id}), ${AUTHORITY_LABEL[doc.authority]}`} title={doc.title} onClick={() => onSelect(doc.id)}
+              className="group absolute isolate z-10 flex -translate-x-1/2 flex-col items-center gap-1 rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              style={{ left: point.x, top: point.y - DOT_SLOT / 2, opacity: selected && !on && !neighbors.has(doc.id) ? .3 : 1, transition: "opacity .3s" }}>
+              <span aria-hidden="true" className="grid place-items-center" style={{ width: DOT_SLOT, height: DOT_SLOT }}>
+                <span className={`block rounded-full transition-colors duration-200 ${on ? "size-3.5 bg-red" : hot ? "size-2.5 bg-red" : "size-2.5 bg-ink"}`} />
               </span>
+              <span data-label={doc.id} className={`bg-white px-1 text-[14px] leading-[1.3] font-semibold tabular-nums transition-colors ${on ? "text-red" : "text-ink group-hover:text-red"}`}>{doc.id}</span>
             </button>;
           })}
         </div>

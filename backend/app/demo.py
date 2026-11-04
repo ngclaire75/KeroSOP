@@ -7,6 +7,7 @@ from uuid import UUID
 from sqlalchemy import text
 
 from .db import system, tenant
+from .codes import renumber_org
 from .seed import DEMO_TEAM, demo_counts, demo_docs, sample_findings
 from .service import add_version, audit, default_org_rows, one, rebuild_rules
 
@@ -112,4 +113,6 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
         conn.execute(text("INSERT INTO notifications (organization_id, body, href, created_at) VALUES (:o,:b,:h,:c)"),
                      {"o": org, "b": "New finding SOP-006: refund response time 24 hours vs 48 hours", "h": "/findings/SOP-006", "c": DAY(28, 15)})
         audit(conn, org, name, "opened", "the workspace", None, None, user_id)
+        # The storyline above is written with sequential codes; give everything its random six-digit code.
+        renumber_org(conn, org)
     return org

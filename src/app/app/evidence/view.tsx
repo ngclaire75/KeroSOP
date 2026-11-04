@@ -25,7 +25,7 @@ export default function EvidenceComparison() {
   );
   const [id, setId] = useState("");
 
-  // ?id=SOP-001 opens that finding; otherwise the highest-risk open one
+  // ?id=F640381 opens that finding; otherwise the highest-risk open one
   useEffect(() => {
     const want = new URLSearchParams(window.location.search).get("id");
     queueMicrotask(() => setId(want && ws.findings.some((f) => f.id === want) ? want : (ordered[0]?.id ?? "")));

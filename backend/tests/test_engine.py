@@ -225,3 +225,13 @@ def test_remote_corpus_basecamp_and_axelisys():
 
 def test_language_detection():
     assert detect_lang("客服人员可受理新退款申请") == "zh" and detect_lang("Customers may submit") == "en"
+
+
+# ---------- record codes ----------
+
+def test_fingerprints_keep_sorted_document_codes_after_renumbering():
+    from app.codes import rewrite, rewrite_fingerprint
+    mapping = {"D-001": "S900001", "D-002": "S100002", "SOP-004": "F555555"}
+    assert rewrite_fingerprint("contradiction|refund|submission|D-001+D-002", mapping) == "contradiction|refund|submission|S100002+S900001"
+    assert rewrite_fingerprint("missing_step|B-purchase|D-001|Approval", mapping) == "missing_step|B-purchase|S900001|Approval"
+    assert rewrite("/findings/SOP-004 and SOP-099", mapping) == "/findings/F555555 and SOP-099"

@@ -2,7 +2,7 @@
 Workspace operations. Everything runs inside a tenant() transaction, so the
 database's row-level security scopes every read and write to one organisation.
 The snapshot uses the same shape as the web client's `Workspace` type, with
-human codes (D-001, SOP-001, R-0001, SCAN-001) as ids.
+human codes (S482913, F640381, R115927, D207554) as ids.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ import httpx
 from sqlalchemy import text
 from sqlalchemy.engine import Connection
 
+from . import codes
 from . import engine
 from .seed import DEFAULT_BASELINES
 
@@ -80,13 +81,11 @@ def notify(conn, org, body: str, href: str | None = None):
             pass
 
 
-def next_code(conn, org, kind: str, prefix: str, width: int = 3) -> str:
-    row = one(conn, "SELECT seq FROM organizations WHERE id = :o FOR UPDATE", o=org)
-    seq = dict(row["seq"])
-    n = int(seq.get(kind, 1))
-    seq[kind] = n + 1
-    conn.execute(text("UPDATE organizations SET seq = CAST(:s AS jsonb) WHERE id = :o"), {"s": json.dumps(seq), "o": org})
-    return f"{prefix}-{n:0{width}d}"
+def next_code(conn, org, kind: str) -> str:
+    """A random, unique six-digit code (see codes.py). The organisation row is locked so two
+    requests in the same workspace cannot pick the same number at once."""
+    one(conn, "SELECT id FROM organizations WHERE id = :o FOR UPDATE", o=org)
+    return codes.new_code(conn, org, kind)
 
 
 # ---------- loading for the engine ----------
@@ -145,6 +144,7 @@ def snapshot(conn, org, user_id) -> dict:
     o = one(conn, "SELECT * FROM organizations WHERE id = :o", o=org)
     docs = load_docs(conn, org)
     rules = load_rules(conn)
+    renamed = codes.aliases(conn)
     doc_code = {d["uuid"]: d["id"] for d in docs}
     ver = {v["uuid"]: v["version"] for d in docs for v in d["versions"]}
     findings = rows(conn, "SELECT * FROM findings ORDER BY created_at DESC, code DESC")
@@ -179,7 +179,9 @@ def snapshot(conn, org, user_id) -> dict:
         "docs": [{k: v for k, v in d.items() if k != "uuid"} | {"versions": [{k: v for k, v in x.items() if k != "uuid"} for x in d["versions"]]} for d in docs],
         "rules": [{k: v for k, v in r.items() if k != "uuid"} for r in rules],
         "findings": fout, "scans": scans,
-        "audit": [{"id": str(a["id"]), "at": iso(a["created_at"]), "actor": a["actor"], "action": a["action"], "target": a["target"], "detail": a["detail"], "href": a["href"]}
+        # the audit trail is append-only, so history written before a renumbering is shown with current codes
+        "audit": [{"id": str(a["id"]), "at": iso(a["created_at"]), "actor": a["actor"], "action": a["action"], "target": codes.rewrite(a["target"], renamed),
+                   "detail": codes.rewrite(a["detail"], renamed), "href": codes.rewrite(a["href"], renamed)}
                   for a in rows(conn, "SELECT * FROM audit_events ORDER BY created_at DESC LIMIT 500")],
         "notices": [{"id": str(n["id"]), "at": iso(n["created_at"]), "text": n["body"], "href": n["href"], "read": n["read"]}
                     for n in rows(conn, "SELECT * FROM notifications ORDER BY created_at DESC LIMIT 60")],
@@ -197,7 +199,7 @@ def rebuild_rules(conn, org, doc_uuid) -> int:
     n = 0
     for i, v in enumerate(doc["versions"]):
         for r in engine.extract_rules(doc, i):
-            code = next_code(conn, org, "rule", "R", 4)
+            code = next_code(conn, org, "rule")
             conn.execute(text("""INSERT INTO extracted_rules (organization_id, code, document_id, version_id, span_id, historical, quote, lang, topic, subject,
                  event, actor, action, modality, value, unit, value_text, unit_class, norm, period, conditions, scope)
                  VALUES (:o,:code,:d,:v,:s,:h,:q,:lang,:topic,:subject,:event,:actor,:action,:mod,:value,:unit,:vt,:uc,:norm,:period,CAST(:cond AS jsonb),:scope)"""),

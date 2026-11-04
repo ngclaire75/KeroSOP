@@ -49,7 +49,7 @@ def _stage(org, user, job, stage, **extra):
 
 
 def _insert_finding(conn, org, d: dict, scan_code: str, docs: list[dict], source: str = "rules", ai: dict | None = None, note: str | None = None) -> str:
-    code = next_code(conn, org, "finding", "SOP")
+    code = next_code(conn, org, "finding")
     fid = one(conn, """INSERT INTO findings (organization_id, code, type, risk, status, title, explanation, why, authority, recommendation, topic, department,
                        fingerprint, scan_code, source, ai) VALUES (:o,:c,:t,:r,'detected',:ti,:ex,:w,:a,:rec,:to,:de,:fp,:sc,:src,CAST(:ai AS jsonb)) RETURNING id""",
               o=org, c=code, t=d["type"], r=d["risk"], ti=d["title"], ex=d["explanation"], w=d["why"], a=d["authority"], rec=d["recommendation"],

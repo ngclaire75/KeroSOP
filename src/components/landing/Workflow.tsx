@@ -153,7 +153,7 @@ const impacts = [
   {
     doc: "客服操作规程",
     sub: "Customer Service SOP",
-    detail: "Section 2.3 already allows 14 days. SOP-001 rechecked.",
+    detail: "Section 2.3 already allows 14 days. F640381 rechecked.",
     status: "Now aligned",
     flagged: false,
   },
