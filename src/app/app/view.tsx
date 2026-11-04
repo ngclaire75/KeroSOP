@@ -419,7 +419,7 @@ export default function Overview() {
             hint="Each scan compares the documents you choose and verifies every quote."
             action={
               <AppLink href="/scans" className="text-[13px] font-semibold text-mute hover:text-ink">
-                Scan Center
+                Document Scan
               </AppLink>
             }
           >

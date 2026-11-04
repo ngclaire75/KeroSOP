@@ -398,24 +398,30 @@ export function Modal({
 }) {
   useEscape(open, onClose);
   const ref = useEnter(open, { opacity: [0, 1], translateY: [16, 0] });
+  // close only when the whole click happens on the backdrop, not when a press or drag merely ends there
+  const downOnBackdrop = useRef(false);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-6"
+      onMouseDown={(e) => (downOnBackdrop.current = e.target === e.currentTarget)}
+      onClick={(e) => downOnBackdrop.current && e.target === e.currentTarget && onClose()}
+    >
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-2xl sm:rounded-[24px] ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
+        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[12px] bg-paper shadow-2xl sm:rounded-[12px] ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
       >
-        <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
+        <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-1">
           <h2 className="text-[17px] font-bold">{title}</h2>
           <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-full" aria-label="Close">
             <Icon name="x" />
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4">{footer}</footer>}
+        {footer && <footer className="flex flex-wrap justify-end gap-2 px-5 pt-1 pb-5">{footer}</footer>}
       </div>
     </div>
   );

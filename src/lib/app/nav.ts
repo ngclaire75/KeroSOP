@@ -26,7 +26,7 @@ export function appPath(pathname: string) {
 /** Only completed dashboard pages are currently available. */
 export function isAppPageEnabled(href: string) {
   const path = href.split(/[?#]/)[0].replace(/\/$/, "") || "/";
-  return ["/", "/documents", "/reports", "/integrations"].includes(path);
+  return ["/", "/documents", "/scans", "/reports", "/integrations"].includes(path);
 }
 
 export type NavItem = { href: string; label: string; icon: string; hint: string };
@@ -40,7 +40,7 @@ export const NAV: NavGroup[] = [
     step: "1",
     items: [
       { href: "/documents", label: "Document Library", icon: "doc", hint: "Upload, version and tag source documents" },
-      { href: "/scans", label: "AI Scan Center", icon: "scan", hint: "Check a set of documents for conflicts" },
+      { href: "/scans", label: "Document Scan", icon: "scan", hint: "Check a set of documents for conflicts" },
       { href: "/rules", label: "Rule Registry", icon: "rules", hint: "Every instruction extracted, with its source" },
     ],
   },
