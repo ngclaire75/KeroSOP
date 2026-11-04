@@ -275,11 +275,27 @@ export function Select({
   ...props
 }: ComponentProps<"select"> & { label?: string; options: (string | { value: string; label: string })[] }) {
   const id = useId();
+  const items = options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+  // a native select cuts long text off (Safari never shows an ellipsis), so the chosen label is drawn on top, ending in "…"
+  const [own, setOwn] = useState(String(props.defaultValue ?? items[0]?.value ?? ""));
+  const current = props.value !== undefined ? String(props.value) : own;
+  const shown = items.find((o) => o.value === current)?.label ?? "";
   return (
     <div className={className}>
       {label && <Label htmlFor={id}>{label}</Label>}
       <div className="relative">
-        <select id={id} className={`${FIELD} h-10 appearance-none pr-9`} {...props}>
+        <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-9 left-0 flex items-center truncate px-3.5 text-[14px]">
+          <span className="truncate">{shown}</span>
+        </span>
+        <select
+          id={id}
+          className={`${FIELD} h-10 appearance-none pr-9 text-transparent! [&>option]:text-ink`}
+          {...props}
+          onChange={(e) => {
+            setOwn(e.target.value);
+            props.onChange?.(e);
+          }}
+        >
           {options.map((o) =>
             typeof o === "string" ? (
               <option key={o} value={o}>

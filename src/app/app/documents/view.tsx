@@ -233,7 +233,7 @@ export default function DocumentsPage() {
   );
 }
 
-const SEL = "[&_select]:rounded-[8px] [&_select]:font-semibold";
+const SEL = "[&_select]:rounded-[8px] font-semibold";
 
 /* ---------- one document row ---------- */
 

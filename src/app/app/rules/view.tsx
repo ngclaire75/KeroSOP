@@ -25,7 +25,7 @@ const MOD_LOOK: Record<Modality, string> = {
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
 /** Desktop columns: rule, requirement, source, status, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_184px_216px_104px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_select]:rounded-[8px] [&_select]:font-semibold";
+const SEL = "[&_select]:rounded-[8px] font-semibold";
 const TOPIC_ROW = 44;
 
 type Scope = "current" | "historical" | "all";

@@ -63,21 +63,19 @@ export function DocViewer({ doc, evidence, label }: Props) {
   }, []);
 
   const [pageH, setPageH] = useState(0);
-  /** Scroll the document view so page n sits at the top. */
-  const scrollTo = useCallback((n: number, smooth = true) => {
+  /** Show page n on its own: the other pages are hidden, so nothing scrolls and the view can never drift. */
+  const scrollTo = useCallback((n: number) => {
     const box = host.current;
-    const count = box?.querySelectorAll("[data-page]").length ?? 0;
-    if (!box || !count) return;
-    // pages are evenly spaced, so page n starts n-1 steps down; no zoomed measurements, which Safari reports differently
-    box.scrollTo({
-      top: Math.round(((n - 1) * box.scrollHeight) / count),
-      behavior: smooth && !prefersReducedMotion() ? "smooth" : "instant",
+    if (!box) return;
+    box.querySelectorAll<HTMLElement>("[data-page]").forEach((el) => {
+      el.style.display = el.dataset.page === String(n) ? "" : "none";
     });
+    box.scrollTop = 0;
   }, []);
 
-  // whenever the page size changes (resize, rotation), line the current page up again so it is never cut off
+  // whenever the page size changes (resize, rotation), keep showing the current page
   useEffect(() => {
-    if (pageH) requestAnimationFrame(() => scrollTo(page, false));
+    if (pageH) requestAnimationFrame(() => scrollTo(page));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the size changes; paging scrolls on its own
   }, [pageH, scrollTo]);
 
@@ -103,12 +101,13 @@ export function DocViewer({ doc, evidence, label }: Props) {
       setPage(1);
       // the view is exactly one page tall; it opens on page 1, and "Cited page" jumps to the clause
       requestAnimationFrame(() => {
+        // every page shown while page 1 is measured, then page 1 alone
+        host.current?.querySelectorAll<HTMLElement>("[data-page]").forEach((el) => (el.style.display = ""));
         const first = host.current?.querySelector<HTMLElement>("[data-page]");
-        // every page is the same size with a 16px gap after it, so one page is the scroll height shared out, less
-        // the gap; this reads the same in every browser, whatever each does with CSS zoom on Word pages
+        // exactly page 1 as drawn (Word pages are scaled with a transform, which every browser measures the same way)
         const box = host.current;
-        if (box) setPageH(first ? Math.round(box.scrollHeight / count - 16) : Math.round(box.clientWidth * A4));
-        requestAnimationFrame(() => scrollTo(1, false));
+        if (box) setPageH(Math.round(first ? first.getBoundingClientRect().height : box.clientWidth * A4));
+        scrollTo(1);
       });
     },
     [evidence.page, scrollTo],
@@ -118,7 +117,7 @@ export function DocViewer({ doc, evidence, label }: Props) {
   const go = (n: number) => {
     const next = Math.max(1, Math.min(pages, n));
     setPage(next);
-    scrollTo(next, false);
+    scrollTo(next);
   };
   const btn =
     "grid size-8 place-items-center rounded-[8px] border border-line bg-paper text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40";
@@ -383,7 +382,9 @@ function DocxPages({
 }) {
   const host = useRef<HTMLDivElement>(null);
   const styles = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
+  // pages are laid out at full size and scaled with a transform, not CSS zoom: Safari will not draw zoomed text below
+  // a minimum size, so on a phone the small footer came out larger than the PDF's
+  const [fit, setFit] = useState(() => ({ scale: width / 794, natural: 794, height: 0 }));
   const [tick, setTick] = useState(0);
   const pending = useRef<{ count: number; marked: number | null } | null>(null);
   const done = useRef(onRendered);
@@ -418,7 +419,7 @@ function DocxPages({
           p.style.margin = "0";
           p.style.boxShadow = "none";
           p.style.border = `${Math.max(1, Math.round(1 / (width / (p.offsetWidth || 794))))}px solid #e5e5e3`;
-          // the zoom scales this radius down, so set it so the page shows ~10px corners
+          // the scale shrinks this radius, so set it so the page shows ~10px corners
           p.style.borderRadius = `${Math.round(10 / (width / (p.offsetWidth || 794)))}px`;
           p.style.overflow = "hidden";
         });
@@ -432,7 +433,7 @@ function DocxPages({
           p.style.marginBottom = `${Math.round(16 / z)}px`;
         });
         pending.current = { count: pages.length, marked: markedPage };
-        setZoom(z);
+        setFit({ scale: z, natural: pages[0]?.offsetWidth || 794, height: el.offsetHeight * z });
         setTick((t) => t + 1);
       })
       .catch(() => {});
@@ -441,7 +442,7 @@ function DocxPages({
     };
   }, [blob, quote, width]);
 
-  // the zoom is applied by now, so positions and heights are final
+  // the scale is applied by now, so positions and heights are final
   useEffect(() => {
     const p = pending.current;
     if (!p) return;
@@ -452,7 +453,9 @@ function DocxPages({
   return (
     <>
       <div ref={styles} />
-      <div ref={host} style={{ zoom }} />
+      <div style={{ height: fit.height || undefined, overflow: "hidden" }}>
+        <div ref={host} style={{ width: fit.natural, transform: `scale(${fit.scale})`, transformOrigin: "0 0" }} />
+      </div>
     </>
   );
 }

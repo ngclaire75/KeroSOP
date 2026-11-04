@@ -219,8 +219,8 @@ export default function Overview() {
       {/* one filter row; it scopes every chart below */}
       <div className="mb-3 flex flex-col gap-3 pt-4 pb-1 sm:mb-6 sm:pb-4 lg:flex-row lg:items-center">
         <div className="flex flex-wrap items-center gap-2">
-          <Select aria-label="Time range" value={range} onChange={(e) => setRange(e.target.value as Range)} options={RANGES.map((r) => ({ value: r.id, label: r.label }))} className="w-[160px] [&_select]:rounded-[8px] [&_select]:font-semibold" />
-          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} options={[{ value: "all", label: "All departments" }, ...depts]} className="w-[200px] [&_select]:rounded-[8px] [&_select]:font-semibold" />
+          <Select aria-label="Time range" value={range} onChange={(e) => setRange(e.target.value as Range)} options={RANGES.map((r) => ({ value: r.id, label: r.label }))} className="w-[160px] [&_select]:rounded-[8px] font-semibold" />
+          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} options={[{ value: "all", label: "All departments" }, ...depts]} className="w-[200px] [&_select]:rounded-[8px] font-semibold" />
         </div>
         <p className="text-[13px] text-mute lg:ml-auto">
           {rangeLabel}

@@ -12,7 +12,7 @@ const RISK_RANK: Record<Risk, number> = { high: 0, medium: 1, low: 2 };
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 12, color: "#171717" };
 const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
 const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
-const SEL = "[&_select]:rounded-[8px] [&_select]:font-semibold";
+const SEL = "[&_select]:rounded-[8px] font-semibold";
 
 export default function EvidenceComparison() {
   const { ws } = useWorkspace();

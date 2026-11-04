@@ -19,7 +19,7 @@ const STATUSES = Object.keys(STATUS_LABEL) as Status[];
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
 /** Desktop columns: finding, risk, status, owner, age, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_88px_152px_160px_64px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_select]:rounded-[8px] [&_select]:font-semibold";
+const SEL = "[&_select]:rounded-[8px] font-semibold";
 const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
 
 const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
