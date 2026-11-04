@@ -181,7 +181,7 @@ export default function DocumentsPage() {
             </div>
           </div>
 
-          <div className={`hidden px-5 pb-2.5 text-[11px] font-semibold tracking-[0.08em] text-mute uppercase whitespace-nowrap ${COLS}`}>
+          <div className={`hidden pr-5 pb-2.5 text-[11px] font-semibold tracking-[0.08em] text-mute uppercase whitespace-nowrap ${COLS}`}>
             <span>Document</span>
             <span>Department</span>
             <span>Version</span>
