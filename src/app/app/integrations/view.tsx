@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BrandLogo, INTEGRATIONS } from "@/components/app/BrandLogo";
 import { Icon } from "@/components/app/icons";
 import { PageHeader, orgName, useToast } from "@/components/app/ui";
@@ -42,6 +42,28 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       {hint && <span className="text-[12px] leading-[1.5] text-white">{hint}</span>}
     </label>
   );
+}
+
+/** Every description in a grid takes the same number of lines: if any wraps to two, they all get two; otherwise all stay on one. */
+function useEvenLines() {
+  const grid = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = grid.current;
+    if (!box) return;
+    const even = () => {
+      const lines = [...box.querySelectorAll<HTMLElement>("[data-desc]")];
+      lines.forEach((el) => (el.style.minHeight = ""));
+      const lh = lines[0] ? parseFloat(getComputedStyle(lines[0]).lineHeight) : 0;
+      if (!lh) return;
+      const most = Math.max(...lines.map((el) => Math.round(el.offsetHeight / lh)));
+      lines.forEach((el) => (el.style.minHeight = `${most * lh}px`));
+    };
+    even();
+    const ro = new ResizeObserver(even);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, []);
+  return grid;
 }
 
 export default function IntegrationsPage() {
@@ -96,6 +118,8 @@ export default function IntegrationsPage() {
 
   const live = INTEGRATIONS.filter((i) => i.status === "live");
   const next = INTEGRATIONS.filter((i) => i.status !== "live");
+  const liveGrid = useEvenLines();
+  const nextGrid = useEvenLines();
 
   return (
     <>
@@ -187,7 +211,7 @@ export default function IntegrationsPage() {
       {/* every connection, as black cards */}
       <h2 className="mt-12 text-[18px] font-bold">Available now</h2>
       <p className="mt-1 text-[14px] text-mute">Set these up above.</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div ref={liveGrid} className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {live.map((i) => (
           <button
             key={i.name}
@@ -198,7 +222,7 @@ export default function IntegrationsPage() {
             <Logo brand={i.brand} />
             <span className="min-w-0 flex-1">
               <span className="block text-[16px] font-semibold">{i.name}</span>
-              <span className="mt-1 block text-[13px] leading-[1.5] text-white">{i.what}</span>
+              <span data-desc className="mt-1 block text-[13px] leading-[1.5] text-white">{i.what}</span>
             </span>
             <Icon name="arrow" className="mt-1 size-4 text-white transition-colors group-hover:text-white" />
           </button>
@@ -207,13 +231,13 @@ export default function IntegrationsPage() {
 
       <h2 className="mt-12 text-[18px] font-bold">Coming next</h2>
       <p className="mt-1 text-[14px] text-mute">These need an app registered with each provider and are not connected yet.</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div ref={nextGrid} className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {next.map((i) => (
           <div key={i.name} className={`${CARD} flex items-start gap-4 p-5`}>
             <Logo brand={i.brand} />
             <div className="min-w-0 flex-1">
               <p className="text-[16px] font-semibold">{i.name}</p>
-              <p className="mt-1 text-[13px] leading-[1.5] text-white">{i.what}</p>
+              <p data-desc className="mt-1 text-[13px] leading-[1.5] text-white">{i.what}</p>
             </div>
           </div>
         ))}

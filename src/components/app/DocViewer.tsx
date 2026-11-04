@@ -66,16 +66,20 @@ export function DocViewer({ doc, evidence, label }: Props) {
   /** Scroll the document view so page n sits at the top. */
   const scrollTo = useCallback((n: number, smooth = true) => {
     const box = host.current;
-    const el = box?.querySelector<HTMLElement>(`[data-page="${n}"]`);
-    if (!box || !el) return;
+    const count = box?.querySelectorAll("[data-page]").length ?? 0;
+    if (!box || !count) return;
+    // pages are evenly spaced, so page n starts n-1 steps down; no zoomed measurements, which Safari reports differently
     box.scrollTo({
-      top:
-        el.getBoundingClientRect().top -
-        box.getBoundingClientRect().top +
-        box.scrollTop,
+      top: Math.round(((n - 1) * box.scrollHeight) / count),
       behavior: smooth && !prefersReducedMotion() ? "smooth" : "instant",
     });
   }, []);
+
+  // whenever the page size changes (resize, rotation), line the current page up again so it is never cut off
+  useEffect(() => {
+    if (pageH) requestAnimationFrame(() => scrollTo(page, false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the size changes; paging scrolls on its own
+  }, [pageH, scrollTo]);
 
   const pulse = useCallback(() => {
     const marks =
@@ -100,15 +104,14 @@ export function DocViewer({ doc, evidence, label }: Props) {
       // the view is exactly one page tall; it opens on page 1, and "Cited page" jumps to the clause
       requestAnimationFrame(() => {
         const first = host.current?.querySelector<HTMLElement>("[data-page]");
-        // PDFs report their own page shape; Word pages are A4 by construction
-        const ratio =
-          isPdf && first ? first.offsetHeight / first.offsetWidth : A4;
-        if (host.current)
-          setPageH(Math.round(host.current.clientWidth * ratio));
+        // every page is the same size with a 16px gap after it, so one page is the scroll height shared out, less
+        // the gap; this reads the same in every browser, whatever each does with CSS zoom on Word pages
+        const box = host.current;
+        if (box) setPageH(first ? Math.round(box.scrollHeight / count - 16) : Math.round(box.clientWidth * A4));
         requestAnimationFrame(() => scrollTo(1, false));
       });
     },
-    [evidence.page, scrollTo, isPdf],
+    [evidence.page, scrollTo],
   );
 
   // the ‹ › buttons switch straight to the whole page, top aligned, without scrolling through

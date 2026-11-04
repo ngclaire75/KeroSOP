@@ -57,7 +57,7 @@ export const NAV: NavGroup[] = [
     label: "Resolve",
     step: "3",
     items: [
-      { href: "/resolution", label: "Resolution Center", icon: "check", hint: "Assign, revise, approve and re-verify" },
+      { href: "/resolution", label: "Review & Approve", icon: "check", hint: "Assign, revise, approve and re-verify" },
       { href: "/reports", label: "Reports", icon: "report", hint: "Audit and executive PDFs, CSV exports" },
       { href: "/audit", label: "Audit History", icon: "clock", hint: "Every decision, with who and when" },
     ],
