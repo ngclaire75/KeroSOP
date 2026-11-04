@@ -152,7 +152,7 @@ export default function FindingsPage() {
         <>
           <div className="grid gap-4 pb-8 xl:grid-cols-12">
             {/* the open count, over KeroSOP on a phone, over a faint dot field */}
-            <section className="on-dark relative min-h-[440px] overflow-hidden rounded-[12px] border border-[#37373b] bg-[linear-gradient(180deg,#212123_0%,#161617_55%,#0e0e0f_100%)] text-white sm:min-h-[340px] xl:col-span-7">
+            <section className="on-dark relative min-h-[380px] overflow-hidden rounded-[12px] border border-[#37373b] bg-[linear-gradient(180deg,#212123_0%,#161617_55%,#0e0e0f_100%)] text-white sm:min-h-[340px] xl:col-span-7">
               <PhoneScene />
               <div className="pointer-events-none relative flex h-full flex-col gap-8 p-7 sm:justify-between">
                 <p className="font-mono text-[11px] tracking-[0.14em] text-white/60 uppercase">Open findings · {plural(byRisk[0].n, "high risk", "high risk")}</p>
@@ -290,7 +290,7 @@ export default function FindingsPage() {
 /* ---------- phone scene ---------- */
 
 /** Both layers fill the card the same way, so the cut-out phone sits exactly on the phone in the scene. */
-const SCENE = "pointer-events-none absolute right-0 bottom-0 h-auto w-full select-none sm:w-[68%]";
+const SCENE = "pointer-events-none absolute right-0 bottom-0 h-auto w-[68%] select-none sm:w-[68%]";
 /** The scene's own backdrop fades into the card on its left and top edges. */
 const FADE: CSSProperties = {
   maskImage: "linear-gradient(to right, transparent 0%, #000 22%), linear-gradient(to bottom, transparent 0%, #000 22%)",

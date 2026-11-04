@@ -314,3 +314,10 @@ html.no-scrollbars ::-webkit-scrollbar {
   .swipe-line:hover,
   :hover > .swipe-line { animation: none; }
 }
+
+/* p5 stamps "touch-action: none" on every canvas on the page once a sketch
+   starts, which stops a swipe that begins on a 3D or dot card from scrolling.
+   No canvas here is dragged, so let touch scrolling and zoom pass through. */
+canvas {
+  touch-action: pan-x pan-y pinch-zoom !important;
+}
