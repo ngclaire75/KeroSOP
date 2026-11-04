@@ -53,7 +53,7 @@ export const initials = (name: string) =>
 
 export function AppLink({ href, ...props }: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) {
   if (!isAppPageEnabled(href)) {
-    return <span role="link" aria-disabled="true" className={`${props.className ?? ""} cursor-not-allowed`} style={props.style} title={props.title} onPointerMove={props.onPointerMove} onPointerLeave={props.onPointerLeave}>{props.children}</span>;
+    return <span role="link" aria-disabled="true" className={`${props.className ?? ""} cursor-not-allowed`} style={props.style} title={props.title} onPointerDown={props.onPointerDown} onPointerMove={props.onPointerMove} onPointerLeave={props.onPointerLeave} onClick={props.onClick}>{props.children}</span>;
   }
   return <Link href={appHref(href)} {...props} />;
 }

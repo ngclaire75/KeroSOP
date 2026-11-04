@@ -8,8 +8,9 @@
  * monotone lightness, one hue, light end clears the surface). Closed work is
  * ink. Text never takes a series colour; a swatch beside it carries identity.
  */
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject, type PointerEvent as RPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject, type PointerEvent as RPointerEvent } from "react";
 import { RISK_NAME, type Risk } from "@/lib/app/types";
+import { SparkField } from "@/components/app/SparkField";
 import { prefersReducedMotion } from "@/lib/random";
 import { Icon } from "./icons";
 import { AppLink, SURFACE_STYLE } from "./ui";
@@ -82,16 +83,20 @@ function useTip() {
     const r = host.current?.getBoundingClientRect();
     if (r) setTip({ x: clientX - r.left, y: clientY - r.top, body });
   };
+  const anchor = (el: Element, body: ReactNode) => {
+    const b = el.getBoundingClientRect();
+    at(b.left + b.width / 2, b.top, body);
+  };
   return {
     host,
     tip,
     hide: () => setTip(null),
-    onPointer: (e: RPointerEvent, body: ReactNode) => at(e.clientX, e.clientY, body),
-    /** Keyboard focus shows the same as hover, anchored to the mark. */
-    onFocus: (el: Element, body: ReactNode) => {
-      const b = el.getBoundingClientRect();
-      at(b.left + b.width / 2, b.top, body);
-    },
+    /** Hover tips are for a mouse only; a finger on a phone gets no tip and no hover look. */
+    onPointer: (e: RPointerEvent, body: ReactNode) => { if (e.pointerType === "mouse") at(e.clientX, e.clientY, body); },
+    /** Keyboard focus shows the same as hover, anchored to the mark (a tap focuses too, so it is skipped). */
+    onFocus: (el: Element, body: ReactNode) => { if (el.matches(":focus-visible")) anchor(el, body); },
+    /** Show the tip over a mark directly, for a tap that should act like hover. */
+    anchor,
   };
 }
 
@@ -233,29 +238,6 @@ export function ChartEmpty({ children }: { children: ReactNode }) {
 
 /* ---------- stat tile ---------- */
 
-export function Sparkline({ values, color = INK, className = "" }: { values: number[]; color?: string; className?: string }) {
-  const id = useId();
-  const W = 132;
-  const H = 44;
-  const max = Math.max(1, ...values);
-  const x = (i: number) => 2 + (i / Math.max(1, values.length - 1)) * (W - 6);
-  const y = (v: number) => H - 3 - (v / max) * (H - 8);
-  const d = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
-  const last = values.length - 1;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className={`h-11 w-[132px] overflow-visible ${className}`} aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${d}L${x(last)},${H}L${x(0)},${H}Z`} fill={`url(#${id})`} />
-      <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 /**
  * Label, value, change against the previous period of the same length, and a
  * sparkline over the selected range. `upIsGood` sets whether a rise is good news.
@@ -293,7 +275,7 @@ export function StatTile({
           {value === null ? "—" : Number.isInteger(value) ? compact(value) : value.toFixed(1)}
           {unit && value !== null && <span className="ml-1 text-[15px] font-semibold tracking-normal text-mute">{unit}</span>}
         </p>
-        {spark && spark.some(Boolean) && <Sparkline values={spark} color="#ffffff" className="mb-1 shrink-0" />}
+        {spark && spark.some(Boolean) && <SparkField values={spark} className="mb-1 flex-1" />}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]">
         {delta !== null && (
@@ -498,8 +480,20 @@ export function Pipeline({ stages }: { stages: Stage[] }) {
 export type HeatRow = { label: string; key: string; cells: RiskCounts };
 
 export function RiskHeatmap({ rows }: { rows: HeatRow[] }) {
-  const { host, tip, hide, onPointer, onFocus } = useTip();
+  const { host, tip, hide, onPointer, onFocus, anchor } = useTip();
   const width = useWidth(host);
+  // On touch the grid works like hover on desktop: the first tap on a cell shows its tip and
+  // shade, a second tap on the same cell opens it, and a tap anywhere else lets go.
+  const finger = useRef(false);
+  const [touched, setTouched] = useState<string | null>(null);
+  useEffect(() => {
+    if (!touched) return;
+    const away = (e: PointerEvent) => {
+      if (!(e.target as Element).closest?.("[data-cell]") || !host.current?.contains(e.target as Node)) { setTouched(null); hide(); }
+    };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [touched, host, hide]);
   const max = Math.max(1, ...rows.flatMap((r) => RISK_ORDER.map((k) => r.cells[k])));
   useGrow(host, rows.map((r) => riskTotal(r.cells)).join(), "[data-cell]");
   const shade = (v: number) => (v ? 0.14 + 0.86 * (v / max) : 0);
@@ -512,7 +506,7 @@ export function RiskHeatmap({ rows }: { rows: HeatRow[] }) {
     </>
   );
   return (
-    <div ref={host} className="relative" onPointerLeave={hide}>
+    <div ref={host} className="relative" onPointerLeave={(e) => { if (e.pointerType === "mouse") hide(); }}>
       <div>
         <div className="grid grid-cols-[minmax(90px,1fr)_repeat(3,minmax(0,36px))] items-center gap-1">
           <span />
@@ -533,11 +527,18 @@ export function RiskHeatmap({ rows }: { rows: HeatRow[] }) {
                     href={`/findings?tab=open&type=${r.key}&risk=${k}`}
                     data-cell
                     aria-label={`${r.label}: ${v} ${RISK_NAME[k]} risk`}
+                    onPointerDown={(e) => { finger.current = e.pointerType !== "mouse"; }}
                     onPointerMove={(e) => onPointer(e, body(r, k))}
+                    onClick={(e) => {
+                      if (!finger.current || touched === `${r.key}-${k}`) return;
+                      e.preventDefault();
+                      setTouched(`${r.key}-${k}`);
+                      anchor(e.currentTarget, body(r, k));
+                    }}
                     onFocus={(e) => onFocus(e.currentTarget, body(r, k))}
-                    onPointerLeave={hide}
-                    onBlur={hide}
-                    className="block aspect-square w-full outline-offset-2 transition-[filter] hover:brightness-95"
+                    onPointerLeave={(e) => { if (e.pointerType === "mouse") hide(); }}
+                    onBlur={() => { if (!finger.current) hide(); }}
+                    className={`block aspect-square w-full outline-offset-2 transition-[filter] hover:brightness-95 ${touched === `${r.key}-${k}` ? "brightness-95" : ""}`}
                     style={{ background: v ? `rgba(227,6,19,${(0.25 + 0.75 * a).toFixed(3)})` : "#f5f5f4", color: v ? (a > 0.55 ? "#fff" : "#761019") : "#62625f" }}
                   >
                   </AppLink>
