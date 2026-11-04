@@ -124,3 +124,57 @@ export function ScanFlow({ stage, items, findings }: { stage: number; items: num
   });
   return <div ref={ref} aria-hidden="true" className="absolute inset-0" />;
 }
+
+/* ---------- TopicTicks ---------- */
+
+/** One tick per rule: "hot" is cited by an open finding, "old" comes from a superseded version. */
+export type Tick = "hot" | "live" | "old";
+
+/**
+ * p5 strip behind a list of topic rows (each `row` px tall): one tick per
+ * rule, growing in left to right. The selected or hovered row stays full
+ * strength while the others step back. Ticks start at `x0` and stop `x1` px
+ * from the right edge, leaving the row's label and count readable.
+ */
+export function TopicTicks({ rows, row, x0, x1, active, hover }: { rows: Tick[][]; row: number; x0: number; x1: number; active: number; hover: number }) {
+  const props = useRef({ rows, active, hover });
+  useEffect(() => {
+    props.current = { rows, active, hover };
+  }, [rows, active, hover]);
+
+  const ref = useP5((p: p5, host: HTMLDivElement) => {
+    const reduced = prefersReducedMotion();
+    let grow = reduced ? 1 : 0;
+    const fade: number[] = [];
+    p.setup = () => {
+      p.createCanvas(host.clientWidth, host.clientHeight);
+      p.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
+      p.noStroke();
+    };
+    p.windowResized = () => p.resizeCanvas(host.clientWidth, host.clientHeight);
+    p.draw = () => {
+      const { rows: list, active: a, hover: h } = props.current;
+      grow = Math.min(1, grow + 0.025);
+      p.clear();
+      const room = p.width - x0 - x1;
+      list.forEach((ticks, r) => {
+        const focus = h >= 0 ? h === r : a < 0 || a === r;
+        fade[r] = (fade[r] ?? 1) + ((focus ? 1 : 0.28) - (fade[r] ?? 1)) * 0.15;
+        const step = Math.min(9, room / Math.max(1, ticks.length));
+        const tall = 18;
+        const cy = r * row + row / 2;
+        ticks.forEach((t, i) => {
+          // each tick grows in turn, row after row
+          const k = Math.max(0, Math.min(1, grow * (list.length + 6) - r * 0.6 - i * 0.12));
+          const e = 1 - Math.pow(1 - k, 3);
+          const hgt = tall * e;
+          const alpha = 255 * fade[r] * (t === "old" ? 0.3 : 1);
+          if (t === "hot") p.fill(227, 6, 19, alpha);
+          else p.fill(23, 23, 23, alpha);
+          p.rect(x0 + i * step, cy - hgt / 2, Math.max(2, Math.min(4, step - 3)), hgt, 1);
+        });
+      });
+    };
+  });
+  return <div ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0" />;
+}

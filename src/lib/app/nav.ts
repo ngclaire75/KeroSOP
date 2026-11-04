@@ -26,7 +26,7 @@ export function appPath(pathname: string) {
 /** Only completed dashboard pages are currently available. */
 export function isAppPageEnabled(href: string) {
   const path = href.split(/[?#]/)[0].replace(/\/$/, "") || "/";
-  return ["/", "/documents", "/scans", "/reports", "/integrations"].includes(path);
+  return ["/", "/documents", "/scans", "/rules", "/reports", "/integrations"].includes(path);
 }
 
 export type NavItem = { href: string; label: string; icon: string; hint: string };
