@@ -1,4 +1,6 @@
 """Initial schema: tenants, documents, rules, scans, findings, remediation, audit. RLS on every tenant table."""
+import os
+
 from alembic import op
 
 revision = "0001_initial"
@@ -10,13 +12,16 @@ TENANT_TABLES = [
     "audit_events", "notifications",
 ]
 
+# Production sets KEROSOP_APP_DB_PASSWORD; the default only suits a local database.
+APP_PASSWORD = os.getenv("KEROSOP_APP_DB_PASSWORD", "kerosop_app").replace("'", "''")
+
 SCHEMA = """
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'kerosop_app') THEN
-    CREATE ROLE kerosop_app LOGIN PASSWORD 'kerosop_app' NOSUPERUSER NOBYPASSRLS;
+    CREATE ROLE kerosop_app LOGIN PASSWORD '%(app_password)s' NOSUPERUSER NOBYPASSRLS;
   END IF;
 END $$;
 
@@ -307,7 +312,7 @@ GRANT UPDATE (settings, seq, name) ON organizations TO kerosop_app;
 
 
 def upgrade():
-    op.execute(SCHEMA)
+    op.execute(SCHEMA % {"app_password": APP_PASSWORD})
     for t in TENANT_TABLES:
         op.execute(f"ALTER TABLE {t} ENABLE ROW LEVEL SECURITY; ALTER TABLE {t} FORCE ROW LEVEL SECURITY;")
         op.execute(f"CREATE POLICY tenant_isolation ON {t} USING (organization_id = app_org()) WITH CHECK (organization_id = app_org());")
