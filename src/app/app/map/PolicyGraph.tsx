@@ -339,7 +339,7 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
               <span aria-hidden="true" className="grid place-items-center" style={{ width: DOT_SLOT, height: DOT_SLOT }}>
                 <span className={`block rounded-full transition-colors duration-200 ${on ? "size-3.5 bg-red" : hot ? "size-2.5 bg-red" : "size-2.5 bg-ink"}`} />
               </span>
-              <span data-label={doc.id} className={`bg-white px-1 text-[14px] leading-[1.3] font-semibold tabular-nums transition-colors ${on ? "text-red" : "text-ink group-hover:text-red"}`}>{doc.id}</span>
+              <span data-label={doc.id} className={`px-1 text-[14px] leading-[1.3] font-semibold tabular-nums transition-colors ${on ? "text-red" : "text-ink group-hover:text-red"}`}>{doc.id}</span>
             </button>;
           })}
         </div>
