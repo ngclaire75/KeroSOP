@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import zipfile
 from datetime import date
 from typing import Literal
 from urllib.parse import urlparse
@@ -292,10 +293,31 @@ def download(code: str, version: str, ctx: Ctx = Depends(workspace)):
                          WHERE d.code = :c AND v.version = :v""", c=code, v=version)
     if not v:
         raise HTTPException(404, "No original file is stored for this version.")
-    if not v["storage_key"] or not (settings.storage_dir / v["storage_key"]).exists():
+    if not v["storage_key"] or not (settings.storage_dir / v["storage_key"]).exists() or _stale_sample(v["storage_key"]):
         v = _sample_file(ctx, code, version, v)
     # no caching: a file can be rebuilt (sample documents) and must never be served stale
     return FileResponse(settings.storage_dir / v["storage_key"], filename=v["file_name"], headers={"Cache-Control": "no-store"})
+
+
+def _stale_sample(key: str) -> bool:
+    """A sample file built by an older revision of the generator, to be rebuilt. Real uploads never match: only files
+    we generated carry a revision tag in their key, or (before tags) the KeroSOP creator / generated footer text."""
+    tag = re.search(r"\.s(\d+)\.\w+$", key)
+    if tag:
+        return int(tag.group(1)) != samplefiles.REVISION
+    path = settings.storage_dir / key
+    try:
+        if key.endswith(".pdf"):
+            return b"(KeroSOP)" in path.read_bytes()
+        if key.endswith(".docx"):
+            with zipfile.ZipFile(path) as z:
+                return any(
+                    n.startswith("word/footer") and any(m in z.read(n).decode("utf-8", "ignore") for m in ("Uncontrolled when printed", "打印件不受控"))
+                    for n in z.namelist()
+                )
+    except (OSError, zipfile.BadZipFile):
+        return False
+    return False
 
 
 def _sample_file(ctx: Ctx, code: str, version: str, v: dict) -> dict:
@@ -314,7 +336,10 @@ def _sample_file(ctx: Ctx, code: str, version: str, v: dict) -> dict:
             "effective": samplefiles.date_label(v["effective_date"]), "history": history}
     data, ext = samplefiles.build(v["kind"], meta, sections, v["pages"])
     name = re.sub(r"\.[^.]+$", "", v["file_name"]) + "." + ext
-    key = _store(ctx.org, v["id"], name, data)
+    # stored with the generator revision in the name, so a later revision knows to rebuild it
+    key = f"{ctx.org}/{v['id']}.s{samplefiles.REVISION}.{ext}"
+    (settings.storage_dir / str(ctx.org)).mkdir(parents=True, exist_ok=True)
+    (settings.storage_dir / key).write_bytes(data)
     with system() as conn:
         conn.execute(text("UPDATE document_versions SET storage_key = :k WHERE id = :i"), {"k": key, "i": v["id"]})
     return {**v, "storage_key": key, "file_name": name}

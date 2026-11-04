@@ -136,10 +136,10 @@ function Sidebar({ onNavigate, onClose }: { onNavigate?: () => void; onClose?: (
   return (
     <div className="on-dark flex h-full w-full flex-col bg-[#0b0b0b] text-paper">
       <div className="flex items-center gap-3 px-5 pt-5 pb-4">
-        <span className="grid size-9 place-items-center rounded-[10px] bg-red">
+        {/* the mark alone, no wordmark; screen readers still hear the name */}
+        <span role="img" aria-label="KeroSOP" className="grid size-9 place-items-center rounded-[10px] bg-red">
           <LogoMark tone="paper" className="h-6 w-auto" />
         </span>
-        <p className="text-[19px] leading-tight font-semibold">KeroSOP</p>
         {onClose && (
           <button type="button" onClick={onClose} aria-label="Close menu" className="fixed top-3 right-3 inline-flex size-11 items-center justify-center rounded-full text-white sm:right-4">
             <span className="relative block h-3 w-5" aria-hidden="true">

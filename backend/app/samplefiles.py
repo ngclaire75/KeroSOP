@@ -23,6 +23,8 @@ LOGO = Path(__file__).parent / "assets" / "kerosop-logo.png"
 CJK = re.compile(r"[㐀-鿿　-〿＀-￯]")
 RED, INK, MUTE, LINE = "#E30613", "#171717", "#62625F", "#E5E5E3"
 MIN_PAGES = 10
+# bump whenever the generated files change: stored copies from an older revision are rebuilt on next download
+REVISION = 2
 
 AUTHORITY = {
     "corporate_policy": ("Corporate policy", "公司政策"),
@@ -294,7 +296,7 @@ def build_pdf(meta: dict, sections: list[dict], pages: int | None = None) -> byt
         canvas.setStrokeColor(line)
         canvas.setLineWidth(0.6)
         canvas.line(22 * mm, 18 * mm, A4[0] - 22 * mm, 18 * mm)  # a little air between the footer rule and its text
-        # a step up from Word's 9/10 pt: Helvetica draws smaller than the Arial the Word viewer uses
+        # the same 10/11 pt as the Word footer
         canvas.setFont(reg, 10)
         canvas.setFillColor(mute)
         canvas.drawString(22 * mm, 11.5 * mm, L["footer"])
@@ -427,7 +429,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
         ft.is_linked_to_previous = False
         for par in list(ft.paragraphs):
             ft._element.remove(par._p)
-        row = bar(ft, [lambda par: run(par, L["footer"], size=9, color=mute), lambda par: run(par, L["page"].format(n=n, t=t), size=10, color=ink, b=True)], [text_width - Cm(4.5), Cm(4.5)])
+        row = bar(ft, [lambda par: run(par, L["footer"], size=10, color=mute), lambda par: run(par, L["page"].format(n=n, t=t), size=11, color=ink, b=True)], [text_width - Cm(4.5), Cm(4.5)])
         # the PDF footer's thin grey rule sits above the footer line
         for cell in row.rows[0].cells:
             tc_b = OxmlElement("w:tcBorders")
