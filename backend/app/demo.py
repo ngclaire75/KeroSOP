@@ -6,9 +6,9 @@ from uuid import UUID
 
 from sqlalchemy import text
 
-from .db import system, tenant
 from .codes import renumber_org
-from .seed import DEMO_TEAM, demo_counts, demo_docs, sample_findings
+from .db import system, tenant
+from .seed import DEMO_TEAM, DEMO_VERSION, demo_counts, demo_docs, sample_findings
 from .service import add_version, audit, default_org_rows, one, rebuild_rules
 
 DAY = lambda d, h=10: f"2026-10-{d:02d}T{h:02d}:00:00+00:00"  # noqa: E731
@@ -115,4 +115,20 @@ def create_demo(user_id: UUID, name: str, email: str) -> UUID:
         audit(conn, org, name, "opened", "the workspace", None, None, user_id)
         # The storyline above is written with sequential codes; give everything its random six-digit code.
         renumber_org(conn, org)
+    with system() as conn:
+        conn.execute(text("UPDATE organizations SET settings = jsonb_set(settings, '{demoVersion}', to_jsonb(CAST(:v AS text))) WHERE id = :o"),
+                     {"v": DEMO_VERSION, "o": org})
     return org
+
+
+def refresh_demos(user_id: UUID, name: str, email: str) -> None:
+    """Replace this administrator's demo workspace if it was built from older demo data, so changes to
+    the demo reach existing accounts. The old demo is deleted with everything done in it."""
+    with system() as conn:
+        stale = [r["id"] for r in conn.execute(text("""SELECT o.id FROM organizations o JOIN memberships m ON m.organization_id = o.id
+                                                        WHERE o.is_demo AND m.user_id = :u AND o.settings->>'demoVersion' IS DISTINCT FROM :v"""),
+                                               {"u": user_id, "v": DEMO_VERSION}).mappings()]
+        for org in stale:
+            conn.execute(text("DELETE FROM organizations WHERE id = :o"), {"o": org})
+    if stale:
+        create_demo(user_id, name, email)

@@ -20,7 +20,7 @@ from . import llm, mailer, samplefiles, scans, service
 from .auth import Identity, identify
 from .config import settings
 from .db import system, tenant
-from .demo import create_demo
+from .demo import create_demo, refresh_demos
 from .parsing import ParseError, parse
 from .service import Denied, Invalid, audit, one, rows
 
@@ -83,6 +83,8 @@ def ai_status(_: Identity = Depends(identify)):
 
 @app.get("/v1/me")
 def me_(me: Identity = Depends(identify)):
+    if me.is_admin:
+        refresh_demos(me.user_id, me.name, me.email)
     with system() as conn:
         # an invitation by email becomes a membership the first time that person signs in
         conn.execute(text("UPDATE memberships SET user_id = :u WHERE user_id IS NULL AND lower(email) = :e"), {"u": me.user_id, "e": me.email})

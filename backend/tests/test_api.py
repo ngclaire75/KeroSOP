@@ -5,7 +5,7 @@ import re
 import pytest
 from sqlalchemy import text
 
-from app.db import tenant
+from app.db import system, tenant
 from conftest import User, approved_user
 
 POLICY = b"# Refund Policy\n## 3.1 Refund window\nCustomers may submit new refund requests within 7 calendar days of delivery.\n"
@@ -59,6 +59,19 @@ def test_admin_demo_workspace_is_flagged(admin):
     assert all(re.fullmatch(r"R\d{6}", r["id"]) for r in ws["rules"])
     assert not any(re.search(r"\b(?:SOP|SCAN|D)-\d", f"{a['target']} {a['href'] or ''}") for a in ws["audit"])
     assert all(e["verified"] for f in ws["findings"] for e in f["evidence"])
+
+
+def test_outdated_demo_is_rebuilt_when_the_admin_signs_in(admin):
+    first = admin.post("/v1/admin/demo").json()["organization"]
+    with system() as conn:  # pretend the demo was built from older demo data
+        conn.execute(text("UPDATE organizations SET settings = settings - 'demoVersion' WHERE id = :o"), {"o": first})
+    orgs = admin.get("/v1/me").json()["orgs"]
+    demo = next(o for o in orgs if o["isDemo"])
+    assert demo["id"] != first and sum(o["isDemo"] for o in orgs) == 1
+    admin.org = demo["id"]
+    ws = admin.get("/v1/workspace").json()
+    assert len(ws["docs"]) == 40 and len(ws["findings"]) == 22
+    assert admin.get("/v1/me").json()["orgs"] == orgs  # an up-to-date demo is left alone
 
 
 def test_owner_can_delete_workspace_created_from_request(alice):

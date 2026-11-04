@@ -52,6 +52,10 @@ def default_settings(company: str) -> dict:
     }
 
 
+# Bump whenever the demo's documents, findings or storyline change: a demo workspace built from an
+# older version is rebuilt the next time its administrator signs in (demo.refresh_demos).
+DEMO_VERSION = "2026-11-04.3"
+
 # (code, title, file, authority, department, owner, language, [(version, date, note, [(ref, heading, page, text)])])
 DEMO_DOCS = [
     ("D-001", "Refund Policy", "Refund Policy.pdf", "corporate_policy", "Customer Service", "Grace Tan", "en", [
