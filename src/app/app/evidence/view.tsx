@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { DocViewer } from "@/components/app/DocViewer";
-import { VerifiedBadge } from "@/components/app/Evidence";
+import { BaselineLogo, VerifiedBadge } from "@/components/app/Evidence";
 import { AppLink, Empty, Marked, PageHeader, Select } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Finding, type Risk, type Status } from "@/lib/app/types";
@@ -114,7 +114,8 @@ function Side({ e, letter, doc }: { e: Evidence; letter: string; doc?: Doc }) {
     <div className="flex min-w-0 flex-col gap-3 xl:row-span-2 xl:grid xl:grid-rows-subgrid">
       {e.baseline || !doc ? (
         <div className="flex h-full min-w-0 flex-col gap-3">
-          <div className="flex h-8 shrink-0 items-center">
+          <div className="flex h-8 shrink-0 items-center gap-2.5">
+            <BaselineLogo />
             <p className="text-[13px] font-semibold">{label}</p>
           </div>
           <section style={ROW_STYLE} className="flex min-h-[200px] flex-1 aspect-[210/297] flex-col items-center justify-center px-5 py-6 text-center">
