@@ -23,9 +23,7 @@ export function IntegrityField({ score, hot, warm }: { score: number; hot: numbe
     const GAP = 13;
     let cols = 0;
     let rows = 0;
-    let shown = 0;
     let ripple = { x: -999, y: -999, t: 99 };
-    const reduced = prefersReducedMotion();
     const layout = () => {
       cols = Math.ceil(host.clientWidth / GAP) + 1;
       rows = Math.ceil(host.clientHeight / GAP) + 1;
@@ -35,7 +33,6 @@ export function IntegrityField({ score, hot, warm }: { score: number; hot: numbe
       p.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
       p.noStroke();
       layout();
-      if (reduced) shown = props.current.score;
     };
     p.windowResized = () => {
       p.resizeCanvas(host.clientWidth, host.clientHeight);
@@ -46,20 +43,17 @@ export function IntegrityField({ score, hot, warm }: { score: number; hot: numbe
       if (ripple.t > 0.6) ripple = { x: e.clientX - r.left, y: e.clientY - r.top, t: 0 };
     };
     p.draw = () => {
-      const { score: target } = props.current;
-      shown += (target - shown) * 0.04;
       ripple.t += 0.016;
       p.clear();
-      const fillCols = Math.round((shown / 100) * cols);
+      // one even field of faint dots across the whole card
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
           const x = c * GAP;
           const y = r * GAP;
-          const on = c < fillCols;
           const d = Math.hypot(x - ripple.x, y - ripple.y);
           const wave = Math.max(0, 1 - Math.abs(d - ripple.t * 420) / 40) * Math.max(0, 1 - ripple.t);
-          const size = (on ? 3.4 : 2.2) + wave * 4;
-          p.fill(255, 255, 255, on ? 210 : 46 + wave * 120);
+          const size = 2.2 + wave * 4;
+          p.fill(255, 255, 255, 46 + wave * 120);
           p.circle(x + 6, y + 6, size);
         }
       }

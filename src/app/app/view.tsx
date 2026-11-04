@@ -233,7 +233,6 @@ export default function Overview() {
         <div className="grid gap-4 xl:grid-cols-12">
           <section className="on-dark relative min-h-[316px] overflow-hidden rounded-[12px] bg-ink text-paper xl:col-span-5">
             <IntegrityField score={score} hot={d.risk.high} warm={d.risk.medium} />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_50%,rgba(0,0,0,0.15)_100%)]" />
             <div className="pointer-events-none relative flex h-full flex-col justify-between gap-6 p-7">
               <p className="font-mono text-[11px] tracking-[0.14em] text-paper/60 uppercase">
                 Open findings · {eligible.length} approved document{eligible.length === 1 ? "" : "s"}
