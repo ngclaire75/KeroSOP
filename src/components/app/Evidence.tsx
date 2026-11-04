@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "./icons";
 import { AppLink, Chip, Marked } from "./ui";
 import { sectionOf } from "@/lib/app/labels";
 import type { Doc, Evidence } from "@/lib/app/types";
@@ -12,7 +11,7 @@ export function EvidenceCard({ e, doc, label, context = false }: { e: Evidence; 
   const zh = /[一-鿿]/.test(e.quote);
   return (
     <article className="flex min-w-0 flex-col rounded-[10px] border border-line bg-paper">
-      <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
+      <header className="flex items-start justify-between gap-3 px-4 pt-3.5">
         <div className="min-w-0">
           <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>
           {e.baseline ? (
@@ -31,18 +30,23 @@ export function EvidenceCard({ e, doc, label, context = false }: { e: Evidence; 
         </div>
         {e.verified ? (
           <span title="This exact text was found in the stored source version" className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#16703d]">
-            <Icon name="shield" className="size-4" weight="fill" /> Verified
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 shrink-0" fill="currentColor">
+              <path d="m8.6 22.5l-1.9-3.2l-3.6-.8l.35-3.7L1 12l2.45-2.8l-.35-3.7l3.6-.8l1.9-3.2L12 2.95l3.4-1.45l1.9 3.2l3.6.8l-.35 3.7L23 12l-2.45 2.8l.35 3.7l-3.6.8l-1.9 3.2l-3.4-1.45zm2.35-6.95L16.6 9.9l-1.4-1.45l-4.25 4.25l-2.15-2.1L7.4 12z" />
+            </svg>
+            Verified
           </span>
         ) : (
           <Chip tone="red">Unverified</Chip>
         )}
       </header>
-      <blockquote lang={zh ? "zh" : "en"} className="px-4 py-4 text-[15px] leading-[1.65]">
+      <blockquote lang={zh ? "zh" : "en"} className="px-4 pt-3 pb-4 text-[15px] leading-[1.65]">
         <Marked text={e.quote} mark={e.highlight} />
       </blockquote>
       {context && section && section.text.trim() !== e.quote.trim() && (
-        <details className="border-t border-line px-4 py-3 text-[13px]">
-          <summary className="cursor-pointer font-semibold text-mute">Full section {section.ref}</summary>
+        <details className="px-4 pb-3.5 text-[13px]">
+          <summary className="inline-block cursor-pointer list-none font-semibold text-mute transition-colors hover:text-ink [&::-webkit-details-marker]:hidden">
+            <span className="swipe-line">Full section {section.ref}</span>
+          </summary>
           <p className="mt-2 leading-[1.6] whitespace-pre-line text-mute">
             <Marked text={section.text} mark={e.quote} />
           </p>

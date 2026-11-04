@@ -479,7 +479,7 @@ function StageTrack({ stage, live, failed }: { stage: number; live: boolean; fai
       const fills = el.querySelectorAll<HTMLElement>("[data-fill]");
       const notes = el.querySelectorAll<HTMLElement>("[data-note]");
       const a = animate(fills, { scaleX: [0, 1], duration: 520, delay: stagger(110), ease: "outQuart" });
-      const b = animate(notes, { opacity: [0, 1], translateY: [6, 0], duration: 420, delay: stagger(110, { start: 120 }), ease: "outQuart" });
+      const b = animate(notes, { opacity: [0, 1], duration: 420, delay: stagger(110, { start: 120 }), ease: "outQuart" });
       const sweep = el.querySelector<HTMLElement>("[data-sweep]");
       const c = sweep ? animate(sweep, { translateX: ["-100%", "250%"], duration: 1400, loop: true, ease: "inOutSine" }) : null;
       stop = () => {

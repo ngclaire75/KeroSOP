@@ -8,7 +8,7 @@
  * monotone lightness, one hue, light end clears the surface). Closed work is
  * ink. Text never takes a series colour; a swatch beside it carries identity.
  */
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject, type PointerEvent as RPointerEvent } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject, type PointerEvent as RPointerEvent } from "react";
 import { RISK_NAME, type Risk } from "@/lib/app/types";
 import { prefersReducedMotion } from "@/lib/random";
 import { Icon } from "./icons";
@@ -234,17 +234,24 @@ export function ChartEmpty({ children }: { children: ReactNode }) {
 /* ---------- stat tile ---------- */
 
 export function Sparkline({ values, color = INK, className = "" }: { values: number[]; color?: string; className?: string }) {
-  const W = 120;
-  const H = 32;
+  const id = useId();
+  const W = 132;
+  const H = 44;
   const max = Math.max(1, ...values);
   const x = (i: number) => 2 + (i / Math.max(1, values.length - 1)) * (W - 6);
   const y = (v: number) => H - 3 - (v / max) * (H - 8);
   const d = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
   const last = values.length - 1;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className={`h-8 w-[120px] overflow-visible ${className}`} aria-hidden="true">
-      <path d={`${d}L${x(last)},${H}L${x(0)},${H}Z`} fill={color} opacity="0.08" />
-      <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" opacity="0.45" />
+    <svg viewBox={`0 0 ${W} ${H}`} className={`h-11 w-[132px] overflow-visible ${className}`} aria-hidden="true">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${d}L${x(last)},${H}L${x(0)},${H}Z`} fill={`url(#${id})`} />
+      <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -286,7 +293,7 @@ export function StatTile({
           {value === null ? "—" : Number.isInteger(value) ? compact(value) : value.toFixed(1)}
           {unit && value !== null && <span className="ml-1 text-[15px] font-semibold tracking-normal text-mute">{unit}</span>}
         </p>
-        {spark && spark.some(Boolean) && <Sparkline values={spark} color="#ffffff" className="mb-1 shrink-0 [&_path[stroke]]:opacity-100" />}
+        {spark && spark.some(Boolean) && <Sparkline values={spark} color="#ffffff" className="mb-1 shrink-0" />}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]">
         {delta !== null && (

@@ -375,7 +375,8 @@ function useEnter(open: boolean, from: Record<string, [number | string, number |
   useEffect(() => {
     if (!open || !ref.current || prefersReducedMotion()) return;
     const el = ref.current;
-    import("animejs").then(({ animate }) => animate(el, { ...fromRef.current, duration: 420, ease: "outQuart" }));
+    // once in place, drop the leftover transform so the text inside renders on whole pixels and stays still
+    import("animejs").then(({ animate }) => animate(el, { ...fromRef.current, duration: 420, ease: "outQuart", onComplete: () => el.style.removeProperty("transform") }));
     el.querySelector<HTMLElement>("[data-autofocus], input, textarea, select, button")?.focus();
   }, [open]);
   return ref;
@@ -477,7 +478,7 @@ function ToastItem({ toast }: { toast: Toast }) {
   useEffect(() => {
     if (!ref.current || prefersReducedMotion()) return;
     const el = ref.current;
-    import("animejs").then(({ animate }) => animate(el, { translateY: [18, 0], opacity: [0, 1], duration: 380, ease: "outBack(1.4)" }));
+    import("animejs").then(({ animate }) => animate(el, { translateY: [18, 0], opacity: [0, 1], duration: 380, ease: "outBack(1.4)", onComplete: () => el.style.removeProperty("transform") }));
   }, []);
   return (
     <div
