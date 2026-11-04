@@ -7,22 +7,21 @@ const VIDEO_VERSION = 9;
 const src = (ext: string) => `/video/kerosop-ad.${ext}?v=${VIDEO_VERSION}`;
 
 /**
- * The product ad (rendered with Remotion from /video). Plays on its own,
- * muted, replaying while on screen, with an always-visible play/pause button. If the
- * browser blocks autoplay, the first click anywhere on the page starts it.
+ * The product ad starts paused on every device. Only the centered button
+ * starts playback; after that it loops muted while on screen.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const userPaused = useRef(false);
+  const userPaused = useRef(true);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    // Autoplay policies check the muted attribute, not only the property.
     v.muted = true;
     v.setAttribute("muted", "");
     v.loop = true;
+    v.pause();
 
     let visible = false;
     const tryPlay = () => {
@@ -34,7 +33,6 @@ export function HeroVideo({ className = "" }: { className?: string }) {
       tryPlay();
     };
     v.addEventListener("ended", onEnded);
-    window.addEventListener("pointerdown", tryPlay, { once: true });
 
     const io = new IntersectionObserver(
       ([e]) => {
@@ -49,7 +47,6 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     return () => {
       io.disconnect();
       v.removeEventListener("ended", onEnded);
-      window.removeEventListener("pointerdown", tryPlay);
     };
   }, []);
 
@@ -61,11 +58,10 @@ export function HeroVideo({ className = "" }: { className?: string }) {
         onPause={() => setPlaying(false)}
         className="pointer-events-none block aspect-[1920/780] w-full"
         poster={src("jpg")}
-        autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         disablePictureInPicture
         disableRemotePlayback
         aria-label="A short animated explainer: KeroSOP reads policies, SOPs and training guides in Chinese and English, finds the clauses that disagree, and lets your reviewer approve the fix. Integrations for Google Drive, Google Docs, Dropbox, Box, Notion, Confluence and WeChat are on the way."
@@ -75,7 +71,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
       <button
         type="button"
         aria-label={playing ? "Pause video" : "Play video"}
-        className="absolute right-3 bottom-3 grid size-10 place-items-center rounded-full bg-black/75 text-white backdrop-blur-sm transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:right-5 sm:bottom-5 sm:size-11"
+        className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/75 text-white backdrop-blur-sm transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:size-14"
         onClick={() => {
           const video = ref.current;
           if (!video) return;
