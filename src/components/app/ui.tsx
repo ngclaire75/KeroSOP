@@ -389,6 +389,7 @@ export function Modal({
   children,
   footer,
   wide,
+  fullOnMobile,
 }: {
   open: boolean;
   onClose(): void;
@@ -396,6 +397,8 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** On phones, take the whole screen instead of rising as a sheet. */
+  fullOnMobile?: boolean;
 }) {
   useEscape(open, onClose);
   const ref = useEnter(open, { opacity: [0, 1], translateY: [16, 0] });
@@ -413,7 +416,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[12px] bg-paper shadow-2xl sm:rounded-[12px] ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
+        className={`flex w-full flex-col overflow-hidden bg-paper shadow-2xl sm:max-h-[92dvh] sm:rounded-[12px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[12px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
       >
         <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-1">
           <h2 className="text-[17px] font-bold">{title}</h2>

@@ -526,7 +526,7 @@ function NewScan({ initial, ai, onClose, onStarted }: { initial: { docIds?: stri
   const toast = useToast();
   const usable = ws.docs.filter((d) => d.approval !== "archived");
   const [name, setName] = useState(initial.name ?? `Scan ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`);
-  const [picked, setPicked] = useState<Set<string>>(() => new Set(initial.docIds ?? usable.filter((d) => d.approval === "approved").map((d) => d.id)));
+  const [picked, setPicked] = useState<Set<string>>(() => new Set(initial.docIds ?? [])); // nothing ticked unless opened for particular documents
   const [q, setQ] = useState("");
   const aiReady = Boolean(ai?.enabled && ai.reachable && ai.ready);
   const [useAi, setUseAi] = useState(true);
@@ -559,6 +559,7 @@ function NewScan({ initial, ai, onClose, onStarted }: { initial: { docIds?: stri
     <Modal
       open
       wide
+      fullOnMobile
       onClose={busy ? () => {} : onClose}
       title="New scan"
       footer={
@@ -594,11 +595,12 @@ function NewScan({ initial, ai, onClose, onStarted }: { initial: { docIds?: stri
             </span>
           </div>
           <SearchInput value={q} onChange={setQ} placeholder="Filter documents" className="mb-2 [&_input]:rounded-[8px]" />
-          <ul className="flex max-h-[242px] flex-col gap-1.5 overflow-y-auto pr-1">
+          {/* on desktop at most four whole rows (4 × 56px, 3 gaps, 1px edges for the borders); scrolling snaps a row at a time so none is cut */}
+          <ul className="flex flex-col gap-1.5 py-px pr-1 sm:max-h-[244px] sm:snap-y sm:snap-mandatory sm:scroll-py-px sm:overflow-y-auto">
             {list.map((d) => {
               const on = picked.has(d.id);
               return (
-                <li key={d.id}>
+                <li key={d.id} className="snap-start">
                   <label className={`flex h-14 cursor-pointer items-center gap-3 rounded-[10px] border px-3 transition-colors ${on ? "border-ink" : "border-line hover:border-ink/40"}`}>
                     <input type="checkbox" className="peer sr-only" checked={on} onChange={() => toggle(d.id)} />
                     <span
