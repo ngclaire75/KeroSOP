@@ -24,7 +24,7 @@ CJK = re.compile(r"[㐀-鿿　-〿＀-￯]")
 RED, INK, MUTE, LINE = "#E30613", "#171717", "#62625F", "#E5E5E3"
 MIN_PAGES = 10
 # bump whenever the generated files change: stored copies from an older revision are rebuilt on next download
-REVISION = 3
+REVISION = 4
 
 AUTHORITY = {
     "corporate_policy": ("Corporate policy", "公司政策"),
@@ -551,6 +551,7 @@ def build_docx(meta: dict, sections: list[dict], pages: int | None = None) -> by
 
 def build(kind: str, meta: dict, sections: list[dict], pages: int | None = None) -> tuple[bytes, str]:
     """Bytes and file extension for a sample document; Markdown and text samples are built as PDF."""
+    sections = [{**s, "text": s["text"].replace("S$", "$")} for s in sections]
     meta = {**meta, "zh": _zh(meta["title"], *(s["text"] for s in sections))}
     if kind == "docx":
         return build_docx(meta, sections, pages), "docx"

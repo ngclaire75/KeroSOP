@@ -86,7 +86,7 @@ DEMO_DOCS = [
         ])]),
     ("D-006", "Purchase Procedure", "Purchase Procedure.docx", "department_sop", "Finance", "Daniel Koh", "en", [
         ("1.0", "2026-04-20", "First issue", [
-            ("2", "Purchasing steps", 2, "1. The requester must raise a purchase request in the procurement system.\n2. Procurement must obtain at least three quotations for purchases above S$1,000.\n3. Procurement must issue a purchase order to the selected supplier.\n4. Finance must record the transaction in the ledger within 2 business days."),
+            ("2", "Purchasing steps", 2, "1. The requester must raise a purchase request in the procurement system.\n2. Procurement must obtain at least three quotations for purchases above $1,000.\n3. Procurement must issue a purchase order to the selected supplier.\n4. Finance must record the transaction in the ledger within 2 business days."),
         ])]),
     ("D-007", "Discount Policy", "Discount Policy.pdf", "corporate_policy", "Sales", "Marcus Lee", "en", [
         ("1.2", "2026-06-01", "Approval threshold clarified", [

@@ -16,7 +16,7 @@ import type { Doc, Evidence } from "@/lib/app/types";
 
 const MARK = "rgba(227, 6, 19, 0.24)";
 const A4 = 297 / 210;
-const strip = (s: string) => s.replace(/\s+/g, "");
+const strip = (s: string) => s.replaceAll("S$", "$").replace(/\s+/g, "");
 
 type Props = { doc: Doc; evidence: Evidence; label: string };
 
@@ -466,7 +466,7 @@ function DocxPages({
 
 /** Wraps the quoted wording in a highlight (or the whole paragraph if Word split it across runs); returns the marked element. */
 function markDocxQuote(root: HTMLElement, quote: string): HTMLElement | null {
-  const needle = quote.trim();
+  const needle = quote.replaceAll("S$", "$").trim();
   if (!needle) return null;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -478,7 +478,7 @@ function markDocxQuote(root: HTMLElement, quote: string): HTMLElement | null {
     range.setEnd(n, i + needle.length);
     const mark = document.createElement("mark");
     mark.dataset.keroMark = "";
-    mark.style.cssText = `background:${MARK};color:inherit;box-shadow:inset 0 -2px 0 #e30613;border-radius:2px;padding:0 1px`;
+    mark.style.cssText = `background:${MARK};color:inherit;box-shadow:inset 0 -2px 0 #e30613;border-radius:3px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone`;
     range.surroundContents(mark);
     return mark;
   }
@@ -489,6 +489,7 @@ function markDocxQuote(root: HTMLElement, quote: string): HTMLElement | null {
   if (!para) return null;
   para.dataset.keroMark = "";
   para.style.background = MARK;
+  para.style.borderRadius = "3px";
   para.style.boxShadow = "inset 3px 0 0 #e30613";
   return para;
 }

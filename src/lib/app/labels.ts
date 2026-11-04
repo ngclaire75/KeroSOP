@@ -43,7 +43,7 @@ export const fmtValue = (r: Pick<Rule, "value" | "unit">) =>
     : r.unit === "%"
       ? `${r.value}%`
       : r.unit === "S$" || r.unit === "$"
-        ? `${r.unit}${r.value.toLocaleString()}`
+        ? `$${r.value.toLocaleString()}`
         : `${r.value} ${r.value === 1 ? r.unit?.replace(/s$/, "") : r.unit}`;
 
 /** Most common topic among a document's current rules. */

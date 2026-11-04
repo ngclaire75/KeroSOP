@@ -224,13 +224,15 @@ export function Avatar({ name, size = 28 }: { name: string; size?: number }) {
 
 /** Text with one phrase marked, used for citations. */
 export function Marked({ text, mark, className = "" }: { text: string; mark?: string; className?: string }) {
+  text = text.replaceAll("S$", "$");
+  mark = mark?.replaceAll("S$", "$");
   if (!mark) return <span className={className}>{text}</span>;
   const i = text.indexOf(mark);
   if (i < 0) return <span className={className}>{text}</span>;
   return (
     <span className={className}>
       {text.slice(0, i)}
-      <mark className="rounded-[4px] bg-red px-1 font-semibold text-paper">{mark}</mark>
+      <mark className="rounded-[4px] bg-red px-1 font-semibold text-paper [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">{mark}</mark>
       {text.slice(i + mark.length)}
     </span>
   );

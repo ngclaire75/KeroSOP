@@ -314,7 +314,7 @@ function RuleRow({ rule, docTitle, findings, onOpen }: { rule: Rule; docTitle: s
       >
         <span className="flex min-w-0 items-center gap-3">
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-semibold">{rule.quote}</span>
+            <span className="block truncate text-[14px] font-semibold">{rule.quote.replaceAll("S$", "$")}</span>
             <span className="mt-0.5 block truncate text-[12px] text-mute">
               {rule.id} · {topicLabel(rule.topic)}
               {rule.subject && rule.subject !== rule.topic ? ` · ${rule.subject}` : ""}
@@ -396,7 +396,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
           <h3 className="mb-3 text-[13px] font-bold">What KeroSOP read</h3>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[13px]">
             <Fact label="Who">{rule.actor || "Not stated"}</Fact>
-            <Fact label="Does what">{rule.action || "—"}</Fact>
+            <Fact label="Does what">{rule.action ? cap(rule.action) : "—"}</Fact>
             <Fact label="When">{rule.event ? cap(eventLabel(rule.event)) : "—"}</Fact>
             <Fact label="Limit">{value ? `${value}${rule.period ? ` per ${rule.period}` : ""}` : "None"}</Fact>
             <Fact label="Applies to">{rule.scope || "All regions"}</Fact>
@@ -459,7 +459,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
                   <button type="button" onClick={() => onOpen(r.id)} className="flex h-14 w-full items-center gap-3 rounded-[10px] border border-line px-3 text-left transition-colors hover:border-ink/40">
                     <ModalityPill m={r.modality} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-semibold">{r.quote}</span>
+                      <span className="block truncate text-[13px] font-semibold">{r.quote.replaceAll("S$", "$")}</span>
                       <span className="block truncate text-[12px] text-mute">
                         {r.id} · {ws.docs.find((d) => d.id === r.docId)?.title ?? r.docId}
                         {fmtValue(r) ? ` · ${fmtValue(r)}` : ""}
