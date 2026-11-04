@@ -280,7 +280,7 @@ export default function Overview() {
             legend={RISK_ORDER.map((r) => ({ label: `${r[0].toUpperCase()}${r.slice(1)} risk`, color: RISK_FILL[r] }))}
           >
             {hasFlow ? <FlowChart points={d.flow} /> : <ChartEmpty>Nothing was detected or closed in this range. Try a longer range or run a scan.</ChartEmpty>}
-            <dl className="mt-4 grid shrink-0 grid-cols-2 gap-x-4 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
+            <dl className="mt-4 grid shrink-0 grid-cols-2 gap-x-4 gap-y-4 pt-4 sm:grid-cols-4">
               {[
                 ["Detected", String(d.detected.length), `${(d.detected.length / periods).toFixed(1)} ${unitWord}`],
                 ["Closed", String(d.closed.length), `${(d.closed.length / periods).toFixed(1)} ${unitWord}`],
@@ -332,7 +332,7 @@ export default function Overview() {
             hint="Open findings by days since detection. Red is past the 30-day review target."
           >
             {d.open.length ? <AgingColumns buckets={d.aging} /> : <ChartEmpty>No open findings.</ChartEmpty>}
-            <p className="mt-4 border-t border-line pt-3.5 text-[12px] text-mute">
+            <p className="mt-4 pt-3.5 text-[12px] text-mute">
               {overdue} of {d.open.length} open finding{d.open.length === 1 ? " is" : "s are"} past the 30-day target
             </p>
           </ChartCard>
@@ -353,7 +353,7 @@ export default function Overview() {
             {d.attention.length === 0 ? (
               <Empty icon="check" title="Nothing open" body="New findings appear here after each scan." />
             ) : (
-              <ul className="flex flex-col divide-y divide-line">
+              <ul className="flex flex-col">
                 {d.attention.map((f) => (
                   <li key={f.id} style={TILE_STYLE}>
                     <AppLink href={`/findings/${f.id}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 py-3 md:grid-cols-[64px_minmax(0,1fr)_auto_36px_60px]">
@@ -391,7 +391,7 @@ export default function Overview() {
             {ws.audit.length === 0 ? (
               <ChartEmpty>Nothing has happened yet.</ChartEmpty>
             ) : (
-              <ol className="flex flex-col divide-y divide-line">
+              <ol className="flex flex-col">
                 {ws.audit.slice(0, 6).map((a) => (
                   <li key={a.id} className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 py-2.5" style={TILE_STYLE}>
                     <span className="pt-px text-[12px] text-mute tabular-nums">{ago(a.at)}</span>
@@ -435,7 +435,7 @@ export default function Overview() {
                 }
               />
             ) : (
-              <ul className="flex flex-col divide-y divide-line">
+              <ul className="flex flex-col">
                 {ws.scans.slice(0, 5).map((s) => {
                   const live = running.some((r) => r.id === s.id);
                   const label = live ? "Running" : (SCAN_STATE[s.stage] ?? "Queued");

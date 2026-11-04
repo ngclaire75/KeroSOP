@@ -297,7 +297,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
           </button>
         </div>
 
-        <div role="tablist" aria-label="Search in" className="flex gap-1 overflow-x-auto border-y border-line px-3 py-2">
+        <div role="tablist" aria-label="Search in" className="flex gap-1 overflow-x-auto px-3 py-2">
           {SCOPES.map((s) => (
             <button
               key={s.id}
@@ -359,7 +359,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
           ))}
         </ul>
 
-        <div className="hidden items-center gap-4 border-t border-line bg-[#fafaf9] px-5 py-2.5 text-[12px] text-mute sm:flex">
+        <div className="hidden items-center gap-4 bg-[#fafaf9] px-5 py-2.5 text-[12px] text-mute sm:flex">
           {[
             ["↑ ↓", "move"],
             ["↵", "open"],

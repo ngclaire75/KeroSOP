@@ -594,7 +594,7 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
           }}
           onDragLeave={() => setOver(false)}
           onDrop={onDrop}
-          className={`flex flex-col items-center gap-4 rounded-[12px] border border-dashed px-6 py-8 text-center transition-colors ${over ? "border-red" : "border-ink/25"}`}
+          className={`on-dark flex flex-col items-center gap-4 rounded-[12px] bg-black px-6 py-8 text-center text-white transition-shadow ${over ? "ring-2 ring-red ring-offset-2" : ""}`}
         >
           <div className="flex items-center gap-3" aria-hidden="true">
             {KINDS.map((k) => (
@@ -604,11 +604,11 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
           <div>
             <p className="text-[15px] font-semibold">
               Drop {versionOf ? "the new file" : "files"} here or{" "}
-              <button type="button" onClick={() => input.current?.click()} className="text-red underline underline-offset-4">
+              <button type="button" onClick={() => input.current?.click()} className="text-white underline underline-offset-4 hover:text-white/75">
                 browse
               </button>
             </p>
-            <p className="mt-1 text-[13px] text-mute">PDF, Word (.docx), Markdown or plain text · up to 20 MB each</p>
+            <p className="mt-1 text-[13px] text-white/70">PDF, Word (.docx), Markdown or plain text · up to 20 MB each</p>
           </div>
           <input ref={input} type="file" accept={ACCEPT} multiple={!versionOf} className="sr-only" onChange={(e) => (add(e.target.files), (e.target.value = ""))} />
         </div>

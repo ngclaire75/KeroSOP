@@ -252,7 +252,7 @@ function LiveScan({ scan, onOpen }: { scan: Scan; onOpen(): void }) {
       <div className="relative mx-5 mt-4 h-[112px]">
         <ScanFlow stage={idx} items={Math.max(24, (c.rules ?? 0) * 2)} findings={c.potential ?? 0} />
       </div>
-      <ol className="grid grid-cols-5 border-t border-line">
+      <ol className="grid grid-cols-5 ">
         {FLOW_STAGES.map((label, i) => (
           <li key={label} className={`relative px-3 py-3 text-[12px] sm:px-5 ${i < idx ? "text-ink" : i === idx ? "font-semibold text-red" : "text-mute"}`}>
             <span className={`absolute inset-x-0 top-0 h-0.5 ${i < idx ? "bg-ink" : i === idx ? "bg-red" : "bg-transparent"}`} />
@@ -260,7 +260,7 @@ function LiveScan({ scan, onOpen }: { scan: Scan; onOpen(): void }) {
           </li>
         ))}
       </ol>
-      <p className="flex flex-wrap gap-x-5 gap-y-1 border-t border-line px-5 py-3 text-[12px] text-mute tabular-nums">
+      <p className="flex flex-wrap gap-x-5 gap-y-1 px-5 py-3 text-[12px] text-mute tabular-nums">
         <span>{plural(c.rules ?? 0, "rule")} extracted</span>
         <span>{plural(c.candidates ?? 0, "pair")} compared</span>
         {scan.useAi && (

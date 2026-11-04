@@ -462,14 +462,14 @@ export function Drawer({ open, onClose, title, children, footer }: { open: boole
   return (
     <div className="fixed inset-0 z-[70] flex justify-end bg-ink/30 backdrop-blur-[1px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" className="flex h-full w-full max-w-[640px] flex-col bg-paper shadow-2xl">
-        <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+        <header className="flex items-start justify-between gap-4 px-5 py-4">
           <div className="min-w-0 text-[17px] font-bold">{title}</div>
           <button type="button" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-full" aria-label="Close">
             <Icon name="x" />
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4">{footer}</footer>}
+        {footer && <footer className="flex flex-wrap justify-end gap-2 px-5 py-4">{footer}</footer>}
       </div>
     </div>
   );

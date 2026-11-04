@@ -136,7 +136,7 @@ export function DocArticle({ sections }: { sections: DocSection[] }) {
 
         <div className="max-w-[46rem]">
           {sections.map((s, i) => (
-            <section key={s.id} id={s.id} className="scroll-mt-10 border-t border-line py-10 first:border-t-0 first:pt-0">
+            <section key={s.id} id={s.id} className="scroll-mt-10 py-10 first:pt-0">
               <p className="font-mono text-[12px] tracking-[0.16em] text-red">{String(i + 1).padStart(2, "0")}</p>
               <Heading as="h2" className="mt-3 text-[clamp(1.9rem,3.4vw,2.8rem)]" lines={[s.title]} />
               <div className="doc-body mt-5">{s.body}</div>

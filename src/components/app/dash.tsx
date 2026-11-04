@@ -200,7 +200,7 @@ export function ChartCard({
 
 function DataTable({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
   return (
-    <div className="-mx-5 max-h-[320px] overflow-auto border-t border-line">
+    <div className="-mx-5 max-h-[320px] overflow-auto">
       <table className="w-full text-[13px]">
         <thead className="sticky top-0 bg-paper">
           <tr className="border-b border-line">

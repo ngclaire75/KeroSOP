@@ -122,7 +122,7 @@ export default function ReportsPage() {
 
         {/* the report itself; print CSS shows only this */}
         <article id="report" className="h-fit min-w-0 rounded-[10px] border border-line bg-paper p-6 sm:p-10 print:rounded-none print:border-0 print:p-0">
-          <header className="flex items-start justify-between gap-6 border-b-2 border-ink pb-5">
+          <header className="flex items-start justify-between gap-6 pb-5">
             <div>
               <p className="font-mono text-[11px] tracking-[0.18em] text-mute uppercase">KeroSOP · {KIND[kind].title}</p>
               <h2 className="display mt-2 text-[34px]">{orgName(ws.settings.company)}</h2>
@@ -133,7 +133,7 @@ export default function ReportsPage() {
             <LogoMark className="h-10 w-auto shrink-0" />
           </header>
 
-          <section className="grid grid-cols-2 gap-4 border-b border-line py-5 sm:grid-cols-4">
+          <section className="grid grid-cols-2 gap-4 py-5 sm:grid-cols-4">
             {[
               ["Open High risk", counts((f) => f.risk === "high" && !["closed", "dismissed"].includes(f.status))],
               ["Waiting for review", counts((f) => ["detected", "under_review"].includes(f.status))],
@@ -147,7 +147,7 @@ export default function ReportsPage() {
             ))}
           </section>
 
-          <section className="border-b border-line py-5 text-[13px] leading-[1.6]">
+          <section className="py-5 text-[13px] leading-[1.6]">
             <h3 className="mb-2 text-[14px] font-bold">Scope and method</h3>
             <p>
               Last scan: {lastScan ? `${lastScan.name} (${lastScan.id}), ${fmtDateTime(lastScan.finishedAt ?? lastScan.startedAt)}, ${lastScan.docIds.length} documents` : "none yet"}. Analysis: KeroSOP rules engine
@@ -190,7 +190,7 @@ export default function ReportsPage() {
               <h3 className="mb-3 text-[14px] font-bold">{kind === "executive" ? "Decisions needed" : "Findings"}</h3>
               {findings.length === 0 && <p className="text-[13px] text-mute">No findings match this report.</p>}
               {(kind === "executive" ? findings.filter((f) => f.risk === "high").slice(0, 8) : findings).map((f) => (
-                <div key={f.id} className="mb-4 break-inside-avoid border-b border-line pb-4 last:mb-0 last:border-0 last:pb-0">
+                <div key={f.id} className="mb-4 break-inside-avoid pb-4 last:mb-0 last:pb-0">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="text-[14px] font-bold">
                       {f.id} · {f.title}
