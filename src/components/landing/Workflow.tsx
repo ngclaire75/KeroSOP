@@ -6,6 +6,7 @@ import { Heading } from "@/components/Heading";
 import { BlurText } from "@/components/BlurText";
 import { Eye } from "@/components/art/Eye";
 import { EyeField } from "@/components/art/EyeField";
+import { AudienceScenes } from "@/components/three/AudienceScenes";
 import { useOnView } from "@/lib/anim";
 import { LifecycleTrack, RoleCards } from "@/components/landing/SignOffFlow";
 import { gsap } from "@/lib/gsap";
@@ -296,14 +297,21 @@ export function Audiences() {
           className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]"
           lines={["Built for teams that run", "on written procedures."]}
         />
-        <ul ref={listRef} data-stagger className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
-          {audiences.map((a) => (
-            <li key={a.who} className="border-t-2 border-ink pt-5">
-              <h3 className="text-lg font-bold">{a.who}</h3>
-              <p className="mt-2 leading-[1.55] text-mute">{a.why}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="relative mt-12 lg:mt-16">
+          <ul ref={listRef} data-stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {audiences.map((a, i) => (
+              <li key={a.who} className="on-dark flex flex-col overflow-hidden rounded-[12px] bg-ink text-paper">
+                <div data-vis aria-hidden="true" className="aspect-[4/3] w-full" />
+                <div className="flex flex-1 flex-col px-6 pb-7">
+                  <span className="font-mono text-[length:calc(12px*var(--ts))] tracking-[0.18em] text-red">{String(i + 1).padStart(2, "0")}</span>
+                  <h3 className="mt-3 text-lg font-bold">{a.who}</h3>
+                  <p className="mt-2 leading-[1.55] text-paper/60">{a.why}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <AudienceScenes list={listRef} />
+        </div>
       </Container>
     </section>
   );
