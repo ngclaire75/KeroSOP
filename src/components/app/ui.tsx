@@ -346,9 +346,9 @@ export function Select({
 
 /* ---------- paging ---------- */
 
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 7;
 
-/** Ten rows at a time by default. A different result count (a filter or search changed) goes back to page one. */
+/** Seven rows at a time by default. A different result count (a filter or search changed) goes back to page one. */
 export function usePaged<T>(rows: T[], size = PAGE_SIZE) {
   const [page, setPage] = useState(0);
   const [count, setCount] = useState(rows.length);
@@ -358,21 +358,16 @@ export function usePaged<T>(rows: T[], size = PAGE_SIZE) {
   return { page: current, pages, size, total: rows.length, setPage, items: rows.slice(current * size, (current + 1) * size) };
 }
 
-/** "Showing 1–10 of 40" with Previous and Next on the same line, in the same small type. */
+/** Previous and Next, right-aligned in small type. Nothing shows when everything fits on one page. */
 export function ListFooter({ paged, className = "" }: { paged: ReturnType<typeof usePaged<unknown>>; className?: string }) {
-  const { page, pages, size, total, setPage } = paged;
-  const from = total ? page * size + 1 : 0, to = Math.min(total, (page + 1) * size);
+  const { page, pages, setPage } = paged;
+  if (pages <= 1) return null;
   const step = "font-semibold transition-colors hover:text-ink disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink";
   return (
-    <div className={`flex items-center justify-between gap-4 pt-4 text-[12px] text-mute ${className}`}>
-      <p role="status">Showing {from}–{to} of {total}</p>
-      {pages > 1 && (
-        <div className="flex items-center gap-4">
-          <button type="button" className={step} disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
-          <button type="button" className={step} disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</button>
-        </div>
-      )}
-    </div>
+    <nav aria-label="Pages" className={`flex items-center justify-end gap-4 pt-4 text-[12px] text-mute ${className}`}>
+      <button type="button" className={step} disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
+      <button type="button" className={step} disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</button>
+    </nav>
   );
 }
 

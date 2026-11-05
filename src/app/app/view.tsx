@@ -21,6 +21,7 @@ import {
 } from "@/components/app/dash";
 import { AppLink, BtnLink, Empty, PageHeader, RiskBadge, Select, StatusBadge, ago, orgName, TILE_STYLE, STATUS_PILL } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
+import { linkFor } from "./audit/model";
 import { AUTHORITY_LABEL, STATUS_LABEL, TYPE_LABEL, type Finding, type FindingType, type Scan, type Status } from "@/lib/app/types";
 
 const OPEN: Status[] = ["detected", "under_review", "confirmed", "assigned", "revision_proposed", "approved", "rejected", "rescanned"];
@@ -138,7 +139,7 @@ export default function Overview() {
         return { label, risk: countRisk(fs ?? []), href: label === "Unassigned" ? "/findings?tab=open" : `/findings?tab=open&dept=${encodeURIComponent(label)}`, sub: `${docsIn} document${docsIn === 1 ? "" : "s"}` };
       })
       .sort((a, b) => riskTotal(b.risk) - riskTotal(a.risk))
-      .slice(0, 8);
+      .slice(0, 7);
 
     const hot = ws.docs
       .map((doc) => ({ doc, risk: countRisk(open.filter((f) => f.evidence.some((e) => e.docId === doc.id))) }))
@@ -398,7 +399,7 @@ export default function Overview() {
                     <p className="min-w-0 text-[13px] leading-[1.45]">
                       <b>{a.actor}</b> {a.action}{" "}
                       {a.href ? (
-                        <AppLink href={a.href} className="font-semibold underline decoration-ink/25 underline-offset-2 hover:decoration-ink">
+                        <AppLink href={linkFor(a.href)!} className="font-semibold underline decoration-ink/25 underline-offset-2 hover:decoration-ink">
                           {a.target}
                         </AppLink>
                       ) : (
