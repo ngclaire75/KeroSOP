@@ -206,7 +206,6 @@ export default function RuleRegistry() {
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">By topic</h2>
-                  <p className="mt-0.5 text-[13px] leading-[1.45] text-mute">One tick per rule; red is cited by an open finding. Select a topic to filter.</p>
                 </div>
                 {topic !== "all" && (
                   <button type="button" onClick={() => setTopic("all")} className="h-8 shrink-0 text-[13px] font-semibold hover:text-red">

@@ -170,7 +170,6 @@ export default function FindingsPage() {
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">Waiting on you</h2>
-                  <p className="mt-0.5 text-[13px] leading-[1.45] text-mute">The next step for each finding your role can act on. Select one to filter.</p>
                 </div>
                 {view !== "open" && (
                   <button type="button" onClick={() => setView("open")} className="h-8 shrink-0 text-[13px] font-semibold hover:text-red">

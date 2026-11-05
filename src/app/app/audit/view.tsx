@@ -217,7 +217,6 @@ export default function AuditHistory() {
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">Activity by day</h2>
-                  <p className="mt-0.5 text-[13px] leading-[1.45] text-mute">One block per entry; red blocks are decisions. Select a day to filter.</p>
                 </div>
                 {day && (
                   <button type="button" onClick={() => setDay(null)} className="h-8 shrink-0 text-[13px] font-semibold hover:text-red">

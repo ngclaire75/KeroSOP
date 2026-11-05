@@ -33,6 +33,14 @@ export function useP5(sketch: Sketch) {
     );
     io.observe(host);
 
+    // windowResized only fires on viewport changes; layout can resize the
+    // host on its own (flex rows settling), which left canvases overflowing.
+    const ro = new ResizeObserver(() => {
+      const p = instance as (p5 & { windowResized?: () => void }) | undefined;
+      if (p && (p.width !== host.clientWidth || p.height !== host.clientHeight)) p.windowResized?.();
+    });
+    ro.observe(host);
+
     import("p5").then(({ default: P5 }) => {
       if (cancelled) return;
       // p5 2.x validates every drawing call's arguments (friendly errors);
@@ -45,6 +53,7 @@ export function useP5(sketch: Sketch) {
     return () => {
       cancelled = true;
       io.disconnect();
+      ro.disconnect();
       instance?.remove();
     };
   }, []);
