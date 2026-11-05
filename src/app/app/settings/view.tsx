@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { Icon } from "@/components/app/icons";
 import { AppLink, Avatar, Btn, Input, ListFooter, Modal, PageHeader, Select, fmtDate, orgName, useToast, usePaged } from "@/components/app/ui";
 import { topicLabel } from "@/lib/app/labels";
@@ -167,24 +167,6 @@ function TagEditor({ items, onChange, placeholder, disabled, noun }: { items: st
 export default function SettingsPage() {
   const { ws, me } = useWorkspace();
   const admin = me.role === "owner" || me.role === "admin";
-  const grid = useRef<HTMLDivElement>(null);
-
-  // anime.js: the cards rise in one after another on first load
-  useEffect(() => {
-    const el = grid.current;
-    if (!el || prefersReducedMotion()) return;
-    const cards = [...el.children] as HTMLElement[];
-    import("animejs").then(({ animate, stagger }) =>
-      animate(cards, {
-        opacity: [0, 1],
-        translateY: [18, 0],
-        delay: stagger(70),
-        duration: 620,
-        ease: "outQuart",
-        onComplete: () => cards.forEach((c) => c.style.removeProperty("transform")),
-      }),
-    );
-  }, []);
 
   return (
     <>
@@ -199,7 +181,7 @@ export default function SettingsPage() {
       />
       {/* members, risk and authority are desktop-only; say so rather than leave people looking */}
       <p className="-mt-2 pb-5 text-[13px] leading-[1.5] text-mute lg:hidden">Members, risk by topic and document authority can be changed on a desktop.</p>
-      <div ref={grid} className="grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-12">
+      <div className="settle-in grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-12">
         <WorkspaceCard admin={admin} />
         <ReviewCard admin={admin} />
         <MembersCard admin={admin} />

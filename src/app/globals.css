@@ -221,6 +221,31 @@ textarea:focus-visible,
   animation: kero-in 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Settings cards: rise in one after another. Pure CSS so it runs on the
+   compositor from the first frame (no wait for a script, no main-thread
+   stutter beside the p5 canvas) and ends exactly on the pixel grid, so text
+   does not shimmer or jump when it lands. */
+@keyframes settle-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.settle-in > * {
+  animation: settle-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  backface-visibility: hidden;
+}
+.settle-in > :nth-child(2) { animation-delay: 60ms; }
+.settle-in > :nth-child(3) { animation-delay: 120ms; }
+.settle-in > :nth-child(4) { animation-delay: 180ms; }
+.settle-in > :nth-child(5) { animation-delay: 240ms; }
+.settle-in > :nth-child(6) { animation-delay: 300ms; }
+.settle-in > :nth-child(n + 7) { animation-delay: 360ms; }
+
 @keyframes marquee {
   to {
     transform: translateX(-50%);

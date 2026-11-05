@@ -45,10 +45,12 @@ const bootScript = [
   "history.scrollRestoration='manual'",
   "if(location.hash)history.replaceState(history.state,'',location.pathname+location.search)",
   "window.scrollTo(0,0)",
-  // iOS Safari and in-app browsers (Instagram, LinkedIn) zoom into any input
-  // under 16px on focus. maximum-scale=1 stops that; iOS still allows pinch
-  // zoom. Android never auto-zooms, so its pinch zoom is left alone.
-  "if(/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){var v=function(){var m=document.querySelector('meta[name=viewport]');if(m&&m.content.indexOf('maximum-scale')<0)m.content+=',maximum-scale=1'};v();document.addEventListener('DOMContentLoaded',v)}",
+  // iOS Safari and in-app browsers (Instagram, LinkedIn, Facebook, Chrome on
+  // iOS: all WebKit) zoom into any input under 16px on focus. maximum-scale=1
+  // stops that; iOS still allows pinch zoom. Next.js rewrites the viewport tag
+  // on navigation, so it is re-applied whenever the head changes. Android never
+  // auto-zooms, so its pinch zoom is left alone.
+  "if(/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){var v=function(){document.querySelectorAll('meta[name=viewport]').forEach(function(m){if(m.content.indexOf('maximum-scale=1')<0)m.content=m.content.replace(/,?\\s*maximum-scale=[^,]*/,'')+', maximum-scale=1'})};v();document.addEventListener('DOMContentLoaded',function(){v();new MutationObserver(v).observe(document.head,{childList:true,subtree:true,attributes:true,attributeFilter:['content']})})}",
 ].join(";");
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
