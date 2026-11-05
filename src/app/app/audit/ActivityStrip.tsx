@@ -10,9 +10,8 @@ import type { Day } from "./model";
 export const STRIP_GAP = 3;
 
 /**
- * p5: one column per day, one block per entry (or per few entries on a
- * very busy range) stacked from the baseline,
- * decisions (red) at the bottom. Days with nothing logged keep a hairline
+ * p5: one solid bar per day rising from the baseline, decisions (red)
+ * at the bottom. Days with nothing logged keep a hairline
  * so the calendar reads as continuous. The selected or hovered day stays
  * full strength while the others step back.
  */
@@ -40,14 +39,8 @@ export function ActivityStrip({ days, active, hover }: { days: Day[]; active: nu
       const col = (p.width + STRIP_GAP) / Math.max(1, n);
       const w = Math.max(2, col - STRIP_GAP);
       const most = Math.max(4, ...list.map((d) => d.n));
-      // whole-pixel blocks with a fixed 2px cut between them, sized so the
-      // busiest day fills the strip. When it would not fit at 3px a block, each
-      // block stands for several entries so no stack runs past the top.
-      const room = Math.max(1, Math.floor((p.height - 2) / 3));
-      const per = Math.ceil(most / room);
-      const tallest = Math.ceil(most / per);
-      const unit = Math.max(3, Math.floor((p.height - 2) / tallest));
-      const block = unit - 2;
+      // one solid bar per day, scaled so the busiest day fills the strip
+      const unit = (p.height - 2) / most;
       list.forEach((d, i) => {
         const focus = h >= 0 ? h === i : a < 0 || a === i;
         fade[i] = (fade[i] ?? 1) + ((focus ? 1 : 0.25) - (fade[i] ?? 1)) * 0.15;
@@ -55,18 +48,17 @@ export function ActivityStrip({ days, active, hover }: { days: Day[]; active: nu
         // baseline hairline for every day
         p.fill(23, 23, 23, 40 * fade[i]);
         p.rect(x, p.height - 1, w, 1);
-        const blocks = Math.ceil(d.n / per);
-        const red = Math.ceil(d.decisions / per);
-        for (let k = 0; k < blocks; k++) {
-          // columns rise left to right, blocks bottom to top
-          const e = Math.max(0, Math.min(1, grow * (n * 0.5 + tallest) - i * 0.5 - k));
-          if (e <= 0) break;
-          const y = p.height - 2 - (k + 1) * unit + (unit - block);
-          const alpha = 255 * fade[i] * (1 - Math.pow(1 - e, 3));
-          if (k < red) p.fill(227, 6, 19, alpha);
-          else p.fill(23, 23, 23, alpha);
-          p.rect(x, y, w, block, 1);
-        }
+        if (!d.n) return;
+        // bars rise left to right
+        const e = Math.max(0, Math.min(1, grow * (n * 0.5 + 8) - i * 0.5));
+        const t = 1 - Math.pow(1 - e, 3);
+        const base = p.height - 2;
+        const total = Math.max(2, d.n * unit) * t;
+        const red = total * (d.decisions / d.n);
+        p.fill(23, 23, 23, 255 * fade[i]);
+        if (total > red) p.rect(x, base - total, w, total - red, 1, 1, 0, 0);
+        p.fill(227, 6, 19, 255 * fade[i]);
+        if (red > 0) p.rect(x, base - red, w, red, total > red ? 0 : 1, total > red ? 0 : 1, 0, 0);
       });
     };
   });
