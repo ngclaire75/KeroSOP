@@ -545,5 +545,11 @@ class ExportBody(BaseModel):
 @app.post("/v1/audit/exports")
 def log_export(body: ExportBody, ctx: Ctx = Depends(workspace)):
     with tenant(ctx.org, ctx.me.user_id) as conn:
-        audit(conn, ctx.org, ctx.me.name, "exported", body.kind, "/reports", None, ctx.me.user_id)
+        # repeat clicks (or a print dialog reopened) within a minute are one export
+        recent = conn.execute(
+            text("SELECT 1 FROM audit_events WHERE organization_id = :o AND actor_user IS NOT DISTINCT FROM :u AND action = 'exported' AND target = :t AND created_at > now() - interval '60 seconds' LIMIT 1"),
+            {"o": ctx.org, "u": ctx.me.user_id, "t": body.kind},
+        ).first()
+        if not recent:
+            audit(conn, ctx.org, ctx.me.name, "exported", body.kind, "/reports", None, ctx.me.user_id)
     return {"ok": True}

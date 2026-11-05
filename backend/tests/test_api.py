@@ -43,6 +43,15 @@ def test_demo_request_creates_workspace(alice):
     assert ws["sample"] is False and len(ws["baselines"]) == 2
 
 
+def test_repeat_export_clicks_log_once(alice):
+    for _ in range(5):
+        assert alice.post("/v1/audit/exports", {"kind": "Audit report (PDF)"}).status_code == 200
+    alice.post("/v1/audit/exports", {"kind": "Findings (CSV)"})
+    with system() as conn:
+        rows = conn.execute(text("SELECT target FROM audit_events WHERE action = 'exported' ORDER BY target")).scalars().all()
+    assert rows == ["Audit report (PDF)", "Findings (CSV)"]
+
+
 def test_github_import_rejects_non_allowlisted_hosts(alice):
     for url in ["http://raw.githubusercontent.com/x/y/z.md", "https://169.254.169.254/latest/meta-data", "https://evil.example/a.md", "file:///etc/passwd"]:
         assert alice.post("/v1/import/url", {"url": url}).status_code == 422

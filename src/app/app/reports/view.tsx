@@ -44,8 +44,9 @@ export default function ReportsPage() {
   const excluded = ws.docs.filter((d) => d.approval !== "approved" || d.parseIssue);
   const stamp = new Date().toISOString().slice(0, 10);
 
-  const exportPdf = async () => {
-    await logExport(`${KIND[kind].title} (PDF)`).catch(() => {});
+  const exportPdf = () => {
+    // print first so the dialog opens on the click itself; logging never blocks it
+    logExport(`${KIND[kind].title} (PDF)`).catch(() => {});
     window.print();
   };
   const exportCsv = async () => {

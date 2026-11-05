@@ -9,7 +9,7 @@ import { useWorkspace } from "@/lib/app/store";
 import { prefersReducedMotion } from "@/lib/random";
 import type { AuditEvent } from "@/lib/app/types";
 import { ActivityStrip, STRIP_GAP } from "./ActivityStrip";
-import { KINDS, KIND_LABEL, KIND_LOOK, KIND_PLURAL, PERIOD_LABEL, csvCell, dayKey, isScan, kindOf, linkFor, placeOf, placesFor, sentence, shortId, tallyDays, type Kind, type Period } from "./model";
+import { KINDS, KIND_LABEL, KIND_LOOK, KIND_PLURAL, PERIOD_LABEL, collapseRepeats, csvCell, dayKey, isScan, kindOf, linkFor, placeOf, placesFor, sentence, shortId, tallyDays, type Entry, type Kind, type Period } from "./model";
 
 /** Same row look as the other library pages: white, hairline border, 10px corners. */
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
@@ -77,7 +77,7 @@ export default function AuditHistory() {
   };
 
   // newest first, as the API sends it; sorted again in case entries arrive out of order. Scan runs live on Document Scan.
-  const events = useMemo(() => ws.audit.filter((a) => !isScan(a.action)).sort((a, b) => b.at.localeCompare(a.at)), [ws.audit]);
+  const events = useMemo(() => collapseRepeats(ws.audit.filter((a) => !isScan(a.action)).sort((a, b) => b.at.localeCompare(a.at))), [ws.audit]);
   const people = useMemo(() => [...new Set(events.map((a) => a.actor))].sort((a, b) => (a === "System" ? 1 : b === "System" ? -1 : a.localeCompare(b))), [events]);
   const days = useMemo(() => tallyDays(events, span, now), [events, span, now]);
   const tally = useMemo(() => {
@@ -138,8 +138,8 @@ export default function AuditHistory() {
 
   const exportCsv = async () => {
     const out = [
-      ["Entry", "Time (UTC)", "Who", "Activity", "Action", "Target", "Detail"],
-      ...rows.map((a) => [a.id, new Date(a.at).toISOString(), a.actor, KIND_LABEL[kindOf(a.action)], a.action, a.target, a.detail ?? ""]),
+      ["Entry", "Time (UTC)", "Who", "Activity", "Action", "Target", "Detail", "Times"],
+      ...rows.map((a) => [a.id, new Date(a.at).toISOString(), a.actor, KIND_LABEL[kindOf(a.action)], a.action, a.target, a.detail ?? "", a.times ?? 1]),
     ];
     download(`kerosop-audit-history-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + out.map((r) => r.map(csvCell).join(",")).join("\n"), "text/csv;charset=utf-8");
     await logExport("Audit history (CSV)").catch(() => {});
@@ -326,7 +326,7 @@ export default function AuditHistory() {
 
 /* ---------- one entry row ---------- */
 
-function EventRow({ event: a, onOpen }: { event: AuditEvent; onOpen(): void }) {
+function EventRow({ event: a, onOpen }: { event: Entry; onOpen(): void }) {
   const kind = kindOf(a.action);
   return (
     <li>
@@ -339,7 +339,10 @@ function EventRow({ event: a, onOpen }: { event: AuditEvent; onOpen(): void }) {
         <span className="flex min-w-0 items-center gap-3">
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] leading-[1.35] font-semibold [overflow-wrap:anywhere] xl:truncate">{sentence(a)}</span>
-            <span className="mt-0.5 block truncate text-[12px] text-mute">{a.detail || placeOf(linkFor(a.href))}</span>
+            <span className="mt-0.5 block truncate text-[12px] text-mute">
+              {a.detail || placeOf(linkFor(a.href))}
+              {a.times && ` · ${a.times} times within a minute`}
+            </span>
           </span>
           <Icon name="chevron" className="size-4 shrink-0 text-mute transition-colors group-hover:text-ink xl:hidden" />
         </span>

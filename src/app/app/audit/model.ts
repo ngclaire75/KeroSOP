@@ -65,6 +65,28 @@ export function sentence(a: AuditEvent) {
   return `${cap(a.action)} ${a.target}`;
 }
 
+/** An entry plus how many identical ones it stands for (see collapseRepeats). */
+export type Entry = AuditEvent & { times?: number };
+
+/**
+ * Same person, same action, same target, each within a minute of the last:
+ * one entry with a count. Repeat clicks (an export pressed while the print
+ * dialog was slow to open) otherwise flood the list and the activity strip.
+ * Expects newest first.
+ */
+export function collapseRepeats(events: AuditEvent[], windowMs = 60000): Entry[] {
+  const out: Entry[] = [];
+  let last: AuditEvent | undefined;
+  for (const a of events) {
+    const top = out[out.length - 1];
+    if (top && last && a.actor === top.actor && a.action === top.action && a.target === top.target && (a.detail ?? "") === (top.detail ?? "") && new Date(last.at).getTime() - new Date(a.at).getTime() <= windowMs) {
+      top.times = (top.times ?? 1) + 1;
+    } else out.push({ ...a });
+    last = a;
+  }
+  return out;
+}
+
 /** Local calendar day, so "today" matches the reader's clock. */
 export const dayKey = (iso: string | number | Date) => {
   const d = new Date(iso);
