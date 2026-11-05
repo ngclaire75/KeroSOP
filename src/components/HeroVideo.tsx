@@ -51,7 +51,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
   }, []);
 
   return (
-    <div className={`relative overflow-hidden rounded-[28px] bg-ink ${className}`}>
+    <div className={`relative overflow-hidden rounded-[20px] bg-ink ${className}`}>
       <video
         ref={ref}
         onPlay={() => setPlaying(true)}
@@ -71,7 +71,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
       <button
         type="button"
         aria-label={playing ? "Pause video" : "Play video"}
-        className="group absolute inset-0 grid place-items-center rounded-[28px] text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
+        className="group absolute inset-0 grid place-items-center rounded-[20px] text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
         onClick={() => {
           const video = ref.current;
           if (!video) return;

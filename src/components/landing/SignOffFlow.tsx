@@ -99,13 +99,13 @@ export function LifecycleTrack({ stages }: { stages: string[] }) {
   return (
     <div ref={wrapRef} className="mt-12 lg:mt-16">
       <div className="flex items-end justify-between gap-6">
-        <p className="display min-h-[1.8em] text-[clamp(2.5rem,7vw,6rem)] leading-[0.9]" aria-live="polite">
+        <p className="display min-h-[1.8em] text-[length:calc(clamp(2.5rem,7vw,6rem)*var(--ts))] leading-[0.9]" aria-live="polite">
           <span ref={wordRef} className={`inline-block ${active === n - 1 && started ? "text-red" : ""}`}>
             {stages[active]}
           </span>
         </p>
         <p className="shrink-0 pb-1 text-right text-sm text-mute tabular-nums">
-          <span className="display block text-[clamp(1.75rem,3vw,2.5rem)] leading-none text-ink">
+          <span className="display block text-[length:calc(clamp(1.75rem,3vw,2.5rem)*var(--ts))] leading-none text-ink">
             {pad(active + 1)}
             <span className="text-ink/25"> / {pad(n)}</span>
           </span>
@@ -190,7 +190,7 @@ export function RoleCards() {
   return (
     <ul ref={ref} data-stagger className="mt-10 grid gap-3 md:grid-cols-3">
       {roles.map((r) => (
-        <li key={r.role} className="flex flex-col rounded-[22px] bg-ink p-6 text-paper sm:p-7">
+        <li key={r.role} className="flex flex-col rounded-[16px] bg-ink p-6 text-paper sm:p-7">
           <h3 className="text-2xl font-bold">{r.role}</h3>
           <p className="mt-2 leading-[1.55] text-paper/65">{r.does}</p>
           <ul className="mt-auto flex flex-wrap gap-2 pt-6">

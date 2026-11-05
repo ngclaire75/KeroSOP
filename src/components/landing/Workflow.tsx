@@ -61,7 +61,7 @@ export function Steps() {
     <section id="how" className="bg-fog py-20 lg:py-28">
       <Container>
         <div className="flex flex-col gap-6">
-          <Heading className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]" lines={["From upload", "to a closed finding."]} />
+          <Heading className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]" lines={["From upload", "to a closed finding."]} />
           <BlurText className="max-w-[30rem] text-lg leading-[1.55] text-mute">
             A fixed pipeline, not a chat window. The same documents give the same findings, so you can test it and trust
             it.
@@ -72,10 +72,10 @@ export function Steps() {
           {steps.map((s, i) => (
             <li
               key={s.title}
-              className="group relative overflow-hidden rounded-[24px] border border-line bg-paper p-6 sm:p-7 transition-colors duration-300 hover:border-ink data-[hover]:border-ink"
+              className="group relative overflow-hidden rounded-[17px] border border-line bg-paper p-6 sm:p-7 transition-colors duration-300 hover:border-ink data-[hover]:border-ink"
             >
               <div className="flex items-start justify-between">
-                <span className="display text-[3.25rem] text-red sm:text-[4.5rem]" aria-hidden="true">
+                <span className="display text-[length:calc(3.25rem*var(--ts))] text-red sm:text-[length:calc(4.5rem*var(--ts))]" aria-hidden="true">
                   {i + 1}
                 </span>
                 <span className="mt-2 grid grid-cols-3 gap-1" aria-hidden="true">
@@ -109,10 +109,10 @@ export function SignOff() {
   return (
     <section id="governance" className="py-20 lg:py-28">
       <Container className="flex flex-col gap-12 lg:gap-16">
-        <div className="relative flex min-h-[420px] flex-col justify-between overflow-hidden rounded-[24px] bg-red p-7 md:min-h-[440px] md:flex-row md:items-end lg:p-9">
+        <div className="relative flex min-h-[420px] flex-col justify-between overflow-hidden rounded-[17px] bg-red p-7 md:min-h-[440px] md:flex-row md:items-end lg:p-9">
           <EyeField className="pointer-events-none absolute inset-0" />
           <Heading
-            className="relative max-w-[11ch] text-[3.4rem] text-paper sm:text-[clamp(3rem,6.2vw,5.75rem)] md:self-start"
+            className="relative max-w-[11ch] text-[length:calc(3.4rem*var(--ts))] text-paper sm:text-[length:calc(clamp(3rem,6.2vw,5.75rem)*var(--ts))] md:self-start"
             lines={["We flag it.", "You decide."]}
             tint="#ffb3ae"
           />
@@ -124,7 +124,7 @@ export function SignOff() {
             as="h2"
             step={45}
             blur={12}
-            className="text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-bold tracking-[-0.015em]"
+            className="text-[length:calc(clamp(1.75rem,3vw,2.5rem)*var(--ts))] leading-[1.1] font-bold tracking-[-0.015em]"
           >
             Nothing changes until a person signs off.
           </BlurText>
@@ -210,7 +210,7 @@ export function Monitoring() {
       <Container>
         <div>
           <Heading
-            className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]"
+            className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]"
             lines={["When a policy changes,", "we check what it touches."]}
           />
           <BlurText className="mt-6 max-w-[30rem] text-lg leading-[1.55] text-paper/70">
@@ -222,7 +222,7 @@ export function Monitoring() {
         <div ref={gridRef} className="relative mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
           <div
             data-card
-            className="will-change-transform on-red relative isolate z-10 flex min-h-[220px] [clip-path:inset(0_round_24px)] flex-col justify-between overflow-hidden rounded-[24px] bg-red p-6 sm:min-h-[260px] sm:p-7"
+            className="will-change-transform on-red relative isolate z-10 flex min-h-[220px] [clip-path:inset(0_round_24px)] flex-col justify-between overflow-hidden rounded-[17px] bg-red p-6 sm:min-h-[260px] sm:p-7"
           >
             {/* Mesh gradient from layered radial gradients: painted once, drifts on the GPU. */}
             <div
@@ -237,7 +237,7 @@ export function Monitoring() {
             </div>
             <div className="relative">
               <p className="text-sm text-paper/85">Refund window, was 7 days</p>
-              <p className="display mt-2 text-[clamp(3.25rem,5vw,4.5rem)]">14 days</p>
+              <p className="display mt-2 text-[length:calc(clamp(3.25rem,5vw,4.5rem)*var(--ts))]">14 days</p>
             </div>
           </div>
 
@@ -245,7 +245,7 @@ export function Monitoring() {
             <div
               key={item.doc}
               data-card
-              className="will-change-transform flex min-h-[220px] flex-col justify-between rounded-[24px] bg-paper p-6 text-ink sm:min-h-[260px] sm:p-7"
+              className="will-change-transform flex min-h-[220px] flex-col justify-between rounded-[17px] bg-paper p-6 text-ink sm:min-h-[260px] sm:p-7"
             >
               <div>
                 <p className="text-xl leading-tight font-semibold">{item.doc}</p>
@@ -293,7 +293,7 @@ export function Audiences() {
     <section id="solutions" className="py-20 lg:py-28">
       <Container>
         <Heading
-          className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]"
+          className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]"
           lines={["Built for teams that run", "on written procedures."]}
         />
         <ul ref={listRef} data-stagger className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">

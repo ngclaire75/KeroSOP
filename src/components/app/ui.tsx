@@ -68,7 +68,7 @@ const BTN: Record<BtnVariant, string> = {
 };
 
 export function btnClass(variant: BtnVariant = "outline", size: "sm" | "md" = "md") {
-  return `inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] font-semibold whitespace-nowrap transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-45 ${
+  return `inline-flex shrink-0 items-center justify-center gap-2 rounded-[6px] font-semibold whitespace-nowrap transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-45 ${
     size === "sm" ? "h-9 px-3.5 text-[13px]" : "h-10 px-4.5 text-[14px]"
   } ${BTN[variant]}`;
 }
@@ -125,7 +125,7 @@ export const SURFACE_STYLE = {
   background: "#ffffff",
   color: "#171717",
   border: "1px solid #e5e5e3",
-  borderRadius: 10,
+  borderRadius: 7,
 } as CSSProperties;
 /** Light table headers and alternating rows keep dense data easy to scan. */
 export const TABLE_LOOK =
@@ -241,7 +241,7 @@ export function Marked({ text, mark, className = "" }: { text: string; mark?: st
 /* ---------- form fields ---------- */
 
 const FIELD =
-  "w-full rounded-[12px] border border-line bg-paper px-3.5 text-[14px] text-ink outline-none transition-colors placeholder:text-mute/70 hover:border-ink/30 focus:border-ink";
+  "w-full rounded-[9px] border border-line bg-paper px-3.5 text-[14px] text-ink outline-none transition-colors placeholder:text-mute/70 hover:border-ink/30 focus:border-ink";
 
 export function Label({ children, htmlFor, hint }: { children: ReactNode; htmlFor?: string; hint?: string }) {
   return (
@@ -442,7 +442,7 @@ export function MenuSelect({ value, onChange, options, className = "", disabled,
       </button>
       <Icon name="down" className={`pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-mute transition-transform ${open ? "rotate-180" : ""}`} />
       {open && (
-        <ul ref={list} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[320px] overflow-y-auto overscroll-contain rounded-[12px] border border-line bg-paper py-1.5 shadow-[0_12px_32px_#0000001a]">
+        <ul ref={list} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[320px] overflow-y-auto overscroll-contain rounded-[9px] border border-line bg-paper py-1.5 shadow-[0_12px_32px_#0000001a]">
           {options.map((o, i) => (
             <li
               key={o.value}
@@ -565,7 +565,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex w-full flex-col overflow-hidden bg-paper shadow-2xl sm:max-h-[92dvh] sm:rounded-[12px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[12px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
+        className={`flex w-full flex-col overflow-hidden bg-paper shadow-2xl sm:max-h-[92dvh] sm:rounded-[9px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[9px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
       >
         <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-1">
           <h2 className="text-[17px] font-bold">{title}</h2>

@@ -11,7 +11,7 @@ export function Hero() {
         <Heading
           as="h1"
           delay={150}
-          className="text-[clamp(3.4rem,9.2vw,9rem)]"
+          className="text-[length:calc(clamp(3.4rem,9.2vw,9rem)*var(--ts))]"
           lines={[
             "Find where your",
             <Fragment key="line-2">

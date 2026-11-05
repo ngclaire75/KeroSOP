@@ -8,6 +8,21 @@
   --fog: #f2f2f0;
   --line: #e2e2e0;
   --mute: #5f5f5c;
+  /* text scale; the landing and request-access pages shrink it on phones */
+  --ts: 1;
+}
+
+@media (max-width: 639px) {
+  html:has([data-text-scale]) {
+    --ts: 0.92;
+    --text-xs: calc(0.75rem * 0.92);
+    --text-sm: calc(0.875rem * 0.92);
+    --text-base: calc(1rem * 0.92);
+    --text-lg: calc(1.125rem * 0.92);
+    --text-xl: calc(1.25rem * 0.92);
+    --text-2xl: calc(1.5rem * 0.92);
+    --text-3xl: calc(1.875rem * 0.92);
+  }
 }
 
 @theme inline {

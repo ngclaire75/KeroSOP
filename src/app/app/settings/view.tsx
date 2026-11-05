@@ -16,15 +16,15 @@ const BTN = "inline-flex h-10 items-center justify-center gap-2 rounded-full px-
 const BTN_MAIN = `${BTN} bg-red text-white hover:bg-red-deep`;
 const BTN_LINE = `${BTN} border border-white text-white hover:bg-white hover:text-black`;
 const FIELD =
-  "h-11 w-full min-w-0 rounded-[12px] border border-white/15 bg-[#1f1f1f] px-3.5 text-[14px] text-white outline-none transition-colors placeholder:text-white/75 hover:border-white/50 focus:border-white disabled:cursor-not-allowed disabled:opacity-60";
+  "h-11 w-full min-w-0 rounded-[9px] border border-white/15 bg-[#1f1f1f] px-3.5 text-[14px] text-white outline-none transition-colors placeholder:text-white/75 hover:border-white/50 focus:border-white disabled:cursor-not-allowed disabled:opacity-60";
 /** The shared dropdown, recoloured for the black cards; its menu stays white. */
 const SELECT_ON_DARK =
   "[&_[role=combobox]]:h-11 [&_[role=combobox]]:border-white/15 [&_[role=combobox]]:bg-[#1f1f1f] [&_[role=combobox]]:text-white [&_[role=combobox]:hover]:border-white/50 [&>div>svg]:text-white";
 /** Rows inside the black cards: dark grey, separate, hairline border, 10px corners. */
-const ROW = "rounded-[10px] border border-white/10 bg-[#1f1f1f] text-white";
+const ROW = "rounded-[7px] border border-white/10 bg-[#1f1f1f] text-white";
 /** A compact dark dropdown that sits inside a row. */
 const SELECT_IN_ROW =
-  "[&_[role=combobox]]:h-10 [&_[role=combobox]]:rounded-[8px] [&_[role=combobox]]:font-semibold [&_[role=combobox]]:border-white/15 [&_[role=combobox]]:bg-[#2b2b2b] [&_[role=combobox]]:text-white [&_[role=combobox]:hover]:border-white/60 [&>div>svg]:text-white";
+  "[&_[role=combobox]]:h-10 [&_[role=combobox]]:rounded-[6px] [&_[role=combobox]]:font-semibold [&_[role=combobox]]:border-white/15 [&_[role=combobox]]:bg-[#2b2b2b] [&_[role=combobox]]:text-white [&_[role=combobox]:hover]:border-white/60 [&>div>svg]:text-white";
 
 const RETENTION = [
   { value: "90", label: "90 days" },
@@ -47,7 +47,7 @@ const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
 /** Black card with white text, as on Integrations. Not overflow-hidden, so dropdown menus can open past the edge; focus-within lifts a card with an open menu above the ones after it. */
 function DarkCard({ className = "", ...props }: ComponentProps<"section">) {
-  return <section {...props} className={`relative rounded-[12px] border border-white/[0.08] bg-[#0b0b0b] text-white focus-within:z-20 ${className}`} />;
+  return <section {...props} className={`relative rounded-[9px] border border-white/[0.08] bg-[#0b0b0b] text-white focus-within:z-20 ${className}`} />;
 }
 
 function CardHead({ title, hint, action }: { title: string; hint: ReactNode; action?: ReactNode }) {
@@ -154,7 +154,7 @@ function TagEditor({ items, onChange, placeholder, disabled, noun }: { items: st
           maxLength={60}
         />
         {/* white with black text, square-cornered like the field beside it; dimmed until there is something to add */}
-        <button type="button" disabled={disabled || !clean || dupe} onClick={add} className={`${BTN.replace("rounded-full", "rounded-[12px]")} h-11 shrink-0 bg-white text-black`}>
+        <button type="button" disabled={disabled || !clean || dupe} onClick={add} className={`${BTN.replace("rounded-full", "rounded-[9px]")} h-11 shrink-0 bg-white text-black`}>
           Add
         </button>
       </div>

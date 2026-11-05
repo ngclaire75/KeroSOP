@@ -11,10 +11,10 @@ import { prefersReducedMotion } from "@/lib/random";
 import { type Doc, type Scan, type ScanStage } from "@/lib/app/types";
 
 /** Same row look as the Document Library: white, hairline border, 10px corners. */
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
 /** Desktop columns: scan, documents, started, duration, result, status, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_104px_104px_72px_168px_124px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_button]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[6px] font-semibold";
 const SCANNERS = ["owner", "admin", "editor", "reviewer", "approver"];
 
 type State = "running" | "completed" | "partial" | "failed";
@@ -144,7 +144,7 @@ export default function ScanCenter() {
                   New scan
                 </Btn>
               ) : (
-                <AppLink href="/documents?upload=1" className="inline-flex h-10 items-center gap-2 rounded-[8px] bg-red px-4.5 text-[14px] font-semibold text-white hover:bg-red-deep">
+                <AppLink href="/documents?upload=1" className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-red px-4.5 text-[14px] font-semibold text-white hover:bg-red-deep">
                   <Icon name="upload" className="size-4" /> Upload documents
                 </AppLink>
               ))
@@ -154,7 +154,7 @@ export default function ScanCenter() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2 pb-5 xl:grid-cols-[minmax(200px,1fr)_190px]">
-            <SearchInput value={q} onChange={setQ} placeholder="Search scan name, code or person" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+            <SearchInput value={q} onChange={setQ} placeholder="Search scan name, code or person" className="col-span-2 xl:col-span-1 [&_input]:rounded-[6px]" />
             <Select
               aria-label="Status"
               value={state}
@@ -357,7 +357,7 @@ function ScanDrawer({ scan, canScan, onClose, onRerun }: { scan: Scan | null; ca
           <p className="text-[13px] text-mute">{live ? "Updating live" : `Took ${duration(scan)}`}</p>
         </div>
 
-        {scan.error && <p className="rounded-[10px] border border-red/30 px-4 py-3 text-[13px] leading-[1.5] text-red">{scan.error}</p>}
+        {scan.error && <p className="rounded-[7px] border border-red/30 px-4 py-3 text-[13px] leading-[1.5] text-red">{scan.error}</p>}
 
         <section>
           <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -411,7 +411,7 @@ function ScanDrawer({ scan, canScan, onClose, onRerun }: { scan: Scan | null; ca
           <ul className="flex flex-col gap-2">
             {docs.map((d) => (
               <li key={d.id}>
-                <AppLink href={`/documents?doc=${d.id}`} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3 transition-colors hover:border-ink/40">
+                <AppLink href={`/documents?doc=${d.id}`} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3 transition-colors hover:border-ink/40">
                   <FileLogo kind={d.kind} className="size-8 shrink-0" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[14px] font-semibold">{d.title}</span>
@@ -432,7 +432,7 @@ function ScanDrawer({ scan, canScan, onClose, onRerun }: { scan: Scan | null; ca
             <h3 className="mb-3 text-[13px] font-bold">New findings</h3>
             <ul className="flex flex-col gap-2">
               {found.map((f) => (
-                <li key={f!.id} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3">
+                <li key={f!.id} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3">
                   <span className="w-16 shrink-0 font-mono text-[12px] text-mute">{f!.id}</span>
                   <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{f!.title}</span>
                   <span className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold capitalize ${f!.risk === "high" ? "bg-red text-white" : "border border-ink/35 text-ink"}`}>{f!.risk}</span>
@@ -593,18 +593,18 @@ function NewScan({ initial, ai, onClose, onStarted }: { initial: { docIds?: stri
               </button>
             </span>
           </div>
-          <SearchInput value={q} onChange={setQ} placeholder="Filter documents" className="mb-2 [&_input]:rounded-[8px]" />
+          <SearchInput value={q} onChange={setQ} placeholder="Filter documents" className="mb-2 [&_input]:rounded-[6px]" />
           {/* on desktop at most four whole rows (4 × 56px, 3 gaps, 1px edges for the borders); scrolling snaps a row at a time so none is cut */}
           <ul className="flex flex-col gap-1.5 py-px pr-1 sm:max-h-[244px] sm:snap-y sm:snap-mandatory sm:scroll-py-px sm:overflow-y-auto">
             {list.map((d) => {
               const on = picked.has(d.id);
               return (
                 <li key={d.id} className="snap-start">
-                  <label className={`flex h-14 cursor-pointer items-center gap-3 rounded-[10px] border px-3 transition-colors ${on ? "border-ink" : "border-line hover:border-ink/40"}`}>
+                  <label className={`flex h-14 cursor-pointer items-center gap-3 rounded-[7px] border px-3 transition-colors ${on ? "border-ink" : "border-line hover:border-ink/40"}`}>
                     <input type="checkbox" className="peer sr-only" checked={on} onChange={() => toggle(d.id)} />
                     <span
                       aria-hidden="true"
-                      className={`grid size-5 shrink-0 place-items-center rounded-[5px] border peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red ${on ? "border-ink bg-ink text-paper" : "border-ink/30"}`}
+                      className={`grid size-5 shrink-0 place-items-center rounded-[4px] border peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red ${on ? "border-ink bg-ink text-paper" : "border-ink/30"}`}
                     >
                       {on && (
                         <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -627,7 +627,7 @@ function NewScan({ initial, ai, onClose, onStarted }: { initial: { docIds?: stri
           </ul>
         </section>
 
-        <section className="rounded-[10px] border border-line px-4 py-3.5">
+        <section className="rounded-[7px] border border-line px-4 py-3.5">
           <label className={`flex items-start justify-between gap-4 ${aiReady ? "cursor-pointer" : "cursor-not-allowed"}`}>
             <span>
               <span className="block text-[14px] font-semibold">AI review with Qwen3</span>

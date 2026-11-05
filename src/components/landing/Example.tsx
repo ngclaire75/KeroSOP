@@ -243,7 +243,7 @@ function MarkedVerdict({
 
 function Quote({ e, label }: { e: Evidence; label: string }) {
   return (
-    <figure className="flex h-full flex-col rounded-[16px] border border-paper/10 bg-[#242424] p-5 text-paper sm:p-6">
+    <figure className="flex h-full flex-col rounded-[12px] border border-paper/10 bg-[#242424] p-5 text-paper sm:p-6">
       <figcaption className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3">
         <span className="display text-3xl leading-none text-red">{label}</span>
         <span className="truncate leading-none font-semibold">{e.doc}</span>
@@ -251,7 +251,7 @@ function Quote({ e, label }: { e: Evidence; label: string }) {
       </figcaption>
       <blockquote
         lang={e.zh ? "zh-Hans" : undefined}
-        className={`mt-5 ${e.zh ? "text-[1.25rem] leading-[1.6]" : "text-lg leading-[1.45]"}`}
+        className={`mt-5 ${e.zh ? "text-[length:calc(1.25rem*var(--ts))] leading-[1.6]" : "text-lg leading-[1.45]"}`}
       >
         “
         {e.quote.map((seg, i) =>
@@ -287,7 +287,7 @@ export function Example() {
     <section id="example" className="on-dark bg-ink py-20 text-paper lg:py-28">
       <Container>
         <div className="flex flex-col gap-6">
-          <Heading className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]" lines={["One refund.", "Three documents."]} />
+          <Heading className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]" lines={["One refund.", "Three documents."]} />
           <BlurText className="max-w-[30rem] text-lg leading-[1.55] text-paper/70">
             These three look like they disagree. Only one does. KeroSOP checks who acts, what starts the clock and where
             the rule applies before it calls anything a conflict.
@@ -316,7 +316,7 @@ export function Example() {
                   aria-controls={`panel-${item.id}`}
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setActive(i)}
-                  className={`flex items-center justify-between gap-4 rounded-[16px] px-5 py-4 text-left ${
+                  className={`flex items-center justify-between gap-4 rounded-[12px] px-5 py-4 text-left ${
                     selected
                       ? "border border-paper bg-paper text-ink"
                       : "border border-paper/15 bg-white/[0.04] text-paper hover:border-paper/40 data-[hover]:border-paper/40"
@@ -363,8 +363,8 @@ export function Example() {
                     <Quote e={item.b} label="B" />
                   </div>
 
-                  <div className="flex-1 rounded-[16px] border-2 border-paper bg-paper p-5 text-ink sm:p-6">
-                    <p className="display text-[clamp(2.25rem,4vw,3.25rem)]">
+                  <div className="flex-1 rounded-[12px] border-2 border-paper bg-paper p-5 text-ink sm:p-6">
+                    <p className="display text-[length:calc(clamp(2.25rem,4vw,3.25rem)*var(--ts))]">
                       <MarkedVerdict tone={item.tone === "conflict" ? "red" : "ink"} active={shown}>
                         {item.verdict}
                       </MarkedVerdict>

@@ -316,7 +316,7 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
   const neighbors = new Set(links.filter((l) => l.a === selected || l.b === selected).flatMap((l) => [l.a, l.b]));
   return (
     <div ref={viewport} className="w-full py-4" role="region" aria-label="Policy relationship map. Select a document for its connections.">
-      <div ref={frame} onClickCapture={swallowDragClick} className={`relative mx-auto overflow-hidden rounded-[10px] ${zoomed ? "cursor-grab active:cursor-grabbing" : ""}`} style={{ width: boxW, height: boxH, touchAction: zoomed ? "none" : "pan-x pan-y" }}>
+      <div ref={frame} onClickCapture={swallowDragClick} className={`relative mx-auto overflow-hidden rounded-[7px] ${zoomed ? "cursor-grab active:cursor-grabbing" : ""}`} style={{ width: boxW, height: boxH, touchAction: zoomed ? "none" : "pan-x pan-y" }}>
         <div ref={scene} className="absolute top-0 left-0 origin-top-left" style={{ width, height, transform: `translate(${view.x}px, ${view.y}px) scale(${fit * view.z})` }}>
           <div ref={motionLayer} aria-hidden="true" className={`map-motion pointer-events-none absolute inset-0`}>
             <svg width={width} height={height} className="absolute inset-0" fill="none" strokeLinecap="round">{ordered.map((l) => {
@@ -334,7 +334,7 @@ export default function PolicyGraph({ docs, links, selected, onSelect }: Props) 
             const hot = flagged.has(doc.id);
             // A node: a dot with the document ID under it. The full name shows on hover and in the details panel.
             return <button key={doc.id} data-node={doc.id} type="button" aria-pressed={on} aria-label={`${doc.title} (${doc.id}), ${AUTHORITY_LABEL[doc.authority]}`} title={doc.title} onClick={() => onSelect(doc.id)}
-              className="group absolute isolate z-10 flex -translate-x-1/2 flex-col items-center gap-1 rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="group absolute isolate z-10 flex -translate-x-1/2 flex-col items-center gap-1 rounded-[5px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               style={{ left: point.x, top: point.y - DOT_SLOT / 2, opacity: selected && !on && !neighbors.has(doc.id) ? .3 : 1, transition: "opacity .3s" }}>
               <span aria-hidden="true" className="grid place-items-center" style={{ width: DOT_SLOT, height: DOT_SLOT }}>
                 <span className={`block rounded-full transition-colors duration-200 ${on ? "size-3.5 bg-red" : hot ? "size-2.5 bg-red" : "size-2.5 bg-ink"}`} />

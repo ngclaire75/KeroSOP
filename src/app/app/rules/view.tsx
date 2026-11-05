@@ -22,10 +22,10 @@ const MOD_LOOK: Record<Modality, string> = {
 };
 
 /** Same row look as the other library pages: white, hairline border, 10px corners. */
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
 /** Desktop columns: rule, requirement, source, status, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_184px_216px_104px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_button]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[6px] font-semibold";
 const TOPIC_ROW = 44;
 
 type Scope = "current" | "historical" | "all";
@@ -165,7 +165,7 @@ export default function RuleRegistry() {
             title="No rules yet"
             body="Rules appear here as soon as documents are uploaded and read."
             action={
-              <AppLink href="/documents?upload=1" className="inline-flex h-10 items-center gap-2 rounded-[8px] bg-red px-4.5 text-[14px] font-semibold text-white hover:bg-red-deep">
+              <AppLink href="/documents?upload=1" className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-red px-4.5 text-[14px] font-semibold text-white hover:bg-red-deep">
                 <Icon name="upload" className="size-4" /> Upload documents
               </AppLink>
             }
@@ -175,7 +175,7 @@ export default function RuleRegistry() {
         <>
           <div className="grid gap-4 pb-8 xl:grid-cols-12">
             {/* WebGL: topics as orbits, rules as nodes, conflicts as red arcs */}
-            <section className="on-dark relative min-h-[430px] overflow-hidden sm:min-h-[340px] rounded-[12px] border border-[#37373b] bg-black text-white xl:col-span-7">
+            <section className="on-dark relative min-h-[430px] overflow-hidden sm:min-h-[340px] rounded-[9px] border border-[#37373b] bg-black text-white xl:col-span-7">
               <RuleOrbit key={`${orbit.list.length}-${orbit.links.length}`} rules={orbit.list} links={orbit.links} topics={topics.length} />
               <div className="pointer-events-none relative flex h-full flex-col gap-8 p-7 sm:justify-between">
                 <p className="font-mono text-[11px] tracking-[0.14em] text-white/60 uppercase">Rules in force · {plural(docsWithRules, "document")}</p>
@@ -202,7 +202,7 @@ export default function RuleRegistry() {
             </section>
 
             {/* p5: one tick per rule, by topic; doubles as the topic filter */}
-            <section style={{ ...ROW_STYLE, borderRadius: 12 }} className="flex flex-col xl:col-span-5">
+            <section style={{ ...ROW_STYLE, borderRadius: 9 }} className="flex flex-col xl:col-span-5">
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">By topic</h2>
@@ -249,7 +249,7 @@ export default function RuleRegistry() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 pb-5 xl:grid-cols-[minmax(200px,1fr)_170px_170px_200px_150px]">
-            <SearchInput value={q} onChange={setQ} placeholder="Search wording, code, subject or document" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+            <SearchInput value={q} onChange={setQ} placeholder="Search wording, code, subject or document" className="col-span-2 xl:col-span-1 [&_input]:rounded-[6px]" />
             <Select aria-label="Topic" value={topic} onChange={(e) => setTopic(e.target.value)} options={[{ value: "all", label: "All topics" }, ...topics.map((t) => ({ value: t.id, label: topicLabel(t.id) }))]} className={SEL} />
             <Select
               aria-label="Requirement"
@@ -393,7 +393,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
 
         <section>
           <h3 className="mb-3 text-[13px] font-bold">Exact wording</h3>
-          <blockquote className="rounded-[10px] border border-line px-4 py-3.5 text-[15px] leading-[1.6]">
+          <blockquote className="rounded-[7px] border border-line px-4 py-3.5 text-[15px] leading-[1.6]">
             <Marked text={rule.quote} mark={rule.valueText} />
           </blockquote>
         </section>
@@ -425,7 +425,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
         <section>
           <h3 className="mb-3 text-[13px] font-bold">Source</h3>
           {doc ? (
-            <AppLink href={`/documents?doc=${doc.id}`} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3 transition-colors hover:border-ink/40">
+            <AppLink href={`/documents?doc=${doc.id}`} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3 transition-colors hover:border-ink/40">
               <FileLogo kind={doc.kind} className="size-8 shrink-0" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-semibold">{doc.title}</span>
@@ -445,7 +445,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
             <h3 className="mb-3 text-[13px] font-bold">Open findings citing it</h3>
             <ul className="flex flex-col gap-2">
               {findings.map((f) => (
-                <li key={f.id} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3">
+                <li key={f.id} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3">
                   <span className="w-16 shrink-0 font-mono text-[12px] text-mute">{f.id}</span>
                   <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{f.title}</span>
                   <span className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold capitalize ${f.risk === "high" ? "bg-red text-white" : "border border-ink/35 text-ink"}`}>{f.risk}</span>
@@ -462,7 +462,7 @@ function RuleDrawer({ rule, findings, onClose, onOpen }: { rule: Rule | null; fi
             <ul className="flex flex-col gap-2">
               {related.map((r) => (
                 <li key={r.id}>
-                  <button type="button" onClick={() => onOpen(r.id)} className="flex h-14 w-full items-center gap-3 rounded-[10px] border border-line px-3 text-left transition-colors hover:border-ink/40">
+                  <button type="button" onClick={() => onOpen(r.id)} className="flex h-14 w-full items-center gap-3 rounded-[7px] border border-line px-3 text-left transition-colors hover:border-ink/40">
                     <ModalityPill m={r.modality} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-semibold">{r.quote.replaceAll("S$", "$")}</span>

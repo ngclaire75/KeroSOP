@@ -13,7 +13,7 @@ export default function Home() {
     <>
       <SmoothScroll />
       <Nav />
-      <main>
+      <main data-text-scale>
         <Hero />
         <Marquee />
         <Facts />

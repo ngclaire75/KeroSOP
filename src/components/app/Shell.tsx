@@ -110,7 +110,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                     onClick={onNavigate}
                     title={it.hint}
                     aria-current={active ? "page" : undefined}
-                    className={`group relative flex h-10 items-center gap-3 rounded-[12px] border px-3 text-[14px] font-medium transition-colors ${
+                    className={`group relative flex h-10 items-center gap-3 rounded-[9px] border px-3 text-[14px] font-medium transition-colors ${
                       active ? "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05))] text-paper" : isAppPageEnabled(it.href) ? "border-transparent text-paper/60 hover:text-paper" : "border-transparent text-paper/25"
                     }`}
                   >
@@ -137,7 +137,7 @@ function Sidebar({ onNavigate, onClose }: { onNavigate?: () => void; onClose?: (
     <div className="on-dark flex h-full w-full flex-col bg-[#0b0b0b] text-paper">
       <div className="flex items-center gap-3 px-5 pt-5 pb-4">
         {/* the mark alone, no wordmark; screen readers still hear the name */}
-        <span role="img" aria-label="KeroSOP" className="grid size-9 place-items-center rounded-[10px] bg-red">
+        <span role="img" aria-label="KeroSOP" className="grid size-9 place-items-center rounded-[7px] bg-red">
           <LogoMark tone="paper" className="h-6 w-auto" />
         </span>
         {onClose && (
@@ -248,7 +248,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
 
   return (
     <div className="fixed inset-0 z-[85] flex items-start justify-center bg-ink/30 px-3 pt-[10vh] backdrop-blur-[3px] sm:px-4" onMouseDown={(e) => e.target === e.currentTarget && close()}>
-      <div ref={panel} role="dialog" aria-modal="true" aria-label="Search" className="flex max-h-[76vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[20px] bg-paper shadow-[0_24px_80px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]">
+      <div ref={panel} role="dialog" aria-modal="true" aria-label="Search" className="flex max-h-[76vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[14px] bg-paper shadow-[0_24px_80px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]">
         <div className="flex items-center gap-3 px-5">
           <Icon name="search" className="size-5 text-mute" />
           <input
@@ -285,7 +285,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
               Clear
             </button>
           )}
-          <button type="button" onClick={close} className="hidden h-6 items-center rounded-[6px] border border-line px-1.5 text-[11px] font-semibold text-mute hover:text-ink sm:inline-flex">
+          <button type="button" onClick={close} className="hidden h-6 items-center rounded-[5px] border border-line px-1.5 text-[11px] font-semibold text-mute hover:text-ink sm:inline-flex">
             Esc
           </button>
         </div>
@@ -326,9 +326,9 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
                 tabIndex={-1}
                 onMouseMove={() => idx !== i && setI(idx)}
                 onClick={() => go(c)}
-                className={`grid w-full grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 rounded-[12px] px-3 py-2 text-left ${idx === i ? "ring-1 ring-ink/15 ring-inset" : ""}`}
+                className={`grid w-full grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 rounded-[9px] px-3 py-2 text-left ${idx === i ? "ring-1 ring-ink/15 ring-inset" : ""}`}
               >
-                <span className={`grid size-8 place-items-center rounded-[9px] ${idx === i ? "bg-ink text-paper" : "bg-fog"}`}>
+                <span className={`grid size-8 place-items-center rounded-[7px] ${idx === i ? "bg-ink text-paper" : "bg-fog"}`}>
                   <Icon name={c.icon} className="size-4" />
                 </span>
                 <span className="min-w-0">
@@ -359,7 +359,7 @@ function Palette({ open, onClose }: { open: boolean; onClose(): void }) {
             ["Tab", "change scope"],
           ].map(([k, l]) => (
             <span key={l} className="flex items-center gap-1.5">
-              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-[5px] border border-line bg-paper px-1 font-sans text-[11px] font-semibold text-ink">{k}</kbd>
+              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-[4px] border border-line bg-paper px-1 font-sans text-[11px] font-semibold text-ink">{k}</kbd>
               {l}
             </span>
           ))}
@@ -437,7 +437,7 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
 
       <header className="sticky top-0 z-30 bg-[#0b0b0b]/90 text-paper backdrop-blur-md">
         <div className="flex h-16 items-center gap-2 px-3 sm:px-4 lg:pr-5 lg:pl-1">
-          <AppLink href="/" aria-label="KeroSOP dashboard" className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-red lg:hidden">
+          <AppLink href="/" aria-label="KeroSOP dashboard" className="grid size-9 shrink-0 place-items-center rounded-[7px] bg-red lg:hidden">
             <LogoMark tone="paper" className="h-6 w-auto" />
           </AppLink>
           <button ref={menuTrigger} type="button" aria-expanded={menu} onClick={() => setMenu(true)} className="order-last inline-flex size-11 items-center justify-center rounded-full lg:hidden" aria-label="Open menu">
@@ -463,7 +463,7 @@ function Shell({ children }: { user: AuthUser; children: ReactNode }) {
       </header>
 
       <div className="px-2 pb-2 sm:px-3 sm:pb-3 lg:pl-0">
-        <main className="min-h-[calc(100dvh-76px)] rounded-[16px] bg-[#f5f6f8]">
+        <main className="min-h-[calc(100dvh-76px)] rounded-[12px] bg-[#f5f6f8]">
           <div className="mx-auto max-w-[1400px] px-4 pt-10 pb-16 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>

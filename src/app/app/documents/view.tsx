@@ -19,7 +19,7 @@ type Tab = Approval | "all";
 type Sort = "recent" | "name" | "findings";
 
 /** Each document is its own white row: hairline border, 10px corners, like the dashboard's light surfaces. */
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
 /** Desktop columns: document, department, version, status, rules, open findings, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_176px_112px_112px_56px_112px_16px] xl:items-center xl:gap-x-5";
 
@@ -149,7 +149,7 @@ export default function DocumentsPage() {
         <>
           <div className="pb-5">
             <div className="grid grid-cols-2 gap-2 xl:grid-cols-[minmax(200px,1fr)_150px_170px_180px_140px_170px]">
-              <SearchInput value={q} onChange={setQ} placeholder="Search title, code, file or owner" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+              <SearchInput value={q} onChange={setQ} placeholder="Search title, code, file or owner" className="col-span-2 xl:col-span-1 [&_input]:rounded-[6px]" />
               <Select
                 aria-label="Status"
                 value={tab}
@@ -232,7 +232,7 @@ export default function DocumentsPage() {
   );
 }
 
-const SEL = "[&_button]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[6px] font-semibold";
 
 /* ---------- one document row ---------- */
 
@@ -391,7 +391,7 @@ function DocDrawer({ doc, rules, open, depts, onClose, onNewVersion }: { doc: Do
         </div>
 
         {needsReview(doc) && (
-          <p className="rounded-[10px] border border-red/30 px-4 py-3 text-[13px] leading-[1.5] text-red">
+          <p className="rounded-[7px] border border-red/30 px-4 py-3 text-[13px] leading-[1.5] text-red">
             {doc.parseIssue || "Some pages have no readable text."} Nothing on those pages is guessed; upload a text-based copy to include them.
           </p>
         )}
@@ -438,7 +438,7 @@ function DocDrawer({ doc, rules, open, depts, onClose, onNewVersion }: { doc: Do
             {versions.map((ver) => {
               const isCurrent = ver.version === v?.version;
               return (
-                <li key={ver.version} className={`flex items-start gap-4 rounded-[10px] border px-4 py-3 ${isCurrent ? "border-ink" : "border-line"}`}>
+                <li key={ver.version} className={`flex items-start gap-4 rounded-[7px] border px-4 py-3 ${isCurrent ? "border-ink" : "border-line"}`}>
                   <span className="w-12 shrink-0 pt-px text-[14px] font-bold tabular-nums">v{ver.version}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[13px]">
@@ -456,7 +456,7 @@ function DocDrawer({ doc, rules, open, depts, onClose, onNewVersion }: { doc: Do
                     aria-label={`Download v${ver.version}`}
                     title={`Download v${ver.version}`}
                     onClick={() => download(`/v1/documents/${doc.id}/versions/${ver.version}/file`, doc.fileName).catch((e) => toast((e as Error).message, "error"))}
-                    className="grid size-8 shrink-0 place-items-center rounded-[8px] border border-line text-ink transition-colors hover:border-ink"
+                    className="grid size-8 shrink-0 place-items-center rounded-[6px] border border-line text-ink transition-colors hover:border-ink"
                   >
                     <Icon name="download" className="size-4" />
                   </button>
@@ -593,7 +593,7 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
           }}
           onDragLeave={() => setOver(false)}
           onDrop={onDrop}
-          className={`on-dark flex flex-col items-center gap-4 rounded-[12px] bg-black px-6 py-8 text-center text-white transition-shadow ${over ? "ring-2 ring-red ring-offset-2" : ""}`}
+          className={`on-dark flex flex-col items-center gap-4 rounded-[9px] bg-black px-6 py-8 text-center text-white transition-shadow ${over ? "ring-2 ring-red ring-offset-2" : ""}`}
         >
           <div className="flex items-center gap-3" aria-hidden="true">
             {KINDS.map((k) => (
@@ -615,7 +615,7 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
         {files.length > 0 && (
           <ul className="flex flex-col gap-2">
             {files.map((f) => (
-              <li key={f.name + f.size} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3">
+              <li key={f.name + f.size} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3">
                 <FileLogo kind={kindOf(f.name)!} className="size-8 shrink-0" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-semibold">{f.name}</span>
@@ -623,7 +623,7 @@ function UploadModal({ versionOf, depts, onClose }: { versionOf?: Doc; depts: st
                     {KIND[kindOf(f.name)!]} · {fmtSize(f.size)}
                   </span>
                 </span>
-                <button type="button" aria-label={`Remove ${f.name}`} disabled={busy} onClick={() => setFiles((cur) => cur.filter((c) => c !== f))} className="grid size-8 place-items-center rounded-[8px] text-mute hover:text-red">
+                <button type="button" aria-label={`Remove ${f.name}`} disabled={busy} onClick={() => setFiles((cur) => cur.filter((c) => c !== f))} className="grid size-8 place-items-center rounded-[6px] text-mute hover:text-red">
                   <Icon name="x" className="size-4" />
                 </button>
               </li>

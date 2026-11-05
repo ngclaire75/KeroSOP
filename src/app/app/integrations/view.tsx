@@ -8,9 +8,9 @@ import { useWorkspace } from "@/lib/app/store";
 
 /** Marks whose official colour is near-black are shown in white on the black cards. */
 const MONO = new Set(["github", "notion", "slack", "confluence"]);
-const CARD = "rounded-[10px] border border-white/[0.08] bg-[#0b0b0b] text-white";
+const CARD = "rounded-[7px] border border-white/[0.08] bg-[#0b0b0b] text-white";
 const FIELD =
-  "h-11 w-full rounded-[12px] border border-white/12 bg-white/[0.05] px-3.5 text-[14px] text-white outline-none transition-colors placeholder:text-white hover:border-white/25 focus:border-white/60 disabled:opacity-50";
+  "h-11 w-full rounded-[9px] border border-white/12 bg-white/[0.05] px-3.5 text-[14px] text-white outline-none transition-colors placeholder:text-white hover:border-white/25 focus:border-white/60 disabled:opacity-50";
 const BTN = "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4.5 text-[14px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40";
 
 const host = (u: string) => {

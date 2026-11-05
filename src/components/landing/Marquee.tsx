@@ -12,8 +12,8 @@ function Row({ hidden = false }: { hidden?: boolean }) {
     <ul className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
       {items.map(([en, zh]) => (
         <li key={en} className="flex items-center gap-6 pr-6">
-          <span className="display text-[clamp(2rem,4vw,3.25rem)] leading-none whitespace-nowrap">{en}</span>
-          <span lang="zh-Hans" className="text-[clamp(1.25rem,2.4vw,1.9rem)] font-bold whitespace-nowrap text-paper/45">
+          <span className="display text-[length:calc(clamp(2rem,4vw,3.25rem)*var(--ts))] leading-none whitespace-nowrap">{en}</span>
+          <span lang="zh-Hans" className="text-[length:calc(clamp(1.25rem,2.4vw,1.9rem)*var(--ts))] font-bold whitespace-nowrap text-paper/45">
             {zh}
           </span>
           <span className="size-3 shrink-0 rounded-full bg-red" aria-hidden="true" />

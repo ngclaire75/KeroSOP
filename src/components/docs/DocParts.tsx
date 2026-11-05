@@ -51,7 +51,7 @@ export function DocHero({
 }) {
   return (
     <Container>
-      <section className="on-dark relative grid overflow-hidden rounded-[28px] bg-ink text-paper lg:h-[460px] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <section className="on-dark relative grid overflow-hidden rounded-[20px] bg-ink text-paper lg:h-[460px] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <GlyphCloud glyph={glyph} className="relative h-[280px] sm:h-[300px] lg:order-2 lg:h-full" />
         <div className="relative flex flex-col justify-end p-6 pt-0 sm:p-10 sm:pt-0 lg:p-14">
           {/* Small mono label: a plain fade (no blur), which reads cleaner at this size. */}
@@ -59,20 +59,20 @@ export function DocHero({
             startOn={HERO_START}
             blur={0}
             tint="rgba(255,255,255,0)"
-            className="font-mono text-[12px] tracking-[0.18em] text-paper/55 uppercase"
+            className="font-mono text-[length:calc(12px*var(--ts))] tracking-[0.18em] text-paper/55 uppercase"
           >
             {eyebrow}
           </BlurText>
           <Heading
             as="h1"
             startOn={HERO_START}
-            className="mt-5 text-[clamp(3rem,7vw,6.2rem)]"
+            className="mt-5 text-[length:calc(clamp(3rem,7vw,6.2rem)*var(--ts))]"
             lines={[title[0], ...(title[1] ? [<span key="red" className="text-red">{title[1]}</span>] : [])]}
           />
-          <BlurText startOn={HERO_START} className="mt-6 max-w-[34rem] text-[17px] leading-[1.6] text-paper/65">
+          <BlurText startOn={HERO_START} className="mt-6 max-w-[34rem] text-[length:calc(17px*var(--ts))] leading-[1.6] text-paper/65">
             {intro}
           </BlurText>
-          {meta && <p className="mt-6 font-mono text-[12px] tracking-[0.12em] text-paper/40 uppercase">{meta}</p>}
+          {meta && <p className="mt-6 font-mono text-[length:calc(12px*var(--ts))] tracking-[0.12em] text-paper/40 uppercase">{meta}</p>}
         </div>
       </section>
     </Container>
@@ -115,18 +115,18 @@ export function DocArticle({ sections }: { sections: DocSection[] }) {
         <aside className="hidden lg:block">
           <div className="sticky top-10">
             <nav aria-label="On this page" className="grid gap-1">
-              <p className="mb-3 font-mono text-[12px] tracking-[0.16em] text-mute uppercase">On this page</p>
+              <p className="mb-3 font-mono text-[length:calc(12px*var(--ts))] tracking-[0.16em] text-mute uppercase">On this page</p>
               {sections.map((s, i) => (
                 <a
                   key={s.id}
                   href={`#${s.id}`}
                   onClick={jump(s.id)}
                   aria-current={active === s.id ? "location" : undefined}
-                  className={`flex gap-3 py-1.5 text-[14px] leading-[1.35] transition-colors duration-200 ${
+                  className={`flex gap-3 py-1.5 text-[length:calc(14px*var(--ts))] leading-[1.35] transition-colors duration-200 ${
                     active === s.id ? "font-semibold text-ink" : "text-mute hover:text-ink"
                   }`}
                 >
-                  <span className="w-5 shrink-0 font-mono text-[12px] leading-[1.6] text-mute">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="w-5 shrink-0 font-mono text-[length:calc(12px*var(--ts))] leading-[1.6] text-mute">{String(i + 1).padStart(2, "0")}</span>
                   {s.title}
                 </a>
               ))}
@@ -137,8 +137,8 @@ export function DocArticle({ sections }: { sections: DocSection[] }) {
         <div className="max-w-[46rem]">
           {sections.map((s, i) => (
             <section key={s.id} id={s.id} className="scroll-mt-10 py-10 first:pt-0">
-              <p className="font-mono text-[12px] tracking-[0.16em] text-red">{String(i + 1).padStart(2, "0")}</p>
-              <Heading as="h2" className="mt-3 text-[clamp(1.9rem,3.4vw,2.8rem)]" lines={[s.title]} />
+              <p className="font-mono text-[length:calc(12px*var(--ts))] tracking-[0.16em] text-red">{String(i + 1).padStart(2, "0")}</p>
+              <Heading as="h2" className="mt-3 text-[length:calc(clamp(1.9rem,3.4vw,2.8rem)*var(--ts))]" lines={[s.title]} />
               <div className="doc-body mt-5">{s.body}</div>
             </section>
           ))}
@@ -154,7 +154,7 @@ export function DocFooter() {
   return (
     <footer className="on-dark bg-[#111111] text-paper">
       <Container>
-        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 py-6 text-[14px] font-semibold">
+        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 py-6 text-[length:calc(14px*var(--ts))] font-semibold">
           <span>© 2026 KeroSOP</span>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-7 gap-y-2">
             {DOC_LINKS.map((l) => (

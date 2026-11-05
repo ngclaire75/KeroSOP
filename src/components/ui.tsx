@@ -20,7 +20,7 @@ export function Button({
   className = "",
   ...props
 }: ComponentProps<"a"> & { variant?: Variant; size?: "sm" | "md" }) {
-  const sizing = size === "sm" ? "h-10 px-5 text-sm" : "h-12 px-6 text-[15px]";
+  const sizing = size === "sm" ? "h-10 px-5 text-sm" : "h-12 px-6 text-[length:calc(15px*var(--ts))]";
   return (
     <a
       className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold whitespace-nowrap transition-colors duration-150 ${sizing} ${variants[variant]} ${className}`}

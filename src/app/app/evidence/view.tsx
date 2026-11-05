@@ -9,10 +9,10 @@ import { RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Find
 
 const OPEN: Status[] = ["detected", "under_review", "confirmed", "assigned", "revision_proposed", "approved", "rejected", "rescanned"];
 const RISK_RANK: Record<Risk, number> = { high: 0, medium: 1, low: 2 };
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 12, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 9, color: "#171717" };
 const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
 const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
-const SEL = "[&_button]:rounded-[8px] [&_button]:font-semibold";
+const SEL = "[&_button]:rounded-[6px] [&_button]:font-semibold";
 
 export default function EvidenceComparison() {
   const { ws } = useWorkspace();
@@ -91,7 +91,7 @@ function Comparison({ f }: { f: Finding }) {
             </p>
           )}
         </div>
-        <AppLink href={`/findings?id=${f.id}`} className="inline-flex h-10 shrink-0 items-center rounded-[8px] bg-ink px-4.5 text-[14px] font-semibold whitespace-nowrap text-paper transition-colors hover:bg-red">
+        <AppLink href={`/findings?id=${f.id}`} className="inline-flex h-10 shrink-0 items-center rounded-[6px] bg-ink px-4.5 text-[14px] font-semibold whitespace-nowrap text-paper transition-colors hover:bg-red">
           Open finding
         </AppLink>
       </section>

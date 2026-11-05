@@ -243,7 +243,7 @@ export function Actions({ f }: { f: Finding }) {
 
   if (!body) return null;
   return (
-    <section className="flex flex-col gap-3 rounded-[10px] border border-ink px-4 py-4">
+    <section className="flex flex-col gap-3 rounded-[7px] border border-ink px-4 py-4">
       <h3 className="text-[14px] font-bold">{title}</h3>
       {body}
     </section>
@@ -265,7 +265,7 @@ export function Notes({ f }: { f: Finding }) {
       {f.notes.length > 0 && (
         <ol className="mb-3 flex flex-col gap-2">
           {f.notes.map((n) => (
-            <li key={n.id} className="rounded-[10px] border border-line px-4 py-3">
+            <li key={n.id} className="rounded-[7px] border border-line px-4 py-3">
               <p className="text-[12px] text-mute">
                 {n.by} · {fmtDateTime(n.at)}
               </p>

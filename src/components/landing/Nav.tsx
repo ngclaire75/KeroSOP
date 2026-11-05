@@ -141,7 +141,7 @@ export function Nav() {
                       onMouseEnter={() => setHover(i)}
                       onFocus={() => setHover(i)}
                       onBlur={() => setHover(null)}
-                      className={`relative rounded-full px-4 py-2 text-[15px] font-medium tracking-[-0.005em] transition-colors duration-200 ${
+                      className={`relative rounded-full px-4 py-2 text-[length:calc(15px*var(--ts))] font-medium tracking-[-0.005em] transition-colors duration-200 ${
                         lit ? (onColour ? "text-paper" : "text-ink") : onColour ? "text-paper/70" : "text-ink/60"
                       }`}
                     >
@@ -154,7 +154,7 @@ export function Nav() {
               <div className="col-start-3 hidden shrink-0 items-center gap-2 justify-self-end lg:flex">
                 <a
                   href="/signup"
-                  className={`rounded-full px-4 py-2 text-[15px] font-medium transition-colors ${
+                  className={`rounded-full px-4 py-2 text-[length:calc(15px*var(--ts))] font-medium transition-colors ${
                     onColour ? "text-paper/75 hover:text-paper" : "text-ink/65 hover:text-ink"
                   }`}
                 >

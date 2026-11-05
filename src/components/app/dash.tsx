@@ -107,7 +107,7 @@ function TipLayer({ tip, width }: { tip: Tip; width: number }) {
   return (
     <div
       role="status"
-      className="pointer-events-none absolute z-20 w-max max-w-[220px] rounded-[12px] bg-ink px-3 py-2.5 text-[12px] leading-[1.45] text-paper"
+      className="pointer-events-none absolute z-20 w-max max-w-[220px] rounded-[9px] bg-ink px-3 py-2.5 text-[12px] leading-[1.45] text-paper"
       style={{ left, top: tip.y - 12, transform: flip ? "translate(-100%, -100%)" : "translateY(-100%)" }}
     >
       {tip.body}
@@ -233,7 +233,7 @@ function DataTable({ head, rows }: { head: string[]; rows: (string | number)[][]
 }
 
 export function ChartEmpty({ children }: { children: ReactNode }) {
-  return <p className="grid min-h-[160px] flex-1 place-items-center rounded-[10px] bg-fog px-6 text-center text-[13px] leading-[1.5] text-mute">{children}</p>;
+  return <p className="grid min-h-[160px] flex-1 place-items-center rounded-[7px] bg-fog px-6 text-center text-[13px] leading-[1.5] text-mute">{children}</p>;
 }
 
 /* ---------- stat tile ---------- */
@@ -455,7 +455,7 @@ export function Pipeline({ stages }: { stages: Stage[] }) {
       <ol className="flex flex-col gap-1">
         {stages.map((s, i) => (
           <li key={s.label}>
-            <AppLink href={s.href} className="group grid grid-cols-[minmax(0,1fr)_32px] items-center gap-x-3 rounded-[10px] py-1.5">
+            <AppLink href={s.href} className="group grid grid-cols-[minmax(0,1fr)_32px] items-center gap-x-3 rounded-[7px] py-1.5">
               <span className="min-w-0">
                 <span className="block truncate text-[13px] font-medium">{s.label}</span>
                 <span className="mt-1.5 block h-2 overflow-hidden rounded-full bg-fog">
@@ -611,11 +611,11 @@ export function RiskBars({ rows }: { rows: StackRow[] }) {
           return (
             <li key={r.label}>
               {r.href ? (
-                <AppLink href={r.href} className="-mx-1.5 block rounded-[10px] px-1.5 py-1" {...handlers}>
+                <AppLink href={r.href} className="-mx-1.5 block rounded-[7px] px-1.5 py-1" {...handlers}>
                   {inner}
                 </AppLink>
               ) : (
-                <div tabIndex={0} className="-mx-1.5 block rounded-[10px] px-1.5 py-1" {...handlers}>
+                <div tabIndex={0} className="-mx-1.5 block rounded-[7px] px-1.5 py-1" {...handlers}>
                   {inner}
                 </div>
               )}
@@ -658,7 +658,7 @@ export function AgingColumns({ buckets }: { buckets: Bucket[] }) {
               onPointerMove={(e) => onPointer(e, body)}
               onFocus={(e) => onFocus(e.currentTarget, body)}
               onBlur={hide}
-              className="flex flex-col items-center rounded-[8px] outline-offset-2"
+              className="flex flex-col items-center rounded-[6px] outline-offset-2"
             >
               <span className="flex w-full justify-center border-b border-line" style={{ height: H }}>
                 <span
@@ -681,7 +681,7 @@ export function AgingColumns({ buckets }: { buckets: Bucket[] }) {
 
 export function Segmented<T extends string>({ label, value, onChange, options }: { label: string; value: T; onChange(v: NoInfer<T>): void; options: readonly { id: NoInfer<T>; label: string }[] }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex h-10 items-center rounded-[8px] border border-line bg-paper p-0.5">
+    <div role="radiogroup" aria-label={label} className="flex h-10 items-center rounded-[6px] border border-line bg-paper p-0.5">
       {options.map((o) => (
         <button
           key={o.id}

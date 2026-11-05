@@ -220,8 +220,8 @@ export default function Overview() {
       {/* one filter row; it scopes every chart below */}
       <div className="mb-3 flex flex-col gap-3 pt-4 pb-1 sm:mb-6 sm:pb-4 lg:flex-row lg:items-center">
         <div className="flex flex-wrap items-center gap-2">
-          <Select aria-label="Time range" value={range} onChange={(e) => setRange(e.target.value as Range)} options={RANGES.map((r) => ({ value: r.id, label: r.label }))} className="w-[160px] [&_button]:rounded-[8px] font-semibold" />
-          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} options={[{ value: "all", label: "All departments" }, ...depts]} className="w-[200px] [&_button]:rounded-[8px] font-semibold" />
+          <Select aria-label="Time range" value={range} onChange={(e) => setRange(e.target.value as Range)} options={RANGES.map((r) => ({ value: r.id, label: r.label }))} className="w-[160px] [&_button]:rounded-[6px] font-semibold" />
+          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} options={[{ value: "all", label: "All departments" }, ...depts]} className="w-[200px] [&_button]:rounded-[6px] font-semibold" />
         </div>
         <p className="text-[13px] text-mute lg:ml-auto">
           {rangeLabel}
@@ -232,7 +232,7 @@ export default function Overview() {
       <div className="flex flex-col gap-4">
         {/* status: the one number, then four KPIs */}
         <div className="grid gap-4 xl:grid-cols-12">
-          <section className="on-dark relative min-h-[316px] overflow-hidden rounded-[12px] bg-ink text-paper xl:col-span-5">
+          <section className="on-dark relative min-h-[316px] overflow-hidden rounded-[9px] bg-ink text-paper xl:col-span-5">
             <IntegrityField score={score} hot={d.risk.high} warm={d.risk.medium} />
             <div className="pointer-events-none relative flex h-full flex-col justify-between gap-6 p-7">
               <p className="font-mono text-[11px] tracking-[0.14em] text-paper/60 uppercase">

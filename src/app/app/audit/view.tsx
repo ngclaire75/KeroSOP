@@ -12,10 +12,10 @@ import { ActivityStrip, STRIP_GAP } from "./ActivityStrip";
 import { KINDS, KIND_LABEL, KIND_LOOK, KIND_PLURAL, PERIOD_LABEL, csvCell, dayKey, isScan, kindOf, linkFor, placeOf, placesFor, sentence, shortId, tallyDays, type Kind, type Period } from "./model";
 
 /** Same row look as the other library pages: white, hairline border, 10px corners. */
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
 /** Desktop columns: entry, who, activity, when, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_200px_112px_136px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_button]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[6px] font-semibold";
 /** Each day gets about this many px of strip, so bars keep their shape at any width. */
 const DAY_PX = 12;
 const HERO_KINDS: Kind[] = ["decision", "finding", "document", "workspace"];
@@ -180,7 +180,7 @@ export default function AuditHistory() {
         <>
           <div className="grid gap-4 pb-8 xl:grid-cols-12">
             {/* WebGL: China and Southeast Asia as a dot matrix; the countries this workspace's regions are in glow red */}
-            <section className="on-dark relative min-h-[560px] overflow-hidden rounded-[12px] border border-[#37373b] bg-black text-white sm:min-h-[340px] xl:col-span-7">
+            <section className="on-dark relative min-h-[560px] overflow-hidden rounded-[9px] border border-[#37373b] bg-black text-white sm:min-h-[340px] xl:col-span-7">
               <AsiaMap key={places.map((p) => p.region).join("|")} active={countries} pins={places} />
               <div className="pointer-events-none relative flex h-full flex-col gap-8 p-7 sm:justify-between">
                 <p className="font-mono text-[11px] tracking-[0.14em] text-white/60 uppercase">
@@ -213,7 +213,7 @@ export default function AuditHistory() {
             </section>
 
             {/* p5: one block per entry per day; doubles as the day filter */}
-            <section style={{ ...ROW_STYLE, borderRadius: 12 }} className="flex min-w-0 flex-col xl:col-span-5">
+            <section style={{ ...ROW_STYLE, borderRadius: 9 }} className="flex min-w-0 flex-col xl:col-span-5">
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">Activity by day</h2>
@@ -276,7 +276,7 @@ export default function AuditHistory() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 pb-5 xl:grid-cols-[minmax(200px,1fr)_190px_170px_160px]">
-            <SearchInput value={q} onChange={setQ} placeholder="Search who, what or detail" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+            <SearchInput value={q} onChange={setQ} placeholder="Search who, what or detail" className="col-span-2 xl:col-span-1 [&_input]:rounded-[6px]" />
             <Select aria-label="Who" value={who} onChange={(e) => setWho(e.target.value)} options={[{ value: "all", label: "Everyone" }, ...people.map((p) => ({ value: p, label: p }))]} className={SEL} />
             <Select
               aria-label="Activity"
@@ -423,15 +423,15 @@ function EventDrawer({ event: a, events, onClose, onOpen }: { event: AuditEvent 
         {a.detail && (
           <section>
             <h3 className="mb-3 text-[13px] font-bold">Detail</h3>
-            <blockquote className="rounded-[10px] border border-line px-4 py-3.5 text-[15px] leading-[1.6] [overflow-wrap:anywhere]">{a.detail}</blockquote>
+            <blockquote className="rounded-[7px] border border-line px-4 py-3.5 text-[15px] leading-[1.6] [overflow-wrap:anywhere]">{a.detail}</blockquote>
           </section>
         )}
 
         {href && (
           <section>
             <h3 className="mb-3 text-[13px] font-bold">Open</h3>
-            <AppLink href={href} className="flex h-14 items-center gap-3 rounded-[10px] border border-line px-3 transition-colors hover:border-ink/40">
-              <span className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-fog">
+            <AppLink href={href} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3 transition-colors hover:border-ink/40">
+              <span className="grid size-8 shrink-0 place-items-center rounded-[6px] bg-fog">
                 <Icon name="link" className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
@@ -456,7 +456,7 @@ function EventDrawer({ event: a, events, onClose, onOpen }: { event: AuditEvent 
                       type="button"
                       onClick={() => onOpen(e.id)}
                       aria-current={here || undefined}
-                      className={`grid h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[10px] border px-3 text-left transition-colors ${here ? "border-ink" : "border-line hover:border-ink/40"}`}
+                      className={`grid h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[7px] border px-3 text-left transition-colors ${here ? "border-ink" : "border-line hover:border-ink/40"}`}
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-[13px] font-semibold">{sentence(e)}</span>

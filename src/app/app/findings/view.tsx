@@ -17,10 +17,10 @@ const RISK_RANK: Record<Risk, number> = { high: 0, medium: 1, low: 2 };
 const STATUSES = Object.keys(STATUS_LABEL) as Status[];
 
 /** Same row look as the other library pages: white, hairline border, 10px corners. */
-const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 10, color: "#171717" };
+const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 7, color: "#171717" };
 /** Desktop columns: finding, risk, status, owner, age, arrow. */
 const COLS = "xl:grid xl:grid-cols-[minmax(0,1fr)_88px_152px_160px_64px_16px] xl:items-center xl:gap-x-6";
-const SEL = "[&_button]:rounded-[8px] font-semibold";
+const SEL = "[&_button]:rounded-[6px] font-semibold";
 type View = "open" | "review" | Status | "all";
 type Sort = "risk" | "oldest" | "newest";
 
@@ -136,7 +136,7 @@ export default function FindingsPage() {
         <>
           <div className="grid gap-4 pb-8 xl:grid-cols-12">
             {/* the open count, over KeroSOP on a phone, over a faint dot field */}
-            <section className="on-dark relative min-h-[380px] overflow-hidden rounded-[12px] border border-[#37373b] bg-[linear-gradient(180deg,#212123_0%,#161617_55%,#0e0e0f_100%)] text-white sm:min-h-[340px] xl:col-span-7">
+            <section className="on-dark relative min-h-[380px] overflow-hidden rounded-[9px] border border-[#37373b] bg-[linear-gradient(180deg,#212123_0%,#161617_55%,#0e0e0f_100%)] text-white sm:min-h-[340px] xl:col-span-7">
               <PhoneScene />
               <div className="pointer-events-none relative flex h-full flex-col gap-8 p-7 sm:justify-between">
                 <p className="font-mono text-[11px] tracking-[0.14em] text-white/60 uppercase">Open findings · {plural(byRisk[0].n, "high risk", "high risk")}</p>
@@ -166,7 +166,7 @@ export default function FindingsPage() {
             </section>
 
             {/* what is waiting on the signed-in member */}
-            <section style={{ ...ROW_STYLE, borderRadius: 12 }} className="flex flex-col xl:col-span-5">
+            <section style={{ ...ROW_STYLE, borderRadius: 9 }} className="flex flex-col xl:col-span-5">
               <header className="flex items-start justify-between gap-3 px-5 pt-5">
                 <div>
                   <h2 className="text-[15px] font-bold">Waiting on you</h2>
@@ -187,7 +187,7 @@ export default function FindingsPage() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => setView(on ? "open" : x.view)}
-                        className={`flex h-14 w-full items-center gap-3 rounded-[10px] border px-4 text-left transition-colors ${on ? "border-ink" : "border-line hover:border-ink/40"}`}
+                        className={`flex h-14 w-full items-center gap-3 rounded-[7px] border px-4 text-left transition-colors ${on ? "border-ink" : "border-line hover:border-ink/40"}`}
                       >
                         <span className="min-w-0 flex-1">
                           <span className={`block truncate text-[14px] font-semibold ${on ? "text-red" : ""}`}>{x.label}</span>
@@ -205,7 +205,7 @@ export default function FindingsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 pb-5 xl:grid-cols-[minmax(180px,1fr)_160px_130px_190px_180px_170px]">
-            <SearchInput value={q} onChange={setQ} placeholder="Search findings" className="col-span-2 xl:col-span-1 [&_input]:rounded-[8px]" />
+            <SearchInput value={q} onChange={setQ} placeholder="Search findings" className="col-span-2 xl:col-span-1 [&_input]:rounded-[6px]" />
             <Select
               aria-label="Status"
               value={view}
@@ -421,11 +421,11 @@ function FindingDrawer({ finding, onClose }: { finding: Finding | null; onClose(
           <section>
             <h3 className="mb-3 text-[13px] font-bold">Revision</h3>
             <div className="grid gap-2">
-              <div className="rounded-[10px] border border-line px-4 py-3">
+              <div className="rounded-[7px] border border-line px-4 py-3">
                 <p className="text-[12px] text-mute">Current wording</p>
                 <p className="mt-1 text-[14px] leading-[1.6] text-mute line-through decoration-red/60">{f.revision.current}</p>
               </div>
-              <div className="rounded-[10px] border border-ink px-4 py-3">
+              <div className="rounded-[7px] border border-ink px-4 py-3">
                 <p className="text-[12px] text-mute">
                   Proposed by {f.revision.by} · {fmtDateTime(f.revision.at)}
                 </p>

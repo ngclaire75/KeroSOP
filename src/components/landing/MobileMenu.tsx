@@ -149,7 +149,7 @@ export function MobileMenu({
                   >
                     <span className="text-sm text-paper tabular-nums">{pad(i + 1)}</span>
                     <span
-                      className={`display text-[clamp(2.6rem,12.5vw,4.25rem)] leading-[1] transition-transform duration-300 group-hover:translate-x-2 group-data-[hover]:translate-x-2 ${
+                      className={`display text-[length:calc(clamp(2.6rem,12.5vw,4.25rem)*var(--ts))] leading-[1] transition-transform duration-300 group-hover:translate-x-2 group-data-[hover]:translate-x-2 ${
                         i === pick ? "translate-x-2" : ""
                       }`}
                     >

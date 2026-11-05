@@ -53,7 +53,7 @@ export function Pricing() {
     <section id="pricing" className="bg-fog py-20 lg:py-28">
       <Container>
         <div className="flex flex-col gap-6">
-          <Heading className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]" lines={["Start with", "one audit."]} />
+          <Heading className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]" lines={["Start with", "one audit."]} />
           <BlurText className="max-w-[30rem] text-lg leading-[1.55] text-mute">
             Starting prices. The final quote depends on page count and how often you rescan.
           </BlurText>
@@ -63,7 +63,7 @@ export function Pricing() {
           {plans.map((p) => (
             <div
               key={p.name}
-              className={`relative flex flex-col overflow-hidden rounded-[24px] p-7 sm:p-9 ${
+              className={`relative flex flex-col overflow-hidden rounded-[17px] p-7 sm:p-9 ${
                 p.dark ? "on-dark bg-ink text-paper" : "bg-paper text-ink"
               }`}
             >
@@ -75,7 +75,7 @@ export function Pricing() {
               <h3 className="text-xl font-bold">{p.name}</h3>
               <p className={`mt-1 ${p.dark ? "pr-36 text-paper/65" : "text-mute"}`}>{p.for}</p>
               <p className="mt-10 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="display text-[clamp(3.25rem,6vw,4.75rem)]">
+                <span className="display text-[length:calc(clamp(3.25rem,6vw,4.75rem)*var(--ts))]">
                   <span className="normal-case">Rp</span>
                   {p.price}
                 </span>
@@ -106,7 +106,7 @@ export function Cta() {
       <DotTerrain />
       <Container className="relative pt-24 pb-56 md:pb-28 lg:py-36">
         <Heading
-          className="text-[3.4rem] sm:text-[clamp(3.25rem,8vw,7.5rem)]"
+          className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(3.25rem,8vw,7.5rem)*var(--ts))]"
           lines={["Find it", "before your", "customers do."]}
           tint="#ffb3ae"
         />
@@ -154,12 +154,12 @@ export function Footer() {
       <div className="relative">
         <FooterField className="pointer-events-none absolute inset-0" />
         <Container className="relative pt-10 pb-10 sm:pt-16 lg:pt-20 lg:pb-14">
-          <div className="rounded-[28px] border border-paper/15 bg-ink p-5 sm:p-10 lg:p-12">
+          <div className="rounded-[20px] border border-paper/15 bg-ink p-5 sm:p-10 lg:p-12">
             <div>
               <p className="text-lg font-semibold text-paper">Have a set of SOPs that might disagree?</p>
               <a
                 href="mailto:ngclaire75@gmail.com"
-                className="display mt-4 inline-block text-[calc((100vw-80px)/10.3)] whitespace-nowrap sm:text-[clamp(1.6rem,7vw,6rem)]"
+                className="display mt-4 inline-block text-[calc((100vw-80px)/10.3)] whitespace-nowrap sm:text-[length:calc(clamp(1.6rem,7vw,6rem)*var(--ts))]"
               >
                 <ProximityText text="ngclaire75@gmail.com" />
               </a>

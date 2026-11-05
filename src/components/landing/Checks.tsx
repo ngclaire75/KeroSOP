@@ -104,7 +104,7 @@ export function Checks() {
     <section id="checks" className="py-20 lg:py-28">
       <Container>
         <Heading
-          className="text-[3.4rem] sm:text-[clamp(2.6rem,6vw,5.25rem)]"
+          className="text-[length:calc(3.4rem*var(--ts))] sm:text-[length:calc(clamp(2.6rem,6vw,5.25rem)*var(--ts))]"
           lines={["Seven kinds of problem.", "Each checked its own way."]}
         />
         <BlurText className="mt-6 max-w-[34rem] text-lg leading-[1.55] text-mute">
@@ -117,7 +117,7 @@ export function Checks() {
           id="check-stage"
           role="tabpanel"
           aria-labelledby={`check-tab-${active}`}
-          className="mt-12 overflow-hidden rounded-[28px] bg-ink text-paper lg:mt-14"
+          className="mt-12 overflow-hidden rounded-[20px] bg-ink text-paper lg:mt-14"
         >
           <div className="relative grid p-7 sm:p-10 lg:p-12">
             {checks.map((c, i) => {
@@ -133,7 +133,7 @@ export function Checks() {
                   <span className="text-sm font-semibold text-paper tabular-nums">
                     {String(i + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
                   </span>
-                  <h3 className="display mt-4 text-[clamp(2.25rem,4vw,3.5rem)]">{c.name}</h3>
+                  <h3 className="display mt-4 text-[length:calc(clamp(2.25rem,4vw,3.5rem)*var(--ts))]">{c.name}</h3>
                   <p className="mt-5 max-w-[30rem] text-lg leading-[1.55] text-paper/70">{c.what}</p>
                   <p className="mt-8 max-w-[30rem] border-l-2 border-red pl-4 leading-[1.6]">{c.example}</p>
                 </div>

@@ -49,7 +49,7 @@ export function BrandLogo({ brand, className = "size-7", mono = false }: { brand
       <svg role="img" aria-label={brand === "teams" ? "Microsoft Teams" : "Microsoft OneDrive"} viewBox={`0 0 ${ms.width} ${ms.height}`} className={className} dangerouslySetInnerHTML={{ __html: ms.body }} />
     );
   const icon = BRANDS[brand];
-  if (!icon) return <span aria-hidden="true" className={`rounded-[8px] bg-fog ${className}`} />;
+  if (!icon) return <span aria-hidden="true" className={`rounded-[6px] bg-fog ${className}`} />;
   return (
     <svg role="img" viewBox="0 0 24 24" className={className} fill={mono ? "currentColor" : `#${icon.hex}`}>
       <title>{icon.title}</title>

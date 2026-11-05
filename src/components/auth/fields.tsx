@@ -56,7 +56,7 @@ export const Field = forwardRef<FieldHandle, FieldProps>(function Field(
   const describedBy = error ? `${id}-err` : hint ? `${id}-hint` : undefined;
   return (
     <div className={className}>
-      <div className="group relative rounded-2xl border border-line bg-paper">
+      <div className="group relative rounded-[12px] border border-line bg-paper">
         <input
           ref={input}
           id={id}
@@ -67,7 +67,7 @@ export const Field = forwardRef<FieldHandle, FieldProps>(function Field(
             rippleFromCaret(e.currentTarget);
             onInput?.(e);
           }}
-          className={`peer block h-[60px] w-full rounded-2xl bg-transparent pt-[22px] pb-1.5 pl-4 text-[16px] text-ink outline-none placeholder:text-transparent auth-input ${
+          className={`peer block h-[60px] w-full rounded-[12px] bg-transparent pt-[22px] pb-1.5 pl-4 text-[16px] text-ink outline-none placeholder:text-transparent auth-input ${
             trailing ? "pr-14" : "pr-4"
           }`}
           {...props}
@@ -183,7 +183,7 @@ export const PasswordField = forwardRef<FieldHandle, PasswordProps>(function Pas
           onMouseDown={(e) => e.preventDefault()}
           aria-label={shown ? "Hide password" : "Show password"}
           aria-pressed={shown}
-          className="inline-flex size-11 items-center justify-center rounded-xl text-mute transition-colors hover:text-ink"
+          className="inline-flex size-11 items-center justify-center rounded-[9px] text-mute transition-colors hover:text-ink"
         >
           <EyeIcon open={shown} />
         </button>
@@ -227,7 +227,7 @@ export function Check({
       />
       <span
         aria-hidden="true"
-        className={`grid size-[20px] shrink-0 place-items-center rounded-[6px] border transition-colors duration-150 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red ${
+        className={`grid size-[20px] shrink-0 place-items-center rounded-[5px] border transition-colors duration-150 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red ${
           checked ? "border-ink bg-ink" : error ? "border-red" : "border-ink/25 group-hover:border-ink/60"
         }`}
       >

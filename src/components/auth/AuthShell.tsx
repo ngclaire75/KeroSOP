@@ -36,7 +36,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-paper lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
       {/* Art panel: a band across the top on phones, a framed column on desktop. */}
-      <aside className="on-dark relative h-[clamp(260px,40svh,380px)] overflow-hidden rounded-b-[28px] bg-ink text-paper lg:sticky lg:top-3 lg:m-3 lg:h-[calc(100dvh-24px)] lg:rounded-[28px]">
+      <aside className="on-dark relative h-[clamp(260px,40svh,380px)] overflow-hidden rounded-b-[20px] bg-ink text-paper lg:sticky lg:top-3 lg:m-3 lg:h-[calc(100dvh-24px)] lg:rounded-[20px]">
         <CatCloud mode={mode} className="absolute inset-0" />
         <div aria-hidden="true" className="grain pointer-events-none absolute inset-0" />
 

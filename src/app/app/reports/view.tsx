@@ -121,7 +121,7 @@ export default function ReportsPage() {
                   key={k}
                   type="button"
                   onClick={() => setKind(k)}
-                  className={`rounded-[10px] border p-3 text-left transition-colors ${kind === k ? "border-ink bg-ink text-paper" : "border-line hover:border-ink/30"}`}
+                  className={`rounded-[7px] border p-3 text-left transition-colors ${kind === k ? "border-ink bg-ink text-paper" : "border-line hover:border-ink/30"}`}
                 >
                   <span className="block text-[14px] font-bold">{KIND[k].title}</span>
                   <span className={`mt-0.5 block text-[12px] leading-[1.4] ${kind === k ? "text-paper/70" : "text-mute"}`}>{KIND[k].hint}</span>
@@ -136,7 +136,7 @@ export default function ReportsPage() {
         </Card>
 
         {/* the report itself; print CSS shows only this */}
-        <article id="report" className="h-fit min-w-0 rounded-[10px] border border-line bg-paper p-6 sm:p-10 print:rounded-none print:border-0 print:p-0">
+        <article id="report" className="h-fit min-w-0 rounded-[7px] border border-line bg-paper p-6 sm:p-10 print:rounded-none print:border-0 print:p-0">
           <header className="flex items-start justify-between gap-6 pb-5">
             <div>
               <p className="font-mono text-[11px] tracking-[0.18em] text-mute uppercase">KeroSOP · {KIND[kind].title}</p>
@@ -180,7 +180,7 @@ export default function ReportsPage() {
               <h3 className="mb-3 text-[14px] font-bold">Revisions made through KeroSOP</h3>
               {changed.length === 0 && <p className="text-[13px] text-mute">No revisions have been approved yet.</p>}
               {changed.map((f) => (
-                <div key={f.id} className="mb-4 last:mb-0 break-inside-avoid rounded-[10px] border border-line p-4 text-[13px]">
+                <div key={f.id} className="mb-4 last:mb-0 break-inside-avoid rounded-[7px] border border-line p-4 text-[13px]">
                   <p className="font-bold">
                     {f.id} · {ws.docs.find((d) => d.id === f.revision!.docId)?.title} v{f.revision!.newVersion}
                   </p>
@@ -211,7 +211,7 @@ export default function ReportsPage() {
                   {quotes && kind === "audit" && (
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       {f.evidence.map((e, i) => (
-                        <div key={i} className="rounded-[10px] bg-fog/70 p-3 text-[12px] leading-[1.55]">
+                        <div key={i} className="rounded-[7px] bg-fog/70 p-3 text-[12px] leading-[1.55]">
                           <p className="mb-1 text-mute">{e.baseline ? `Baseline: ${e.baseline}` : `${ws.docs.find((d) => d.id === e.docId)?.title} v${e.version} §${e.sectionRef} p.${e.page}`}</p>
                           <Marked text={e.quote} mark={e.highlight} />
                         </div>

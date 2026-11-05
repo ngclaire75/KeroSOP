@@ -31,7 +31,7 @@ export function EvidenceCard({ e, doc, label, context = false }: { e: Evidence; 
   const section = doc ? sectionOf(doc, e.version, e.sectionId) : undefined;
   const zh = /[一-鿿]/.test(e.quote);
   return (
-    <article className="flex min-w-0 flex-col rounded-[10px] border border-line bg-paper">
+    <article className="flex min-w-0 flex-col rounded-[7px] border border-line bg-paper">
       <header className="flex items-start justify-between gap-3 px-4 pt-3.5">
         <div className="min-w-0">
           <p className="font-mono text-[11px] tracking-[0.12em] text-mute uppercase">{label}</p>

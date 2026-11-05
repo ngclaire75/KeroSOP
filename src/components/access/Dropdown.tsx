@@ -81,7 +81,7 @@ export function Dropdown({
 
   return (
     <div ref={root} className={`relative flex flex-col gap-2 ${open ? "z-40" : ""}`}>
-      <span id={`${id}-label`} className="text-[13px] font-semibold">
+      <span id={`${id}-label`} className="text-[length:calc(13px*var(--ts))] font-semibold">
         {label}
       </span>
       <button
@@ -92,7 +92,7 @@ export function Dropdown({
         aria-labelledby={`${id}-label ${id}-value`}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
-        className="quiet-focus flex h-[52px] w-full items-center justify-between gap-3 rounded-[14px] bg-fog px-4 text-left text-[15px] outline-none transition-colors focus-visible:bg-[#e6e6e2]"
+        className="quiet-focus flex h-[52px] w-full items-center justify-between gap-3 rounded-[10px] bg-fog px-4 text-left text-[15px] outline-none transition-colors focus-visible:bg-[#e6e6e2]"
       >
         <span id={`${id}-value`} className={current ? "text-ink" : "text-mute"}>
           {current?.label ?? placeholder}
@@ -107,7 +107,7 @@ export function Dropdown({
           role="listbox"
           aria-labelledby={`${id}-label`}
           tabIndex={-1}
-          className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 max-h-[280px] overflow-y-auto overscroll-contain rounded-[16px] border border-line bg-paper p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 max-h-[280px] overflow-y-auto overscroll-contain rounded-[12px] border border-line bg-paper p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {options.map((o, i) => (
             <li
@@ -119,7 +119,7 @@ export function Dropdown({
                 e.preventDefault();
                 pick(i);
               }}
-              className={`flex cursor-pointer items-center justify-between gap-3 rounded-[10px] px-3 py-2.5 text-[15px] ${i === active ? "bg-fog" : ""}`}
+              className={`flex cursor-pointer items-center justify-between gap-3 rounded-[7px] px-3 py-2.5 text-[15px] ${i === active ? "bg-fog" : ""}`}
             >
               {o.label}
               {o.value === value && <Icon name="check" className="size-4 text-red" weight="fill" />}

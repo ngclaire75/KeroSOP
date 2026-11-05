@@ -81,7 +81,7 @@ export function LoginForm() {
           <BlurText className="mt-3 text-[16px] leading-[1.55] text-mute">We’ll email you a link to choose a new one.</BlurText>
         </div>
         {sent ? (
-          <div role="status" className="rounded-2xl border border-line bg-fog/70 p-5 text-[15px] leading-[1.55]">
+          <div role="status" className="rounded-[12px] border border-line bg-fog/70 p-5 text-[15px] leading-[1.55]">
             <span className="font-semibold text-ink">Check your inbox.</span>{" "}
             <span className="text-mute">If {email.trim()} has a KeroSOP account, the link is on its way.</span>
           </div>

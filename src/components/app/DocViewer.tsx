@@ -120,7 +120,7 @@ export function DocViewer({ doc, evidence, label }: Props) {
     scrollTo(next);
   };
   const btn =
-    "grid size-8 place-items-center rounded-[8px] border border-line bg-paper text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40";
+    "grid size-8 place-items-center rounded-[6px] border border-line bg-paper text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-3">
@@ -187,7 +187,7 @@ export function DocViewer({ doc, evidence, label }: Props) {
       {/* one page tall and fixed: only the ‹ › buttons and "Cited page" change the page; no box around it */}
       <div
         ref={host}
-        className={`kero-pages min-w-0 overflow-x-hidden ${error ? "flex-1" : ""} overflow-y-hidden overscroll-none rounded-[10px]`}
+        className={`kero-pages min-w-0 overflow-x-hidden ${error ? "flex-1" : ""} overflow-y-hidden overscroll-none rounded-[7px]`}
         style={{
           height: error
             ? undefined
@@ -198,11 +198,11 @@ export function DocViewer({ doc, evidence, label }: Props) {
         }}
       >
         {error ? (
-          <p className="flex h-full min-h-[200px] items-center justify-center rounded-[10px] border border-line bg-paper px-6 text-center text-[13px] text-mute">
+          <p className="flex h-full min-h-[200px] items-center justify-center rounded-[7px] border border-line bg-paper px-6 text-center text-[13px] text-mute">
             {error}
           </p>
         ) : !blob || !width ? (
-          <div className="aspect-[1/1.414] w-full animate-pulse rounded-[10px] border border-line bg-paper" />
+          <div className="aspect-[1/1.414] w-full animate-pulse rounded-[7px] border border-line bg-paper" />
         ) : isPdf ? (
           <PdfPages
             blob={blob}
@@ -281,7 +281,7 @@ function PdfPages({
         const wrap = document.createElement("div");
         wrap.dataset.page = String(n);
         wrap.className =
-          "relative mb-4 overflow-hidden rounded-[10px] border border-line bg-white";
+          "relative mb-4 overflow-hidden rounded-[7px] border border-line bg-white";
         wrap.style.width = `${vp.width}px`;
         wrap.style.height = `${vp.height}px`;
         const canvas = document.createElement("canvas");
@@ -424,7 +424,7 @@ function DocxPages({
           p.style.boxShadow = "none";
           p.style.border = `${Math.max(1, Math.round(1 / (width / (p.offsetWidth || 794))))}px solid #e5e5e3`;
           // the scale shrinks this radius, so set it so the page shows ~10px corners
-          p.style.borderRadius = `${Math.round(10 / (width / (p.offsetWidth || 794)))}px`;
+          p.style.borderRadius = `${Math.round(7 / (width / (p.offsetWidth || 794)))}px`;
           p.style.overflow = "hidden";
         });
         const marked = markDocxQuote(el, quote);
