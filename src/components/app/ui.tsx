@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { limitWords, textWords } from "@/lib/text-limit";
 import { usePanelLock } from "@/lib/use-panel-lock";
 import {
@@ -622,6 +623,20 @@ export function ToastHost({ children }: { children: ReactNode }) {
     }, 4200);
     timers.current.set(key, { id, timer });
   }, []);
+  // an error belongs to the page that raised it: switching pages clears errors.
+  // Confirmations stay, since some actions confirm and then move to another page.
+  const path = usePathname();
+  useEffect(() => {
+    const shown = timers.current;
+    return () => {
+      shown.forEach(({ timer }, key) => {
+        if (!key.startsWith("error:")) return;
+        window.clearTimeout(timer);
+        shown.delete(key);
+      });
+      setList((l) => l.filter((t) => t.tone !== "error"));
+    };
+  }, [path]);
   return (
     <ToastCtx.Provider value={push}>
       {children}
@@ -645,10 +660,10 @@ function ToastItem({ toast }: { toast: Toast }) {
     <div
       ref={ref}
       role="status"
-      // black glass, centred at the bottom; errors keep a red icon so they still read as errors
-      className="pointer-events-auto flex max-w-[min(420px,100%)] items-center gap-3 rounded-[4px] border border-white/10 bg-[rgba(10,10,10,0.78)] px-4 py-2.5 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl backdrop-saturate-150"
+      // white glass, centred at the bottom; errors keep a red icon so they still read as errors
+      className="pointer-events-auto flex max-w-[min(420px,100%)] items-center gap-3 rounded-[4px] border border-black/10 bg-[rgba(255,255,255,0.72)] px-4 py-2.5 text-[14px] font-semibold text-[#171717] shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl backdrop-saturate-150"
     >
-      <Icon name={toast.tone === "ok" ? "check" : "alert"} className={`size-4 shrink-0 ${toast.tone === "ok" ? "text-white" : "text-red"}`} />
+      <Icon name={toast.tone === "ok" ? "check" : "alert"} className={`size-4 shrink-0 ${toast.tone === "ok" ? "text-[#171717]" : "text-red"}`} />
       {toast.text}
     </div>
   );
