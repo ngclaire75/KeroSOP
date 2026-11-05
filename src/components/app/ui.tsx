@@ -625,7 +625,7 @@ export function ToastHost({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed right-4 bottom-4 left-4 z-[90] flex flex-col items-center gap-2 sm:left-auto sm:items-end">
+      <div aria-live="polite" className="pointer-events-none fixed right-4 bottom-[max(16px,env(safe-area-inset-bottom))] left-4 z-[90] flex flex-col items-center gap-2 sm:bottom-6">
         {list.map((t) => (
           <ToastItem key={t.id} toast={t} />
         ))}
@@ -645,9 +645,10 @@ function ToastItem({ toast }: { toast: Toast }) {
     <div
       ref={ref}
       role="status"
-      className={`pointer-events-auto flex max-w-[420px] items-center gap-3 rounded-full px-4 py-2.5 text-[14px] font-semibold shadow-lg ${toast.tone === "ok" ? "bg-ink text-paper" : "bg-red text-paper"}`}
+      // black glass, centred at the bottom; errors keep a red icon so they still read as errors
+      className="pointer-events-auto flex max-w-[min(420px,100%)] items-center gap-3 rounded-[4px] border border-white/10 bg-[rgba(10,10,10,0.78)] px-4 py-2.5 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl backdrop-saturate-150"
     >
-      <Icon name={toast.tone === "ok" ? "check" : "alert"} className="size-4" />
+      <Icon name={toast.tone === "ok" ? "check" : "alert"} className={`size-4 shrink-0 ${toast.tone === "ok" ? "text-white" : "text-red"}`} />
       {toast.text}
     </div>
   );
