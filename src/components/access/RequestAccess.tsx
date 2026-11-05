@@ -8,7 +8,6 @@
  * workspace opens straight away and the browser goes on to the dashboard.
  */
 import Image from "next/image";
-import { limitWords, textWords } from "@/lib/text-limit";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { BrandLogo, INTEGRATIONS } from "@/components/app/BrandLogo";
@@ -71,7 +70,8 @@ export function RequestAccess() {
     if (!user) return;
     api<Me>("/v1/me")
       .then((m) => {
-        if (m.orgs.length) return window.location.replace(dashboard());
+        // Book a demo always shows this page, even for people who already have a workspace;
+        // submitting then opens their existing workspace rather than a second one (see the API)
         setMe(m);
         let company = "";
         try {
@@ -209,12 +209,22 @@ export function RequestAccess() {
                       ))}
                     </div>
                   </fieldset>
-                  <Field label="What would you like to check first?" hint={`${textWords(form.useCase).length}/60 words · ${form.useCase.length}/${NOTE_MAX} characters`} wide>
+                  <Field
+                    label="What would you like to check first?"
+                    hint={
+                      <>
+                        {form.useCase.length}/{NOTE_MAX}
+                        {/* phones show just the count, so the label and counter stay on one line */}
+                        <span className="hidden sm:inline"> characters</span>
+                      </>
+                    }
+                    wide
+                  >
                     <textarea
                       className={`${INPUT} h-[156px] resize-none overflow-hidden py-3.5 leading-[1.55]`}
                       maxLength={NOTE_MAX}
                       value={form.useCase}
-                      onChange={(e) => setForm({ ...form, useCase: limitWords(e.target.value.slice(0, NOTE_MAX), 60) })}
+                      onChange={(e) => setForm({ ...form, useCase: e.target.value.slice(0, NOTE_MAX) })}
                       placeholder="e.g. Our refund policy and the Chinese customer service SOPs seem to disagree."
                     />
                   </Field>
@@ -492,12 +502,13 @@ function WhatYouGet() {
   );
 }
 
-function Field({ label, children, wide, hint }: { label: string; children: ReactNode; wide?: boolean; hint?: string }) {
+function Field({ label, children, wide, hint }: { label: string; children: ReactNode; wide?: boolean; hint?: ReactNode }) {
   return (
     <label className={`flex flex-col gap-2 ${wide ? "sm:col-span-2" : ""}`}>
-      <span className="flex justify-between text-[13px] font-semibold">
-        {label}
-        {hint && <span className="font-normal text-mute">{hint}</span>}
+      {/* label and counter share one line: the label truncates before the counter wraps */}
+      <span className="flex items-baseline justify-between gap-3 text-[13px] font-semibold">
+        <span className="min-w-0 truncate">{label}</span>
+        {hint && <span className="shrink-0 font-normal whitespace-nowrap text-mute tabular-nums">{hint}</span>}
       </span>
       {children}
     </label>
