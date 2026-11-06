@@ -230,7 +230,7 @@ function CatHead() {
   });
   return (
     <div className="relative">
-      <div ref={ref} aria-hidden="true" className="h-[140px] w-full sm:h-[200px]" />
+      <div ref={ref} aria-hidden="true" className="h-[160px] w-full sm:h-[200px]" />
       <span ref={hint} aria-hidden="true" className="cat-hint">
         Pat Me
       </span>
@@ -272,7 +272,7 @@ export function CookieBanner() {
       className="cookie-banner fixed right-4 bottom-4 z-[70] w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-[17px] text-white sm:right-6 sm:bottom-6 sm:w-[330px] sm:border sm:border-white/10"
     >
       <CatHead />
-      <div className="px-5 pt-1 pb-5 sm:px-6 sm:pt-2 sm:pb-7">
+      <div className="px-5 pt-2 pb-6 sm:px-6 sm:pt-2 sm:pb-7">
         <h2 className="text-base font-bold sm:text-lg">Cookies, only if you say yes.</h2>
         <p className="mt-1.5 text-[13px] leading-[1.5] text-white/65 sm:mt-2 sm:text-[15px] sm:leading-[1.55]">
           We’d like to use analytics to see which pages help people. Nothing loads until you accept. Storage that keeps
@@ -281,7 +281,7 @@ export function CookieBanner() {
             Privacy
           </a>
         </p>
-        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-3">
           <button type="button" onClick={() => choose(false)} className="cookie-btn cookie-btn-ghost">
             Necessary only
           </button>
