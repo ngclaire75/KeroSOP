@@ -394,3 +394,73 @@ canvas {
   .map-runner { display: none; animation: none; }
   .map-line-hot { animation: none; }
 }
+
+/* Cookie banner: dark grey card, white text, no red. */
+.cookie-banner {
+  background: #161616;
+  box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.55);
+  animation: cookie-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes cookie-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+.cookie-btn {
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.cookie-btn-ghost {
+  border-color: rgb(255 255 255 / 0.28);
+  color: #ffffff;
+}
+.cookie-btn-ghost:hover {
+  border-color: #ffffff;
+}
+.cookie-btn-solid {
+  background: #ffffff;
+  color: #161616;
+}
+.cookie-btn-solid:hover {
+  background: transparent;
+  color: #ffffff;
+}
+.cat-hint {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #d6d6d6;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  transition: opacity 0.2s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner {
+    animation: none;
+  }
+}
+@media (max-width: 639px) {
+  .cookie-btn {
+    height: 40px;
+    font-size: 14px;
+  }
+  .cat-hint {
+    top: 12px;
+    left: 12px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}

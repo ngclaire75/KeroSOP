@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Archivo, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
+import { ConsentAnalytics } from "@/components/ConsentAnalytics";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -59,7 +61,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        {children}
+        <CookieBanner />
+        <ConsentAnalytics />
+      </body>
     </html>
   );
 }

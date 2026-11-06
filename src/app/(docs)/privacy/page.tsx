@@ -117,8 +117,9 @@ const sections: DocSection[] = [
     title: "Cookies",
     body: (
       <p>
-        We use cookies and similar storage that the site needs to work, for example to keep you logged in. If we add
-        optional cookies, such as for analytics, we will ask first where the law requires it.
+        We use cookies and similar storage that the site needs to work, for example to keep you logged in. Analytics,
+        which tell us which pages are visited, load only after you accept them in the cookie banner. You can change
+        your choice at any time from Cookie settings in the site footer.
       </p>
     ),
   },

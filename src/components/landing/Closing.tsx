@@ -144,6 +144,7 @@ const footerLinks = [
       ["Help", "/help"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
+      ["Cookie settings", "#cookie-settings"],
     ],
   },
 ];
