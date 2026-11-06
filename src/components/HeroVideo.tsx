@@ -84,8 +84,8 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           }
         }}
       >
-        <span className={`grid size-12 place-items-center rounded-full bg-red transition-opacity duration-200 motion-reduce:transition-none sm:size-14 ${playing ? "opacity-0 group-focus-visible:opacity-100" : "opacity-100"}`}>
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="currentColor">
+        <span className={`grid size-12 place-items-center rounded-full bg-red transition-opacity duration-200 will-change-[opacity] [transform:translateZ(0)] motion-reduce:transition-none sm:size-14 ${playing ? "opacity-0 group-focus-visible:opacity-100" : "opacity-100"}`}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 sm:size-7" fill="currentColor">
             {playing ? <path d="M6 4h4v16H6zm8 0h4v16h-4z" /> : <path d="M7 4v16l14-8z" />}
           </svg>
         </span>
