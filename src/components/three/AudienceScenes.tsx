@@ -208,7 +208,10 @@ function buildPanels(THREE: Three, dpr: number): Panel[] {
   tagPts.forEach(() => tagT.push(-1));
   const tag = new THREE.Group();
   tag.position.set(0.32, BH, BD + 0.06);
-  tag.add(new THREE.Points(cloud(tagPts, 1, tagT), bagMat));
+  const tagDots = new THREE.Points(cloud(tagPts, 1, tagT), bagMat);
+  // Drawn last so the red tag (its top dot sits on the handle root) never hides behind white dots.
+  tagDots.renderOrder = 1;
+  tag.add(tagDots);
   sway.add(tag);
   shop.camera.position.set(0, 1.0, 4.75);
   shop.camera.lookAt(0, 0.38, 0);
@@ -270,7 +273,10 @@ function buildPanels(THREE: Three, dpr: number): Panel[] {
       tapeT.push(i / (run.length - 1));
     }
   });
-  spin.add(new THREE.Points(cloud(tape, 1, tapeT), mat));
+  const tapeDots = new THREE.Points(cloud(tape, 1, tapeT), mat);
+  // Drawn last so the red seal is never covered by the white box and flap dots.
+  tapeDots.renderOrder = 1;
+  spin.add(tapeDots);
 
   const goods: number[][] = [];
   for (const x of span(-0.3, 0.3)) for (const y of span(-0.3, 0.3)) for (const z of span(-0.3, 0.3))
