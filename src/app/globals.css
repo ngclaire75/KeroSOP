@@ -210,6 +210,22 @@ textarea:focus-visible,
 .doc-body a:hover {
   text-decoration-color: var(--red);
 }
+.doc-body a.doc-cta {
+  display: inline-flex;
+  height: 48px;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0 1.75rem;
+  border-radius: 9999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+.doc-body a.doc-cta:hover {
+  background: var(--red);
+}
 
 @keyframes kero-in {
   from {
