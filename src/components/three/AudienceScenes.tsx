@@ -47,7 +47,7 @@ void main() {
   p *= 1.0 + band * 0.07;
   vHeat = band;
   vec4 view = modelViewMatrix * vec4(p, 1.0);
-  vAlpha = mix(0.18, 1.0, smoothstep(7.4, 5.0, -view.z)) * mix(0.75, 1.0, band);
+  vAlpha = mix(0.18, 1.0, smoothstep(7.25, 5.15, -view.z)) * mix(0.75, 1.0, band);
   ${SIZE}
 }
 `;
@@ -85,7 +85,8 @@ void main() {
   vHeat = tape + item;
   vec4 view = modelViewMatrix * vec4(p, 1.0);
   float body = mix(0.3, 1.0, smoothstep(7.2, 5.0, -view.z));
-  vAlpha = mix(mix(body, step(aT, uTape), tape), uItem, item);
+  float laid = step(aT, uTape) * step(0.001, uTape);
+  vAlpha = mix(mix(body, laid, tape), uItem, item);
   ${SIZE}
 }
 `;
@@ -154,6 +155,7 @@ function buildPanels(THREE: Three, dpr: number): Panel[] {
   sphere.camera.position.set(0, 0.4, 6.4);
   sphere.camera.lookAt(0, 0, 0);
   sphere.group.rotation.z = 0.22;
+  sphere.group.scale.setScalar(0.9);
   sphere.update = (t) => (sphere.group.children[0].rotation.y = t * 0.25);
 
   const STEP = 0.125;
