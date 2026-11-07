@@ -145,7 +145,7 @@ function CatHead() {
     face.renderOrder = 1;
     head.add(face);
 
-    // Blush: a flat red oval on each cheek, built from concentric oval rings whose dots are
+    // Blush: a red oval on each cheek, drawn as concentric oval rings for a swirled texture; dots are
     // spaced evenly along each ring's length, so the outer edge reads as one clean curve.
     const BX = 0.58;
     const BY = -0.1;
@@ -171,7 +171,7 @@ function CatHead() {
       return out;
     };
     const blushShape: number[][] = [[0, 0]];
-    for (let s = 1; s > 0.05; s -= 0.12) blushShape.push(...ovalRing(BRX * s, BRY * s, 0.013));
+    for (const s of [1, 0.75, 0.5, 0.25]) blushShape.push(...ovalRing(BRX * s, BRY * s, 0.02));
     const blushPts: number[][] = [];
     for (const side of [-1, 1]) for (const [x, y] of blushShape) blushPts.push(onFace(side * BX + x, BY + y, 0.05));
     const blushGeo = new THREE.BufferGeometry();
