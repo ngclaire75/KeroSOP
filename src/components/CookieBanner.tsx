@@ -31,6 +31,16 @@ void main() {
 }
 `;
 
+// Blush: brand red (#e30613).
+const BLUSH_FRAG = /* glsl */ `
+varying float vAlpha;
+void main() {
+  float r = length(gl_PointCoord - 0.5);
+  if (r > 0.5) discard;
+  gl_FragColor = vec4(0.89, 0.024, 0.075, smoothstep(0.5, 0.32, r) * vAlpha);
+}
+`;
+
 // Eyes: each dot sits on a sleepy line and springs to its spot in a wide-open eye as uAwake goes 0 to 1.
 const EYE_VERT = /* glsl */ `
 attribute vec3 aOpen;
@@ -120,9 +130,9 @@ function CatHead() {
     const details: number[][] = [];
     // Nose: a triangle pointing down, its two top corners rounded off.
     const NT = -0.13;
-    const NW = 0.11;
-    const NH = 0.11;
-    const RC = 0.032;
+    const NW = 0.135;
+    const NH = 0.135;
+    const RC = 0.04;
     const inNose = (x: number, y: number) => {
       if (y > NT || y < NT - NH || Math.abs(x) > (NW * (y - (NT - NH))) / NH) return false;
       const cx = NW - RC * 1.6;
@@ -134,6 +144,51 @@ function CatHead() {
     const face = points(details, 1);
     face.renderOrder = 1;
     head.add(face);
+
+    // Blush: a flat red oval on each cheek, built from concentric oval rings whose dots are
+    // spaced evenly along each ring's length, so the outer edge reads as one clean curve.
+    const BX = 0.58;
+    const BY = -0.1;
+    const BRX = 0.15;
+    const BRY = 0.075;
+    const ovalRing = (rx: number, ry: number, gap: number): number[][] => {
+      const steps = 360;
+      const lens = [0];
+      for (let i = 1; i <= steps; i++) {
+        const a0 = ((i - 1) / steps) * Math.PI * 2;
+        const a1 = (i / steps) * Math.PI * 2;
+        lens.push(lens[i - 1] + Math.hypot(rx * (Math.cos(a1) - Math.cos(a0)), ry * (Math.sin(a1) - Math.sin(a0))));
+      }
+      const total = lens[steps];
+      const n = Math.max(3, Math.round(total / gap));
+      const out: number[][] = [];
+      for (let k = 0, j = 0; k < n; k++) {
+        const target = (k / n) * total;
+        while (lens[j + 1] < target) j++;
+        const a = ((j + (target - lens[j]) / (lens[j + 1] - lens[j])) / steps) * Math.PI * 2;
+        out.push([Math.cos(a) * rx, Math.sin(a) * ry]);
+      }
+      return out;
+    };
+    const blushShape: number[][] = [[0, 0]];
+    for (let s = 1; s > 0.05; s -= 0.12) blushShape.push(...ovalRing(BRX * s, BRY * s, 0.013));
+    const blushPts: number[][] = [];
+    for (const side of [-1, 1]) for (const [x, y] of blushShape) blushPts.push(onFace(side * BX + x, BY + y, 0.05));
+    const blushGeo = new THREE.BufferGeometry();
+    blushGeo.setAttribute("position", new THREE.Float32BufferAttribute(blushPts.flat(), 3));
+    blushGeo.setAttribute("aTone", new THREE.Float32BufferAttribute(blushPts.map(() => 1), 1));
+    const blush = new THREE.Points(
+      blushGeo,
+      new THREE.ShaderMaterial({
+        vertexShader: FUR_VERT,
+        fragmentShader: BLUSH_FRAG,
+        uniforms: { uSize: { value: 2.6 }, uDpr: { value: dpr } },
+        transparent: true,
+        depthWrite: false,
+      }),
+    );
+    blush.renderOrder = 1;
+    head.add(blush);
 
     // Eyes. Open: a round disc of dots in rings, with one dark spot left empty top right.
     const ER = 0.14;
@@ -158,7 +213,7 @@ function CatHead() {
     const linePos: number[] = [];
     const openPos: number[] = [];
     for (const side of [-1, 1]) {
-      const cx = side * 0.42;
+      const cx = side * 0.36;
       const cy = 0.12;
       const z = faceZ(cx, cy) + 0.07;
       for (const [ex, ey] of eye) {
