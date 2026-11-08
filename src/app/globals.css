@@ -414,7 +414,6 @@ canvas {
 /* Cookie banner: dark grey card, white text, no red. */
 .cookie-banner {
   background: #161616;
-  box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.55);
   animation: cookie-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @keyframes cookie-in {
