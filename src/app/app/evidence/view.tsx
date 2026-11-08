@@ -3,15 +3,13 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { DocViewer } from "@/components/app/DocViewer";
 import { BaselineLogo, VerifiedBadge } from "@/components/app/Evidence";
-import { AppLink, Empty, Marked, MenuSelect, PageHeader } from "@/components/app/ui";
+import { AppLink, Empty, Marked, MenuSelect, PageHeader, PILL, RiskBadge } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
-import { RISK_NAME, STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Finding, type Risk, type Status } from "@/lib/app/types";
+import { STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Finding, type Risk, type Status } from "@/lib/app/types";
 
 const OPEN: Status[] = ["detected", "under_review", "confirmed", "assigned", "revision_proposed", "approved", "rejected", "rescanned"];
 const RISK_RANK: Record<Risk, number> = { high: 0, medium: 1, low: 2 };
 const ROW_STYLE: CSSProperties = { background: "#ffffff", border: "1px solid #e5e5e3", borderRadius: 9, color: "#171717" };
-const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
-const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
 const SEL = "[&_button]:rounded-[6px] [&_button]:font-semibold";
 
 export default function EvidenceComparison() {
@@ -76,7 +74,7 @@ function Comparison({ f }: { f: Finding }) {
       <section style={ROW_STYLE} className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 max-w-[760px]">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`${PILL} ${RISK_LOOK[f.risk]}`}>{RISK_NAME[f.risk]}</span>
+            <RiskBadge risk={f.risk} />
             <span className={`${PILL} border border-ink/35 text-ink`}>{STATUS_LABEL[f.status]}</span>
             <span className="text-[12px] text-mute">
               {f.id} · {TYPE_LABEL[f.type]}

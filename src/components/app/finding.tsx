@@ -5,14 +5,13 @@
  * lifecycle track, the next-step actions for a finding, and its notes.
  */
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Btn, Input, Select, Textarea, fmtDateTime, useToast } from "@/components/app/ui";
+import { Btn, Input, PILL, RiskBadge, Select, Textarea, fmtDateTime, useToast } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { prefersReducedMotion } from "@/lib/random";
-import { RISK_NAME, STATUS_LABEL, type Finding, type Risk, type Status } from "@/lib/app/types";
+import { STATUS_LABEL, type Finding, type Status } from "@/lib/app/types";
 
-export const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
+export { PILL };
 
-export const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
 export const STATUS_LOOK: Record<Status, string> = {
   detected: "border border-red text-red",
   under_review: "border border-ink/35 text-ink",
@@ -26,7 +25,7 @@ export const STATUS_LOOK: Record<Status, string> = {
   dismissed: "border border-line text-mute",
 };
 
-export const RiskPill = ({ risk }: { risk: Risk }) => <span className={`${PILL} ${RISK_LOOK[risk]}`}>{RISK_NAME[risk]}</span>;
+export const RiskPill = RiskBadge;
 export const StatusPill = ({ status }: { status: Status }) => <span className={`${PILL} ${STATUS_LOOK[status]}`}>{STATUS_LABEL[status]}</span>;
 
 /* ---------- lifecycle track ---------- */

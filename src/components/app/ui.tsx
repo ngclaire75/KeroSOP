@@ -196,8 +196,12 @@ export function Empty({ icon = "doc", title, body, action }: { icon?: string; ti
 /** All label badges share a solid black container and fully white text. */
 export const STATUS_PILL = "inline-flex h-6 items-center rounded-full bg-black px-2.5 text-[12px] font-semibold whitespace-nowrap text-white";
 
+/** The risk pill from Findings, used everywhere a finding's risk is labelled: high in solid red, medium and low outlined. */
+export const PILL = "inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap";
+export const RISK_LOOK: Record<Risk, string> = { high: "bg-red text-white", medium: "border border-ink/35 text-ink", low: "border border-line text-mute" };
+
 export function RiskBadge({ risk }: { risk: Risk }) {
-  return <span className={`${STATUS_PILL} capitalize`}>{RISK_NAME[risk]}</span>;
+  return <span className={`${PILL} ${RISK_LOOK[risk]}`}>{RISK_NAME[risk]}</span>;
 }
 
 export function StatusBadge({ status }: { status: Status }) {
