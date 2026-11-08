@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FileLogo } from "@/components/app/FileLogo";
 import { Icon } from "@/components/app/icons";
-import { AppLink, Btn, Drawer, Empty, Input, Modal, PageHeader, SearchInput, Select, ago, fmtDateTime, useToast, ListFooter, usePaged } from "@/components/app/ui";
+import { AppLink, Btn, Drawer, Empty, Input, Modal, PageHeader, RiskBadge, SearchInput, Select, ago, fmtDateTime, useToast, ListFooter, usePaged } from "@/components/app/ui";
 import { FLOW_STAGES, ScanFlow } from "@/components/app/viz";
 import { api } from "@/lib/app/api";
 import { useWorkspace } from "@/lib/app/store";
@@ -435,7 +435,7 @@ function ScanDrawer({ scan, canScan, onClose, onRerun }: { scan: Scan | null; ca
                 <li key={f!.id} className="flex h-14 items-center gap-3 rounded-[7px] border border-line px-3">
                   <span className="w-16 shrink-0 font-mono text-[12px] text-mute">{f!.id}</span>
                   <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{f!.title}</span>
-                  <span className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[12px] font-semibold capitalize ${f!.risk === "high" ? "bg-red text-white" : "border border-ink/35 text-ink"}`}>{f!.risk}</span>
+                  <RiskBadge risk={f!.risk} />
                 </li>
               ))}
             </ul>

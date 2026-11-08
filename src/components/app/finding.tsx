@@ -5,28 +5,16 @@
  * lifecycle track, the next-step actions for a finding, and its notes.
  */
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Btn, Input, PILL, RiskBadge, Select, Textarea, fmtDateTime, useToast } from "@/components/app/ui";
+import { Btn, Input, PILL, RiskBadge, Select, StatusBadge, Textarea, fmtDateTime, useToast } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { prefersReducedMotion } from "@/lib/random";
-import { STATUS_LABEL, type Finding, type Status } from "@/lib/app/types";
+import { type Finding, type Status } from "@/lib/app/types";
 
 export { PILL };
 
-export const STATUS_LOOK: Record<Status, string> = {
-  detected: "border border-red text-red",
-  under_review: "border border-ink/35 text-ink",
-  confirmed: "bg-ink text-paper",
-  assigned: "bg-ink text-paper",
-  revision_proposed: "border border-ink/35 text-ink",
-  approved: "bg-ink text-paper",
-  rejected: "bg-red text-white",
-  rescanned: "border border-ink/35 text-ink",
-  closed: "border border-line text-mute",
-  dismissed: "border border-line text-mute",
-};
 
 export const RiskPill = RiskBadge;
-export const StatusPill = ({ status }: { status: Status }) => <span className={`${PILL} ${STATUS_LOOK[status]}`}>{STATUS_LABEL[status]}</span>;
+export const StatusPill = StatusBadge;
 
 /* ---------- lifecycle track ---------- */
 

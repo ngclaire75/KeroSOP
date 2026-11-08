@@ -204,8 +204,22 @@ export function RiskBadge({ risk }: { risk: Risk }) {
   return <span className={`${PILL} ${RISK_LOOK[risk]}`}>{RISK_NAME[risk]}</span>;
 }
 
+/** The status pill from Findings: red outline for new, solid for decided, outlined while in progress, grey when done. */
+export const STATUS_LOOK: Record<Status, string> = {
+  detected: "border border-red text-red",
+  under_review: "border border-ink/35 text-ink",
+  confirmed: "bg-ink text-paper",
+  assigned: "bg-ink text-paper",
+  revision_proposed: "border border-ink/35 text-ink",
+  approved: "bg-ink text-paper",
+  rejected: "bg-red text-white",
+  rescanned: "border border-ink/35 text-ink",
+  closed: "border border-line text-mute",
+  dismissed: "border border-line text-mute",
+};
+
 export function StatusBadge({ status }: { status: Status }) {
-  return <span className={STATUS_PILL}>{STATUS_LABEL[status]}</span>;
+  return <span className={`${PILL} ${STATUS_LOOK[status]}`}>{STATUS_LABEL[status]}</span>;
 }
 
 export function TypeBadge({ type }: { type: FindingType }) {

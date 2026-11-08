@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { DocViewer } from "@/components/app/DocViewer";
 import { BaselineLogo, VerifiedBadge } from "@/components/app/Evidence";
-import { AppLink, Empty, Marked, MenuSelect, PageHeader, PILL, RiskBadge } from "@/components/app/ui";
+import { AppLink, Empty, Marked, MenuSelect, PageHeader, PILL, RiskBadge, StatusBadge } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { STATUS_LABEL, TYPE_LABEL, type Doc, type Evidence, type Finding, type Risk, type Status } from "@/lib/app/types";
 
@@ -75,7 +75,7 @@ function Comparison({ f }: { f: Finding }) {
         <div className="min-w-0 max-w-[760px]">
           <div className="flex flex-wrap items-center gap-2">
             <RiskBadge risk={f.risk} />
-            <span className={`${PILL} border border-ink/35 text-ink`}>{STATUS_LABEL[f.status]}</span>
+            <StatusBadge status={f.status} />
             <span className="text-[12px] text-mute">
               {f.id} · {TYPE_LABEL[f.type]}
             </span>

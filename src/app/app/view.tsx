@@ -19,7 +19,7 @@ import {
   type FlowPoint,
   type RiskCounts,
 } from "@/components/app/dash";
-import { AppLink, BtnLink, Empty, PageHeader, RiskBadge, Select, StatusBadge, ago, orgName, TILE_STYLE, STATUS_PILL } from "@/components/app/ui";
+import { AppLink, BtnLink, Empty, PageHeader, PILL, RiskBadge, Select, StatusBadge, ago, orgName, TILE_STYLE } from "@/components/app/ui";
 import { useWorkspace } from "@/lib/app/store";
 import { linkFor } from "./audit/model";
 import { AUTHORITY_LABEL, STATUS_LABEL, TYPE_LABEL, type Finding, type FindingType, type Scan, type Status } from "@/lib/app/types";
@@ -91,6 +91,8 @@ function duration(s: Scan) {
 }
 
 const SCAN_STATE: Record<string, string> = { completed: "Completed", partially_completed: "Partly completed", failed: "Failed" };
+/** Same looks as the Scans page: running in red outline, completed solid, partial outlined, failed solid red. */
+const SCAN_LOOK: Record<string, string> = { completed: "bg-ink text-paper", partially_completed: "border border-ink/35 text-ink", failed: "bg-red text-white" };
 
 export default function Overview() {
   const { ws, running } = useWorkspace();
@@ -451,7 +453,7 @@ export default function Overview() {
                           </span>
                         </span>
                         <span>
-                          <span className={STATUS_PILL}>{label}</span>
+                          <span className={`${PILL} ${live ? "border border-red text-red" : (SCAN_LOOK[s.stage] ?? "border border-ink/35 text-ink")}`}>{label}</span>
                         </span>
                         <span className="hidden truncate text-[13px] font-medium md:block">{result}</span>
                         <span className="hidden text-right text-[13px] text-mute tabular-nums md:block">{duration(s)}</span>
