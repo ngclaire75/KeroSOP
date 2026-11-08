@@ -702,8 +702,8 @@ function ToastItem({ toast }: { toast: Toast }) {
       // white glass, centred at the bottom; errors keep a red icon so they still read as errors
       className="pointer-events-auto flex max-w-[min(420px,100%)] items-center gap-3 rounded-[4px] border border-black/10 bg-[rgba(255,255,255,0.72)] px-4 py-2.5 text-[14px] font-semibold text-[#171717] shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl backdrop-saturate-150"
     >
-      <Icon name={toast.tone === "ok" ? "check" : "alert"} className={`size-4 shrink-0 ${toast.tone === "ok" ? "text-[#171717]" : "text-red"}`} />
-      {toast.text}
+      <Icon name={toast.tone === "ok" ? "check" : "alert"} className={`size-[18px] shrink-0 ${toast.tone === "ok" ? "text-[#171717]" : "text-red"}`} />
+      <span className="leading-[18px]">{toast.text}</span>
     </div>
   );
 }
