@@ -3,16 +3,19 @@
 import { useEffect, useRef } from "react";
 import type p5 from "p5";
 import { useP5 } from "@/lib/useP5";
-import { canvasDpr, prefersReducedMotion } from "@/lib/random";
+import { prefersReducedMotion } from "@/lib/random";
 
-const GAP = 5; // px between dot centres
+const GAP = 6; // px between dot centres
+const DOT = 3; // body dot diameter; leaves a 3px gap so dots never touch
+const TOP = 4; // top dot of each column, still 2px clear of its neighbours
 const RISE = 0.9; // seconds for the columns to grow in, left to right
 const SWEEP = 4.5; // seconds between light sweeps
 
 /**
  * A stat tile's trend drawn as a dot matrix (p5.js). Each column fills up to the
  * value at that point; dots fade towards the baseline and the top dot of each
- * column traces the line. The latest column is picked out in brand red. Columns
+ * column traces the line. Every dot sits on the grid at a whole device pixel so it
+ * stays a crisp circle and never overlaps another. The latest column is picked out in brand red. Columns
  * grow in on load and ease to new heights when the range changes; a soft light
  * sweeps across now and then. A mouse lights the column under it (no touch hover).
  */
@@ -26,7 +29,8 @@ export function SparkField({ values, accent = "#e30613", className = "" }: { val
 
   const ref = useP5((p: p5, host) => {
     const reduced = prefersReducedMotion();
-    let cols = 0, rows = 0, ox = 0, oy = 0;
+    let cols = 0, rows = 0, ox = 0, oy = 0, dpr = 1;
+    const snap = (v: number) => Math.round(v * dpr) / dpr;
     let shown: number[] = []; // eased height per column, in rows
     let born = 0;
     const pointer = { x: -1, on: false };
@@ -46,8 +50,8 @@ export function SparkField({ values, accent = "#e30613", className = "" }: { val
     const build = () => {
       cols = Math.max(2, Math.floor((host.clientWidth - 2) / GAP) + 1);
       rows = Math.max(2, Math.floor((host.clientHeight - 2) / GAP) + 1);
-      ox = (host.clientWidth - (cols - 1) * GAP) / 2;
-      oy = host.clientHeight - (host.clientHeight - (rows - 1) * GAP) / 2;
+      ox = snap((host.clientWidth - (cols - 1) * GAP) / 2);
+      oy = snap(host.clientHeight - (host.clientHeight - (rows - 1) * GAP) / 2);
       const next = target();
       shown = reduced ? next : next.map((_, c) => shown[c] ?? 0);
     };
@@ -80,7 +84,8 @@ export function SparkField({ values, accent = "#e30613", className = "" }: { val
 
     p.setup = () => {
       p.createCanvas(host.clientWidth, host.clientHeight);
-      p.pixelDensity(canvasDpr());
+      dpr = Math.min(3, window.devicePixelRatio || 1); // small canvas, so full density even on phones
+      p.pixelDensity(dpr);
       p.frameRate(60);
       p.noStroke();
       red = p.color(accent);
@@ -107,8 +112,8 @@ export function SparkField({ values, accent = "#e30613", className = "" }: { val
         shown[c] += (goal - shown[c]) * (reduced ? 1 : 0.18);
         if (Math.abs(goal - shown[c]) > 0.01 || gate < 1) settling = true;
 
-        const h = shown[c];
-        const full = Math.floor(h);
+        // whole rows only: a part-row top dot would sit between rows and overlap the dot below
+        const full = Math.round(shown[c]);
         const last = c === cols - 1;
         const near = Math.abs(c - hoverCol) <= 1 ? 1 - Math.abs(c - hoverCol) * 0.5 : 0;
         const glow = Math.max(0, 1 - Math.abs(c - sweep) / 4) * 0.35;
@@ -116,21 +121,20 @@ export function SparkField({ values, accent = "#e30613", className = "" }: { val
 
         // faint baseline row so empty stretches still read as a track
         p.fill(255, 255, 255, 64);
-        p.circle(x, oy, 1.8);
+        if (full === 0) p.circle(x, oy, 2);
 
-        for (let r = 0; r < full; r++) {
-          const depth = r / Math.max(1, full); // 0 at the baseline, 1 at the top
+        for (let r = 0; r < full - 1; r++) {
+          const depth = r / Math.max(1, full - 1); // 0 at the baseline, 1 at the top
           const a = 85 + 165 * depth + 105 * (glow + near * 0.6);
           if (last) p.fill(p.red(red), p.green(red), p.blue(red), Math.min(255, a + 40));
           else p.fill(255, 255, 255, Math.min(255, a));
-          p.circle(x, oy - r * GAP, 2.4 + 0.7 * depth);
+          p.circle(x, oy - r * GAP, DOT);
         }
-        // the top dot traces the line; its part-row height keeps the curve smooth
-        if (h > 0.2) {
-          const ty = oy - (h - 1) * GAP;
+        // the top dot traces the line; hover and the sweep brighten it rather than grow it
+        if (full > 0) {
           if (last) p.fill(red);
           else p.fill(255, 255, 255, 215 + 40 * Math.max(near, glow * 2));
-          p.circle(x, ty, (last ? 4.8 : 3.4) + near * 1.1);
+          p.circle(x, oy - (full - 1) * GAP, TOP);
         }
       }
 

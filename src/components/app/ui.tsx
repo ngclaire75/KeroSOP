@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { limitWords, textWords } from "@/lib/text-limit";
 import { usePanelLock } from "@/lib/use-panel-lock";
@@ -391,13 +392,32 @@ export function MenuSelect({ value, onChange, options, className = "", disabled,
   const list = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [place, setPlace] = useState<CSSProperties>({});
   const chosen = Math.max(0, options.findIndex((o) => o.value === value));
 
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+    const away = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!root.current?.contains(t) && !list.current?.contains(t)) setOpen(false);
+    };
     document.addEventListener("pointerdown", away);
     return () => document.removeEventListener("pointerdown", away);
+  }, [open]);
+
+  // The menu is portalled to <body> so no card or overflow can crop it; it follows the field on scroll and resize.
+  useEffect(() => {
+    if (!open) return;
+    const follow = () => {
+      const r = root.current?.getBoundingClientRect();
+      if (!r) return;
+      const room = window.innerHeight - r.bottom - 14;
+      setPlace({ top: r.bottom + 6, left: r.left, width: r.width, maxHeight: Math.max(160, Math.min(320, room)) });
+    };
+    follow();
+    window.addEventListener("scroll", follow, true);
+    window.addEventListener("resize", follow);
+    return () => { window.removeEventListener("scroll", follow, true); window.removeEventListener("resize", follow); };
   }, [open]);
 
   // Keep the highlighted option in view inside the menu without scrolling the page.
@@ -442,8 +462,8 @@ export function MenuSelect({ value, onChange, options, className = "", disabled,
         <span className="min-w-0 flex-1 truncate">{options[chosen]?.label ?? ""}</span>
       </button>
       <Icon name="down" className={`pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-mute transition-transform ${open ? "rotate-180" : ""}`} />
-      {open && (
-        <ul ref={list} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[320px] overflow-y-auto overscroll-contain rounded-[9px] border border-line bg-paper py-1.5 shadow-[0_12px_32px_#0000001a]">
+      {open && createPortal(
+        <ul ref={list} id={`${id}-list`} role="listbox" aria-label={ariaLabel} style={place} className="fixed z-[85] overflow-y-auto overscroll-contain rounded-[9px] border border-line bg-paper py-1.5 shadow-[0_12px_32px_#0000001a]">
           {options.map((o, i) => (
             <li
               key={o.value}
@@ -457,7 +477,8 @@ export function MenuSelect({ value, onChange, options, className = "", disabled,
               {o.label}
             </li>
           ))}
-        </ul>
+        </ul>,
+        document.body,
       )}
     </div>
   );
