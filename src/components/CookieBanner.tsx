@@ -6,11 +6,6 @@ import { setConsent, SETTINGS_HREF, useConsent } from "@/lib/consent";
 
 const FUR_VERT = /* glsl */ `
 attribute float aTone;
-// Outward normal for skull dots; zero for flat parts (ears, face), which always show.
-attribute vec3 aNormal;
-// 1 for skull dots where the open eyes go: they clear away as the eyes open.
-attribute float aEye;
-uniform float uAwake;
 uniform float uSize;
 uniform float uDpr;
 varying float vTone;
@@ -20,11 +15,7 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   gl_Position = projectionMatrix * mv;
   gl_PointSize = uSize * uDpr * mix(1.0, 0.85, aTone) * (5.0 / -mv.z);
-  vAlpha = mix(mix(0.2, 0.95, smoothstep(4.7, 3.5, -mv.z)), 0.9, aTone);
-  // Skull dots on the far side would land between the near ones, so only the near side shows.
-  // Right at the outline the near dots bunch up as the shell turns edge-on; those fade in a thin band.
-  if (dot(aNormal, aNormal) > 0.0) vAlpha *= smoothstep(0.2, 0.4, dot(normalize(normalMatrix * aNormal), normalize(-mv.xyz)));
-  vAlpha *= 1.0 - aEye * uAwake;
+  vAlpha = mix(mix(0.25, 1.0, smoothstep(4.7, 3.5, -mv.z)), 0.9, aTone);
 }
 `;
 
@@ -88,7 +79,7 @@ function CatHead() {
     const furMat = new THREE.ShaderMaterial({
       vertexShader: FUR_VERT,
       fragmentShader: FUR_FRAG,
-      uniforms: { uSize: { value: 2.5 }, uDpr: { value: dpr }, uAwake: { value: 0 } },
+      uniforms: { uSize: { value: 2.2 }, uDpr: { value: dpr } },
       transparent: true,
       depthWrite: false,
     });
@@ -102,8 +93,8 @@ function CatHead() {
     const head = new THREE.Group();
     scene.add(head);
 
-    // Skull: an ellipsoid shell. Added after the face, so it can leave room under the ears and features.
-    const N = 1100;
+    // Skull: an ellipsoid shell.
+    const N = 620;
     const golden = Math.PI * (3 - Math.sqrt(5));
     const skull: number[][] = [];
     for (let i = 0; i < N; i++) {
@@ -112,37 +103,23 @@ function CatHead() {
       const th = golden * i;
       skull.push([Math.cos(th) * r * RX, y * RY, Math.sin(th) * r * RZ]);
     }
+    head.add(points(skull));
 
     // Ears: filled triangles hinged at their base so they can twitch.
-    const earSpots: number[][] = [];
     const ear = (side: number) => {
       const pivot = new THREE.Group();
-      const PX = side * 0.62;
-      const PY = 0.62;
-      pivot.position.set(PX, PY, 0.05);
+      pivot.position.set(side * 0.62, 0.62, 0.05);
       pivot.rotation.z = -side * 0.32;
-      // Where an ear dot lands over the head, resting or perked up.
-      const poses = ([u, v]: number[]) =>
-        [0.32, 0.16].map((a) => {
-          const r = -side * a;
-          return [PX + u * Math.cos(r) - v * Math.sin(r), PY + u * Math.sin(r) + v * Math.cos(r)];
-        });
-      // The ear stops just inside the head's outline, where it joins the fur; the fur clears under it.
-      const sunk = (p: number[]) => poses(p).some(([x, y]) => (x * x) / (RX * RX) + (y * y) / (RY * RY) < 0.84 * 0.84);
       // Sides bow outward so the tip is a soft dome, not a point.
       const H = 0.6;
       const S = 0.1;
       const pts: number[][] = [];
       for (let v = 0; v <= H + 1e-6; v += S * 0.8) {
         const half = 0.38 * Math.pow(Math.max(0, 1 - v / H), 0.55);
-        // Each row spread evenly from edge to edge, never closer than S, so no two dots meet.
-        const n = Math.floor((2 * half) / S);
-        if (n === 0) pts.push([0, v, 0]);
-        else for (let k = 0; k <= n; k++) pts.push([-half + (k * 2 * half) / n, v, 0]);
+        for (let u = -half + S / 2; u < half - S / 2; u += S) pts.push([u, v, 0]);
+        pts.push([-half, v, 0], [half, v, 0]);
       }
-      const kept = pts.filter((p) => !sunk(p));
-      kept.forEach((p) => earSpots.push(...poses(p)));
-      pivot.add(points(kept));
+      pivot.add(points(pts));
       head.add(pivot);
       return pivot;
     };
@@ -258,25 +235,6 @@ function CatHead() {
     eyes.renderOrder = 1;
     head.add(eyes);
 
-    // Now the fur, minus any dot that would sit under an ear, the sleepy eye lines, the nose or a blush.
-    const M = 0.03;
-    const eyeDx = (x: number) => Math.abs(Math.abs(x) - 0.36);
-    const underFace = ([x, y, z]: number[]) =>
-      z > 0 &&
-      ((eyeDx(x) < 0.122 + M && Math.abs(y - 0.12) < M) ||
-        (Math.abs(x) <= NW + M && y <= NT + M && y >= NT - NH - M) ||
-        (Math.abs(x) - BX) ** 2 / (BRX + M) ** 2 + (y - BY) ** 2 / (BRY + M) ** 2 < 1);
-    const underEar = ([x, y]: number[]) => y > 0.3 && earSpots.some(([ex, ey]) => Math.hypot(x - ex, y - ey) < 0.05);
-    const underOpenEye = ([x, y, z]: number[]) => z > 0 && (eyeDx(x) / (ER * 0.78 + M)) ** 2 + ((y - 0.12) / (ER + M)) ** 2 < 1;
-    const fur = skull.filter((p) => !underFace(p) && !underEar(p));
-    const furPts = points(fur);
-    furPts.geometry.setAttribute(
-      "aNormal",
-      new THREE.Float32BufferAttribute(fur.flatMap(([x, y, z]) => [x / (RX * RX), y / (RY * RY), z / (RZ * RZ)]), 3),
-    );
-    furPts.geometry.setAttribute("aEye", new THREE.Float32BufferAttribute(fur.map((p) => (underOpenEye(p) ? 1 : 0)), 1));
-    head.add(furPts);
-
     camera.position.set(0, 0.24, 4.3);
     camera.lookAt(0, 0.24, 0);
 
@@ -307,7 +265,6 @@ function CatHead() {
         awake += (target - awake) * Math.min(1, dt * (target ? 9 : 3));
         twitch = Math.max(0, twitch - dt * 2.2);
         eyeUniforms.uAwake.value = awake;
-        furMat.uniforms.uAwake.value = awake;
         // The hint steps aside once it wakes.
         if (hint.current) hint.current.style.opacity = String(1 - awake);
 
