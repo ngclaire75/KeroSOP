@@ -422,6 +422,17 @@ canvas {
     transform: translateY(16px);
   }
 }
+/* Leaving: the way in played backwards, same length, mirrored curve. */
+.cookie-banner.cookie-out {
+  pointer-events: none;
+  animation: cookie-out 0.5s cubic-bezier(0.8, 0, 0.8, 0.2) both;
+}
+@keyframes cookie-out {
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
 .cookie-btn {
   height: 44px;
   border-radius: 999px;

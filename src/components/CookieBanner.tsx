@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useThreeScene } from "@/lib/useThreeScene";
 import { setConsent, SETTINGS_HREF, useConsent } from "@/lib/consent";
+import { prefersReducedMotion } from "@/lib/random";
 
 const FUR_VERT = /* glsl */ `
 attribute float aTone;
@@ -106,10 +107,20 @@ function CatHead() {
     head.add(points(skull));
 
     // Ears: filled triangles hinged at their base so they can twitch.
+    const insideSkull = (x: number, y: number, z: number) => (x * x) / (RX * RX) + (y * y) / (RY * RY) + (z * z) / (RZ * RZ) < 1;
     const ear = (side: number) => {
       const pivot = new THREE.Group();
-      pivot.position.set(side * 0.62, 0.62, 0.05);
+      const PX = side * 0.62;
+      const PY = 0.62;
+      const PZ = 0.05;
+      pivot.position.set(PX, PY, PZ);
       pivot.rotation.z = -side * 0.32;
+      // Drop any ear dot that would sit inside the skull, resting or perked up, so the ear stops at the head.
+      const sunk = ([u, v]: number[]) =>
+        [0.32, 0.16].some((a) => {
+          const r = -side * a;
+          return insideSkull(PX + u * Math.cos(r) - v * Math.sin(r), PY + u * Math.sin(r) + v * Math.cos(r), PZ);
+        });
       // Sides bow outward so the tip is a soft dome, not a point.
       const H = 0.6;
       const S = 0.1;
@@ -119,7 +130,7 @@ function CatHead() {
         for (let u = -half + S / 2; u < half - S / 2; u += S) pts.push([u, v, 0]);
         pts.push([-half, v, 0], [half, v, 0]);
       }
-      pivot.add(points(pts));
+      pivot.add(points(pts.filter((p) => !sunk(p))));
       head.add(pivot);
       return pivot;
     };
@@ -300,6 +311,8 @@ function CatHead() {
 export function CookieBanner() {
   const consent = useConsent();
   const [reopened, setReopened] = useState(false);
+  /** The choice being made while the banner animates out; null when it is not leaving. */
+  const [leaving, setLeaving] = useState<boolean | null>(null);
   const open = consent === null || reopened;
 
   useEffect(() => {
@@ -315,18 +328,40 @@ export function CookieBanner() {
 
   if (!open) return null;
 
-  const choose = (analytics: boolean) => {
+  const apply = (analytics: boolean) => {
+    setLeaving(null);
     setReopened(false);
     setConsent(analytics);
+  };
+  // Slides down and fades out (the way in, reversed), then the choice is saved.
+  const choose = (analytics: boolean) => {
+    if (leaving !== null) return;
+    if (prefersReducedMotion()) apply(analytics);
+    else setLeaving(analytics);
   };
 
   return (
     <section
       role="region"
       aria-label="Cookie preferences"
-      className="cookie-banner fixed right-4 bottom-4 z-[70] w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-[17px] text-white sm:right-6 sm:bottom-6 sm:w-[330px] sm:border sm:border-white/10"
+      className={`cookie-banner fixed right-4 bottom-4 z-[70] w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-[17px] text-white sm:right-6 sm:bottom-6 sm:w-[330px] sm:border sm:border-white/10 ${leaving !== null ? "cookie-out" : ""}`}
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget && e.animationName === "cookie-out" && leaving !== null) apply(leaving);
+      }}
     >
       <CatHead />
+      {/* Same X as the mobile menu's close button. Closing counts as "Necessary only". */}
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={() => choose(false)}
+        className="absolute top-[3px] right-0 z-10 inline-flex size-11 items-center justify-center rounded-full sm:top-[9px] sm:right-[4px]"
+      >
+        <span className="relative block h-3 w-5" aria-hidden="true">
+          <span className="absolute top-[5px] left-0 h-[2px] w-5 rotate-45 bg-current" />
+          <span className="absolute top-[5px] left-0 h-[2px] w-5 -rotate-45 bg-current" />
+        </span>
+      </button>
       <div className="px-5 pt-2 pb-6 sm:px-6 sm:pt-2 sm:pb-7">
         <h2 className="text-base font-bold sm:text-lg">Cookies, only if you say yes.</h2>
         <p className="mt-1.5 text-[13px] leading-[1.5] text-white/65 sm:mt-2 sm:text-[15px] sm:leading-[1.55]">
