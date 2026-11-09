@@ -6,30 +6,44 @@ import { canvasDpr } from "@/lib/random";
 import { SCAN_EVENT } from "@/lib/scan";
 
 const ROWS = 24;
-/** Grid width per layout. Phones get the short word on fewer columns, so each pin is bigger. */
+/** Grid width per layout. Phones see fewer columns, so each pin is bigger, and the full word scrolls through as a marquee. */
 const COLS_WIDE = 116;
-const COLS_NARROW = 76;
+const COLS_NARROW = 56;
 const WIDE = "(min-width: 640px)";
+/** Marquee: empty columns between repeats of the word, and scroll speed in columns per second. */
+const MARQUEE_GAP = 6;
+const MARQUEE_SPEED = 9;
 
 const SCAN_TIME = 1.3;
 /** Scan on our own if the dot field hasn't handed one over in this long (it may be off screen). */
 const SCAN_FALLBACK = 10;
 
-/** Rasterise the word and sample it on a cols×ROWS grid. */
-function sampleWord(text: string, family: string, cols: number) {
+/**
+ * Rasterise the word and sample it on a cols×ROWS grid. With no `cols` the
+ * word is set as tall as the grid allows and the grid is as wide as it needs
+ * (plus the marquee gap).
+ */
+function sampleWord(text: string, family: string, cols?: number) {
   const cell = 10;
   const canvas = document.createElement("canvas");
-  canvas.width = cols * cell;
   canvas.height = ROWS * cell;
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   const fit = (size: number) => {
     ctx.font = `900 ${size}px ${family}`;
     return ctx.measureText(text);
   };
-  let size = 200;
-  let m = fit(size);
-  size = Math.min((size * canvas.width * 0.97) / m.width, canvas.height * 1.18);
-  m = fit(size);
+  const tallest = canvas.height * 1.18;
+  let size: number;
+  if (cols === undefined) {
+    size = tallest;
+    cols = Math.ceil(fit(size).width / cell) + MARQUEE_GAP;
+    canvas.width = cols * cell;
+  } else {
+    canvas.width = cols * cell;
+    size = Math.min((200 * canvas.width * 0.97) / fit(200).width, tallest);
+  }
+  // Setting the width resets the context, so set the font again after it.
+  const m = fit(size);
   const capH = m.actualBoundingBoxAscent;
   ctx.fillStyle = "#000";
   ctx.fillText(text, (canvas.width - m.width) / 2, (canvas.height + capH) / 2);
@@ -41,10 +55,11 @@ function sampleWord(text: string, family: string, cols: number) {
       const y = Math.floor((r + 0.5) * cell);
       on.push(data[(y * canvas.width + x) * 4 + 3] > 120);
     }
-  return on;
+  return { on, cols };
 }
 
-type Cell = { x: number; y: number; h: number; heat: number; intro: number };
+/** `u` is the cell's column along the marquee strip; `x` is where it sits now. */
+type Cell = { u: number; x: number; y: number; h: number; heat: number; intro: number };
 
 const smooth = (x: number) => x * x * (3 - 2 * x);
 
@@ -53,7 +68,8 @@ const smooth = (x: number) => x * x * (3 - 2 * x);
  * from the centre out. A scan bar then sweeps down the word whenever the dot
  * field above hands one down: pins under it spike and run white-hot, each
  * with a soft additive halo at its tip. Pins also rise toward the pointer, and
- * the whole word tilts after it.
+ * the whole word tilts after it. On phones the full word scrolls past as a
+ * marquee, large enough to fill the strip's height.
  */
 export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: string; short?: string }) {
   const ref = useThreeScene(
@@ -127,6 +143,8 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
       const wide = window.matchMedia(WIDE);
       let isWide = wide.matches;
       let cols = isWide ? COLS_WIDE : COLS_NARROW;
+      // Width of the scrolling strip in columns; 0 when the word sits still.
+      let strip = 0;
 
       // Pins lie flat until the intro plays, and again once the word leaves the screen; with reduced motion they stay up.
       let introPlayed = reduced;
@@ -135,7 +153,12 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
       const build = () => {
         isWide = wide.matches;
         cols = isWide ? COLS_WIDE : COLS_NARROW;
-        const on = sampleWord(isWide ? text : short, family, cols);
+        // Reduced motion keeps phones on the short word, standing still.
+        const marquee = !isWide && !reduced;
+        const sampled = marquee ? sampleWord(text, family) : sampleWord(isWide ? text : short, family, cols);
+        const on = sampled.on;
+        const rowCols = sampled.cols;
+        strip = marquee ? rowCols : 0;
         if (pins) {
           group.remove(pins);
           pins.dispose();
@@ -147,9 +170,10 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
         const lit: Cell[] = [];
         on.forEach((v, i) => {
           if (!v) return;
-          const c = i % cols;
-          const r = Math.floor(i / cols);
-          lit.push({ x: c - (cols - 1) / 2, y: (ROWS - 1) / 2 - r, h: 0.8, heat: 0, intro: introPlayed ? 1 : 0 });
+          const c = i % rowCols;
+          const r = Math.floor(i / rowCols);
+          const x = c - (rowCols - 1) / 2;
+          lit.push({ u: x, x, y: (ROWS - 1) / 2 - r, h: 0.8, heat: 0, intro: introPlayed ? 1 : 0 });
         });
         cells = lit;
         const n = Math.max(1, lit.length);
@@ -158,6 +182,8 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
         pinGeo.setAttribute("aHeat", heatAttr);
         pins = new THREE.InstancedMesh(pinGeo, pinMat, n);
         for (let i = 0; i < n; i++) pins.setColorAt(i, red);
+        // Pins wrap around the strip, so the mesh's own bounds go stale.
+        pins.frustumCulled = false;
         group.add(pins);
         const glowGeo = new THREE.BufferGeometry();
         glowGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3).setUsage(THREE.DynamicDrawUsage));
@@ -248,7 +274,11 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
           const edge = ROWS / 2 + 4;
           const scanY = edge - smooth(Math.min(1, Math.max(0, sp))) * edge * 2;
 
+          // Marquee: slide every pin left and wrap it round the strip, off screen on both sides.
+          const shift = strip ? (t * MARQUEE_SPEED) % strip : 0;
+
           cells.forEach((cell, i) => {
+            if (strip) cell.x = ((((cell.u - shift + strip / 2) % strip) + strip) % strip) - strip / 2;
             const dx = cell.x - hit.x;
             const dy = cell.y - hit.y;
             const bump = strength * Math.exp(-(dx * dx + dy * dy) / 40);
@@ -289,5 +319,5 @@ export function PinWordmark({ text = "KEROSOP", short = "KERO" }: { text?: strin
     { fov: 24, clear: 0x000000 },
   );
 
-  return <div ref={ref} className="aspect-[76/30] w-full sm:aspect-[116/30]" />;
+  return <div ref={ref} className="aspect-[56/30] w-full sm:aspect-[116/30]" />;
 }

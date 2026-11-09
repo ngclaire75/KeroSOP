@@ -26,7 +26,7 @@ varying float vAlpha;
 void main() {
   float r = length(gl_PointCoord - 0.5);
   if (r > 0.5) discard;
-  float edge = smoothstep(0.5, 0.32, r);
+  float edge = smoothstep(0.5, 0.42, r);
   gl_FragColor = vec4(vec3(mix(0.5, 0.97, vTone)), edge * vAlpha);
 }
 `;
@@ -37,7 +37,7 @@ varying float vAlpha;
 void main() {
   float r = length(gl_PointCoord - 0.5);
   if (r > 0.5) discard;
-  gl_FragColor = vec4(0.89, 0.024, 0.075, smoothstep(0.5, 0.32, r) * vAlpha);
+  gl_FragColor = vec4(0.89, 0.024, 0.075, smoothstep(0.5, 0.42, r) * vAlpha);
 }
 `;
 
@@ -59,7 +59,7 @@ const EYE_FRAG = /* glsl */ `
 void main() {
   float r = length(gl_PointCoord - 0.5);
   if (r > 0.5) discard;
-  gl_FragColor = vec4(vec3(0.97), smoothstep(0.5, 0.32, r));
+  gl_FragColor = vec4(vec3(0.97), smoothstep(0.5, 0.42, r));
 }
 `;
 
@@ -70,6 +70,8 @@ void main() {
 function CatHead() {
   const hint = useRef<HTMLSpanElement>(null);
   const ref = useThreeScene(({ THREE, scene, camera, renderer, pointer }) => {
+    // The cat is small, so render it at the screen's full density even on phones (the shared cap is 1.5x there).
+    renderer.setPixelRatio(Math.min(3, window.devicePixelRatio || 1));
     const dpr = renderer.getPixelRatio();
     const RX = 1.15;
     const RY = 0.95;
