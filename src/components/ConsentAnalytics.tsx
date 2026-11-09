@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
-import { useConsent } from "@/lib/consent";
+import { analyticsAllowed, useConsent } from "@/lib/consent";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -11,7 +11,8 @@ export function ConsentAnalytics() {
   if (useConsent() !== "granted") return null;
   return (
     <>
-      <Analytics />
+      {/* Its script stays loaded after a withdrawal, so each event checks the choice again. */}
+      <Analytics beforeSend={(e) => (analyticsAllowed() ? e : null)} />
       {GA_ID ? (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />

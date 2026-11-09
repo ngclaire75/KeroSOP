@@ -25,13 +25,19 @@ function read(): Consent {
   }
 }
 
+/** Read at send time by analytics that are already running, so a change applies without a reload. */
+export const analyticsAllowed = () => read() === "granted";
+
 export function setConsent(analytics: boolean) {
   const was = read();
   try {
     localStorage.setItem(KEY, JSON.stringify({ v: VERSION, analytics, at: new Date().toISOString() }));
   } catch {}
+  // Google's own opt-out flag: a loaded gtag stops sending while it is set.
+  const ga = process.env.NEXT_PUBLIC_GA_ID;
+  if (ga) (window as unknown as Record<string, boolean>)[`ga-disable-${ga}`] = !analytics;
   window.dispatchEvent(new Event(EVENT));
-  // Scripts already running can't be unloaded: clear what they set and start clean.
+  // Scripts already loaded can't be unloaded, but they now send nothing; clear what they set.
   if (was === "granted" && !analytics) {
     for (const c of document.cookie.split(";")) {
       const name = c.split("=")[0].trim();
@@ -41,7 +47,6 @@ export function setConsent(analytics: boolean) {
         document.cookie = `${name}=; Max-Age=0; path=/${domain ? `; domain=${domain}` : ""}`;
       }
     }
-    location.reload();
   }
 }
 
