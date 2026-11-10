@@ -299,12 +299,11 @@ export function Audiences() {
         />
         <div className="relative mt-12 lg:mt-16">
           <ul ref={listRef} data-stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audiences.map((a, i) => (
+            {audiences.map((a) => (
               <li key={a.who} className="on-dark flex flex-col overflow-hidden rounded-[12px] bg-ink text-paper">
                 <div data-vis aria-hidden="true" className="aspect-[4/3] w-full" />
                 <div className="flex flex-1 flex-col px-6 pb-7">
-                  <span className="font-mono text-[length:calc(12px*var(--ts))] tracking-[0.18em] text-red">{String(i + 1).padStart(2, "0")}</span>
-                  <h3 className="mt-3 text-lg font-bold">{a.who}</h3>
+                  <h3 className="text-lg font-bold">{a.who}</h3>
                   <p className="mt-2 leading-[1.55] text-paper/60">{a.why}</p>
                 </div>
               </li>
