@@ -106,7 +106,8 @@ export function DocViewer({ doc, evidence, label }: Props) {
         const first = host.current?.querySelector<HTMLElement>("[data-page]");
         // exactly page 1 as drawn (Word pages are scaled with a transform, which every browser measures the same way)
         const box = host.current;
-        if (box) setPageH(Math.round(first ? first.getBoundingClientRect().height : box.clientWidth * A4));
+        // rounded up, so the bottom edge of the page border is never shaved off
+        if (box) setPageH(Math.ceil(first ? first.getBoundingClientRect().height : box.clientWidth * A4));
         scrollTo(1);
       });
     },
@@ -187,14 +188,13 @@ export function DocViewer({ doc, evidence, label }: Props) {
       {/* one page tall and fixed: only the ‹ › buttons and "Cited page" change the page; no box around it */}
       <div
         ref={host}
-        className={`kero-pages min-w-0 overflow-x-hidden ${error ? "flex-1" : ""} overflow-y-hidden overscroll-none rounded-[7px]`}
+        className={`kero-pages min-w-0 ${error ? "flex-1" : ""} overflow-hidden overscroll-none`}
         style={{
           height: error
             ? undefined
             : pageH || (width ? Math.round(width * A4) : undefined),
           scrollbarWidth: "none",
           overflowAnchor: "none",
-          clipPath: "inset(0 round 10px)",
         }}
       >
         {error ? (
@@ -490,6 +490,6 @@ function markDocxQuote(root: HTMLElement, quote: string): HTMLElement | null {
   para.dataset.keroMark = "";
   para.style.background = MARK;
   para.style.borderRadius = "3px";
-  para.style.boxShadow = "inset 3px 0 0 #e30613";
+  para.style.boxShadow = "inset 0 -2px 0 #e30613";
   return para;
 }
