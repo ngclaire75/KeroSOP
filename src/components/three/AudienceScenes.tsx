@@ -215,8 +215,9 @@ function buildPanels(THREE: Three, dpr: number): Panel[] {
   tagDots.renderOrder = 1;
   tag.add(tagDots);
   sway.add(tag);
+  shop.group.scale.setScalar(0.92);
   shop.camera.position.set(0, 1.0, 4.75);
-  shop.camera.lookAt(0, 0.38, 0);
+  shop.camera.lookAt(0, 0.24, 0);
   shop.update = (t) => {
     sway.rotation.y = -0.5 + Math.sin(t * 0.4) * 0.6;
     sway.rotation.z = Math.sin(t * 1.3) * 0.04;
