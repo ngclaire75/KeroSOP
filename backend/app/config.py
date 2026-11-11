@@ -35,6 +35,9 @@ class Settings:
     smtp_user: str = os.getenv("KEROSOP_SMTP_USER", "")
     smtp_password: str = os.getenv("KEROSOP_SMTP_PASSWORD", "")
     smtp_from: str = os.getenv("KEROSOP_SMTP_FROM", "")
+    # Preferred over SMTP when set: Resend's HTTPS API, for hosts that block outgoing SMTP (Railway does).
+    resend_api_key: str = os.getenv("KEROSOP_RESEND_API_KEY", "")
+    resend_from: str = os.getenv("KEROSOP_RESEND_FROM", "KeroSOP <onboarding@resend.dev>")
     # Testing only: accept "test:<uid>:<email>" bearer tokens instead of Firebase ID tokens.
     allow_test_tokens: bool = os.getenv("KEROSOP_ALLOW_TEST_TOKENS", "0") == "1"
 

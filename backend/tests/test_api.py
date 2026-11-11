@@ -36,6 +36,23 @@ def test_demo_request_opens_workspace_and_emails_admin(client, monkeypatch):
     assert bob.get("/v1/admin/access-requests").status_code == 404
 
 
+def test_mail_goes_through_resend_when_its_key_is_set(monkeypatch):
+    from app import mailer
+    calls = []
+
+    class Ok:
+        status_code = 200
+        text = ""
+
+    import dataclasses
+    monkeypatch.setattr(mailer, "settings", dataclasses.replace(mailer.settings, resend_api_key="re_test"))
+    monkeypatch.setattr(mailer.httpx, "post", lambda url, json, headers, timeout: calls.append((url, json, headers)) or Ok())
+    assert mailer.send(["admin@example.com"], "Hi", "Body", reply_to="bob@example.com")
+    url, payload, headers = calls[0]
+    assert url == "https://api.resend.com/emails" and headers["Authorization"] == "Bearer re_test"
+    assert payload["to"] == ["admin@example.com"] and payload["reply_to"] == "bob@example.com"
+
+
 def test_demo_request_creates_workspace(alice):
     me = alice.get("/v1/me").json()
     assert me["access"] == "approved" and me["orgs"][0]["name"] == "Acme Retail" and me["orgs"][0]["role"] == "owner"

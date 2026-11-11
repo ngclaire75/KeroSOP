@@ -100,6 +100,9 @@ export function RequestAccess() {
 
   const valid = form.name && form.company && form.companySize && form.jobTitle && form.region;
 
+  // Logged out (or not known yet): show nothing, so the page never flashes before the move to login
+  if (!user) return <div className="min-h-screen bg-paper" />;
+
   return (
     <div data-text-scale className="bg-paper">
       <header className="relative z-10">

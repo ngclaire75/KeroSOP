@@ -1,9 +1,11 @@
-"""Outgoing email over SMTP (Gmail with an app password works). Unconfigured, mail is logged instead of sent."""
+"""Outgoing email: Resend's HTTPS API when configured, else SMTP (Gmail with an app password works). Unconfigured, mail is logged instead of sent."""
 from __future__ import annotations
 
 import logging
 import smtplib
 import ssl
+
+import httpx
 from email.message import EmailMessage
 
 from .config import settings
@@ -14,6 +16,8 @@ log = logging.getLogger("kerosop.mail")
 def send(to: list[str], subject: str, body: str, reply_to: str | None = None) -> bool:
     if not to:
         return False
+    if settings.resend_api_key:
+        return _send_resend(to, subject, body, reply_to)
     if not settings.smtp_host:
         log.warning("SMTP not configured; would have sent %r to %s:\n%s", subject, ", ".join(to), body)
         return False
@@ -36,6 +40,21 @@ def send(to: list[str], subject: str, body: str, reply_to: str | None = None) ->
                 s.send_message(msg)
         return True
     except (smtplib.SMTPException, OSError):
+        log.exception("Could not send %r to %s", subject, ", ".join(to))
+        return False
+
+
+def _send_resend(to: list[str], subject: str, body: str, reply_to: str | None) -> bool:
+    payload: dict = {"from": settings.resend_from, "to": to, "subject": subject, "text": body}
+    if reply_to:
+        payload["reply_to"] = reply_to
+    try:
+        r = httpx.post("https://api.resend.com/emails", json=payload, headers={"Authorization": f"Bearer {settings.resend_api_key}"}, timeout=20)
+        if r.status_code >= 300:
+            log.error("Resend refused %r to %s: %s %s", subject, ", ".join(to), r.status_code, r.text[:300])
+            return False
+        return True
+    except httpx.HTTPError:
         log.exception("Could not send %r to %s", subject, ", ".join(to))
         return False
 
