@@ -30,9 +30,9 @@ def test_demo_request_opens_workspace_and_emails_admin(client, monkeypatch):
     me = bob.get("/v1/me").json()
     assert me["access"] == "approved" and me["orgs"][0]["name"] == "Bob Co" and me["orgs"][0]["role"] == "owner"
     assert sent == [(["admin@example.com"], "Demo request: Bob Co (Bob)", "bob@example.com")]
-    # sending the form twice does not create a second workspace or a second email
+    # sending the form again books another demo (the team is emailed again) but opens the same workspace
     assert bob.post("/v1/access-requests", req).json()["organization"] == r.json()["organization"]
-    assert len(bob.get("/v1/me").json()["orgs"]) == 1 and len(sent) == 1
+    assert len(bob.get("/v1/me").json()["orgs"]) == 1 and len(sent) == 2
     assert bob.get("/v1/admin/access-requests").status_code == 404
 
 

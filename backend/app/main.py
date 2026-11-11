@@ -111,6 +111,8 @@ class AccessRequest(BaseModel):
 @app.post("/v1/access-requests", status_code=201)
 def request_access(body: AccessRequest, tasks: BackgroundTasks, me: Identity = Depends(identify)):
     """A demo request: opens the company's workspace straight away and emails the KeroSOP team. No approval step."""
+    # every request reaches the team, including from someone who already has a workspace
+    tasks.add_task(mailer.demo_request, {**body.model_dump(), "email": me.email})
     with system() as conn:
         existing = one(conn, "SELECT organization_id FROM memberships WHERE user_id = :u AND role = 'owner' LIMIT 1", u=me.user_id)
         if existing:
@@ -126,7 +128,6 @@ def request_access(body: AccessRequest, tasks: BackgroundTasks, me: Identity = D
     with tenant(org, me.user_id) as conn:
         service.default_org_rows(conn, org, body.company)
         audit(conn, org, body.name, "created the workspace", body.company, None, "Demo requested", me.user_id)
-    tasks.add_task(mailer.demo_request, {**body.model_dump(), "email": me.email})
     return {"ok": True, "organization": str(org)}
 
 

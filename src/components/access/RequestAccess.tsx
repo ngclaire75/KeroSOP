@@ -29,7 +29,7 @@ const REGIONS = ["Singapore", "Malaysia", "Hong Kong", "Taiwan", "Mainland China
 const NOTE_MAX = 180;
 const dashboard = () => (window.location.hostname.startsWith("app.") ? "/" : "/app");
 const INPUT =
-  "quiet-focus h-[52px] w-full rounded-[10px] bg-fog px-4 text-[15px] text-ink outline-none transition-colors placeholder:text-mute/70 focus:bg-[#e6e6e2] focus-visible:outline-none";
+  "quiet-focus h-[52px] w-full rounded-[10px] bg-[#1c1c1c] px-4 text-[15px] text-paper outline-none transition-colors placeholder:text-paper/40 focus:bg-[#262626] focus-visible:outline-none";
 
 /**
  * Children fade in one after another when the group scrolls into view.
@@ -163,18 +163,18 @@ export function RequestAccess() {
       {/* 3. the form */}
       <section id="request" className="scroll-mt-6 pb-24">
         <Container>
-          <div className="rounded-[22px] border border-line px-6 pt-12 pb-6 sm:p-10 lg:p-14">
-            {!me && !error && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-mute">Checking your account…</p>}
+          <div className="on-dark rounded-[22px] bg-[#0b0b0b] px-6 pt-12 pb-6 text-paper sm:p-10 lg:p-14">
+            {!me && !error && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-paper/60">Checking your account…</p>}
             {error && !me && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-red">{error}</p>}
 
             {me && (
               <form onSubmit={submit} className="flex flex-col gap-10">
                 <Reveal className="text-center">
                   <h2 className="display text-[length:calc(clamp(2.6rem,5vw,4rem)*var(--ts))]">Book a demo</h2>
-                  <p className="mt-4 text-[length:calc(16px*var(--ts))] leading-[1.6] text-mute sm:whitespace-nowrap">Tell us about your team. It takes a minute, and your workspace opens as soon as you send it.</p>
-                  <p className="mt-3 text-[length:calc(13px*var(--ts))] leading-[1.6] text-mute">
+                  <p className="mt-4 text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70 sm:whitespace-nowrap">Tell us about your team. It takes a minute, and your workspace opens as soon as you send it.</p>
+                  <p className="mt-3 text-[length:calc(13px*var(--ts))] leading-[1.6] text-paper/55">
                     We use these details only to set up your workspace. See our{" "}
-                    <Link href="/privacy" className="underline underline-offset-4 hover:text-ink">
+                    <Link href="/privacy" className="underline underline-offset-4 hover:text-paper">
                       Privacy Policy
                     </Link>
                     .
@@ -190,8 +190,8 @@ export function RequestAccess() {
                   <Field label="Company" wide>
                     <input className={INPUT} required value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} autoComplete="organization" />
                   </Field>
-                  <Dropdown label="Company size" value={form.companySize} onChange={(v) => setForm({ ...form, companySize: v })} options={SIZES} />
-                  <Dropdown label="Where your teams are" value={form.region} onChange={(v) => setForm({ ...form, region: v })} options={REGIONS} />
+                  <Dropdown dark label="Company size" value={form.companySize} onChange={(v) => setForm({ ...form, companySize: v })} options={SIZES} />
+                  <Dropdown dark label="Where your teams are" value={form.region} onChange={(v) => setForm({ ...form, region: v })} options={REGIONS} />
                   <fieldset className="sm:col-span-2">
                     <legend className="mb-2 text-[length:calc(13px*var(--ts))] font-semibold">Document languages</legend>
                     <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ export function RequestAccess() {
                           type="button"
                           aria-pressed={langs.includes(l)}
                           onClick={() => setLangs(langs.includes(l) ? langs.filter((x) => x !== l) : [...langs, l])}
-                          className={`inline-flex h-11 items-center gap-2 rounded-full px-5 text-[length:calc(14px*var(--ts))] font-semibold transition-colors ${langs.includes(l) ? "bg-ink text-paper" : "bg-fog"}`}
+                          className={`inline-flex h-11 items-center gap-2 rounded-full px-5 text-[length:calc(14px*var(--ts))] font-semibold transition-colors ${langs.includes(l) ? "bg-paper text-ink" : "bg-[#1c1c1c] text-paper/80"}`}
                         >
                           {langs.includes(l) && <Icon name="check" className="size-4" weight="bold" />}
                           {l}
@@ -230,7 +230,7 @@ export function RequestAccess() {
                   </Field>
                   <div className="sm:col-span-2">
                     {error && <p className="mb-3 text-[length:calc(14px*var(--ts))] text-red">{error}</p>}
-                    <button type="submit" disabled={!valid || busy} className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-red text-[length:calc(16px*var(--ts))] font-semibold text-paper transition-colors hover:bg-red-deep disabled:opacity-45">
+                    <button type="submit" disabled={!valid || busy} className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-red text-[length:calc(16px*var(--ts))] font-semibold text-paper transition-colors hover:bg-red-deep disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-red">
                       {busy ? "Opening your workspace…" : "Book a demo"}
                     </button>
                   </div>
@@ -508,7 +508,7 @@ function Field({ label, children, wide, hint }: { label: string; children: React
       {/* label and counter share one line: the label truncates before the counter wraps */}
       <span className="flex items-baseline justify-between gap-3 text-[length:calc(13px*var(--ts))] font-semibold">
         <span className="min-w-0 truncate">{label}</span>
-        {hint && <span className="shrink-0 font-normal whitespace-nowrap text-mute tabular-nums">{hint}</span>}
+        {hint && <span className="shrink-0 font-normal whitespace-nowrap text-paper/50 tabular-nums">{hint}</span>}
       </span>
       {children}
     </label>

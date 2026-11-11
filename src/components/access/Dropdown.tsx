@@ -15,12 +15,15 @@ export function Dropdown({
   onChange,
   options,
   placeholder = "Choose…",
+  dark,
 }: {
   label: string;
   value: string;
   onChange(v: string): void;
   options: { value: string; label: string }[];
   placeholder?: string;
+  /** Light text on dark fields, for forms on a black panel. */
+  dark?: boolean;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -80,7 +83,7 @@ export function Dropdown({
   };
 
   return (
-    <div ref={root} className={`relative flex flex-col gap-2 ${open ? "z-40" : ""}`}>
+    <div ref={root} className={`relative flex flex-col gap-2 ${open ? "z-[200]" : ""}`}>
       <span id={`${id}-label`} className="text-[length:calc(13px*var(--ts))] font-semibold">
         {label}
       </span>
@@ -92,12 +95,12 @@ export function Dropdown({
         aria-labelledby={`${id}-label ${id}-value`}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
-        className="quiet-focus flex h-[52px] w-full items-center justify-between gap-3 rounded-[10px] bg-fog px-4 text-left text-[15px] outline-none transition-colors focus-visible:bg-[#e6e6e2]"
+        className={`quiet-focus flex h-[52px] w-full items-center justify-between gap-3 rounded-[10px] px-4 text-left text-[15px] outline-none transition-colors ${dark ? "bg-[#1c1c1c] focus-visible:bg-[#262626]" : "bg-fog focus-visible:bg-[#e6e6e2]"}`}
       >
-        <span id={`${id}-value`} className={current ? "text-ink" : "text-mute"}>
+        <span id={`${id}-value`} className={dark ? (current ? "text-paper" : "text-paper/40") : current ? "text-ink" : "text-mute"}>
           {current?.label ?? placeholder}
         </span>
-        <span className={`grid size-7 place-items-center rounded-full bg-paper transition-transform duration-300 ${open ? "rotate-180" : ""}`}>
+        <span className={`grid size-7 place-items-center rounded-full transition-transform ${dark ? "bg-paper/10 text-paper" : "bg-paper"} duration-300 ${open ? "rotate-180" : ""}`}>
           <Icon name="down" className="size-3.5" weight="bold" />
         </span>
       </button>
@@ -107,7 +110,7 @@ export function Dropdown({
           role="listbox"
           aria-labelledby={`${id}-label`}
           tabIndex={-1}
-          className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 max-h-[280px] overflow-y-auto overscroll-contain rounded-[12px] border border-line bg-paper p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className={`absolute top-[calc(100%+6px)] right-0 left-0 z-[200] max-h-[280px] overflow-y-auto overscroll-contain rounded-[12px] p-1.5 ${dark ? "bg-paper text-ink shadow-[0_18px_40px_rgba(0,0,0,0.45)]" : "border border-line bg-paper"} [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
         >
           {options.map((o, i) => (
             <li
@@ -119,10 +122,10 @@ export function Dropdown({
                 e.preventDefault();
                 pick(i);
               }}
-              className={`flex cursor-pointer items-center justify-between gap-3 rounded-[7px] px-3 py-2.5 text-[15px] ${i === active ? "bg-fog" : ""}`}
+              className={`flex cursor-pointer items-center justify-between gap-3 rounded-[7px] px-3 py-2.5 text-[15px] ${i === active ? (dark ? "bg-red text-paper" : "bg-fog") : ""}`}
             >
               {o.label}
-              {o.value === value && <Icon name="check" className="size-4 text-red" weight="fill" />}
+              {o.value === value && <Icon name="check" className={`size-4 ${dark && i === active ? "text-paper" : "text-red"}`} weight="fill" />}
             </li>
           ))}
         </ul>
