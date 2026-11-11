@@ -595,9 +595,11 @@ export function Modal({
   // close only when the whole click happens on the backdrop, not when a press or drag merely ends there
   const downOnBackdrop = useRef(false);
   if (!open) return null;
-  return (
+  // portalled to <body>: inside a card, an animated or blurred ancestor would pin the overlay to
+  // that card; from the body it always covers and blurs the whole page, with the panel centred
+  return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-6"
+      className={`fixed inset-0 z-[80] flex items-center justify-center bg-ink/40 backdrop-blur-[2px] ${fullOnMobile ? "p-0 sm:p-6" : "p-4 sm:p-6"}`}
       onMouseDown={(e) => (downOnBackdrop.current = e.target === e.currentTarget)}
       onClick={(e) => downOnBackdrop.current && e.target === e.currentTarget && onClose()}
     >
@@ -606,7 +608,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex w-full flex-col overflow-hidden bg-paper text-ink shadow-2xl sm:max-h-[92dvh] sm:rounded-[9px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[9px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
+        className={`flex w-full flex-col overflow-hidden bg-paper text-ink shadow-2xl sm:max-h-[92dvh] sm:rounded-[9px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-[9px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
       >
         <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-1">
           <h2 className="text-[17px] font-bold">{title}</h2>
@@ -617,7 +619,8 @@ export function Modal({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
         {footer && <footer className="flex flex-wrap justify-end gap-2 px-5 pt-1 pb-5">{footer}</footer>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -625,7 +628,7 @@ export function Drawer({ open, onClose, title, children, footer }: { open: boole
   const ref = useEnter(open, { translateX: [40, 0], opacity: [0, 1] });
   usePanelLock(open, ref, onClose);
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[70] flex justify-end bg-ink/30 backdrop-blur-[1px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" className="flex h-full w-full max-w-[640px] flex-col bg-paper text-ink shadow-2xl">
         <header className="flex items-start justify-between gap-4 px-5 py-4">
@@ -637,7 +640,8 @@ export function Drawer({ open, onClose, title, children, footer }: { open: boole
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
         {footer && <footer className="flex flex-wrap justify-end gap-2 px-5 py-4">{footer}</footer>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
