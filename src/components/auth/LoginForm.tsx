@@ -35,10 +35,10 @@ export function LoginForm() {
     keepPreference().then(setRemember);
   }, []);
 
-  // already signed in: go straight to the dashboard
+  // already signed in: go straight on (dashboard for the admin, Book a demo for everyone else)
   const user = useAuthUser();
   useEffect(() => {
-    if (user) window.location.replace(afterLogin());
+    if (user) afterLogin().then((to) => window.location.replace(to));
   }, [user]);
 
   const submit = async (e: FormEvent) => {
@@ -70,7 +70,7 @@ export function LoginForm() {
     }
     setState("done");
     sendAuth({ type: "success" });
-    window.setTimeout(() => window.location.assign(afterLogin()), 900);
+    window.setTimeout(() => afterLogin().then((to) => window.location.assign(to)), 900);
   };
 
   if (view === "reset")
@@ -129,7 +129,7 @@ export function LoginForm() {
         onSuccess={() => {
           setState("done");
           sendAuth({ type: "success" });
-          window.setTimeout(() => window.location.assign(afterLogin()), 900);
+          window.setTimeout(() => afterLogin().then((to) => window.location.assign(to)), 900);
         }}
       />
 

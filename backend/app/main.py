@@ -49,6 +49,9 @@ class Ctx:
 
 
 def workspace(me: Identity = Depends(identify), x_org_id: str = Header(default="")) -> Ctx:
+    # the dashboard is open to KeroSOP administrators only; everyone else books a demo
+    if not me.is_admin:
+        raise HTTPException(403, "Book a demo to get access to KeroSOP.")
     """The caller's role in the organisation named by X-Org-Id (membership checked, then RLS-scoped)."""
     try:
         org = UUID(x_org_id)
@@ -93,7 +96,7 @@ def me_(me: Identity = Depends(identify)):
     return {
         "user": {"id": str(me.user_id), "email": me.email, "name": me.name},
         "isAdmin": me.is_admin,
-        "access": "approved" if orgs or me.is_admin else "none",
+        "access": "approved" if me.is_admin else "none",
         "orgs": [{"id": str(o["id"]), "name": o["name"], "isDemo": o["is_demo"], "role": o["role"]} for o in orgs],
     }
 
@@ -110,9 +113,20 @@ class AccessRequest(BaseModel):
 
 @app.post("/v1/access-requests", status_code=201)
 def request_access(body: AccessRequest, tasks: BackgroundTasks, me: Identity = Depends(identify)):
-    """A demo request: opens the company's workspace straight away and emails the KeroSOP team. No approval step."""
+    """A demo request: emails the KeroSOP team and records it. Only administrators get a workspace from it."""
     # every request reaches the team, including from someone who already has a workspace
     tasks.add_task(mailer.demo_request, {**body.model_dump(), "email": me.email})
+    fields = {"u": me.user_id, "e": me.email, "n": body.name, "c": body.company, "s": body.companySize, "j": body.jobTitle,
+              "r": body.region, "l": body.languages, "uc": body.useCase}
+    if not me.is_admin:
+        with system() as conn:
+            conn.execute(text("""INSERT INTO access_requests (user_id, email, name, company, company_size, job_title, region, languages, use_case)
+                                 VALUES (:u,:e,:n,:c,:s,:j,:r,:l,:uc)
+                                 ON CONFLICT (user_id) WHERE status = 'pending' DO UPDATE SET
+                                   name = EXCLUDED.name, company = EXCLUDED.company, company_size = EXCLUDED.company_size,
+                                   job_title = EXCLUDED.job_title, region = EXCLUDED.region, languages = EXCLUDED.languages,
+                                   use_case = EXCLUDED.use_case, created_at = now()"""), fields)
+        return {"ok": True, "organization": None}
     with system() as conn:
         existing = one(conn, "SELECT organization_id FROM memberships WHERE user_id = :u AND role = 'owner' LIMIT 1", u=me.user_id)
         if existing:
@@ -122,9 +136,7 @@ def request_access(body: AccessRequest, tasks: BackgroundTasks, me: Identity = D
                      {"o": org, "u": me.user_id, "n": body.name, "e": me.email})
         conn.execute(text("""INSERT INTO access_requests (user_id, email, name, company, company_size, job_title, region, languages, use_case,
                                                           status, decided_at, organization_id)
-                             VALUES (:u,:e,:n,:c,:s,:j,:r,:l,:uc,'approved',now(),:o)"""),
-                     {"u": me.user_id, "e": me.email, "n": body.name, "c": body.company, "s": body.companySize, "j": body.jobTitle,
-                      "r": body.region, "l": body.languages, "uc": body.useCase, "o": org})
+                             VALUES (:u,:e,:n,:c,:s,:j,:r,:l,:uc,'approved',now(),:o)"""), {**fields, "o": org})
     with tenant(org, me.user_id) as conn:
         service.default_org_rows(conn, org, body.company)
         audit(conn, org, body.name, "created the workspace", body.company, None, "Demo requested", me.user_id)

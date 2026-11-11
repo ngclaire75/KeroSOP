@@ -37,15 +37,13 @@ export function AppRoot({ children }: { children: ReactNode }) {
     if (!user) return;
     api<Me>("/v1/me")
       .then(async (m) => {
+        // the dashboard is for the KeroSOP administrator only; everyone else books a demo
+        if (!m.isAdmin) return window.location.replace("/request-access");
         if (m.orgs.length) return setMe(m);
-        // a KeroSOP administrator without a workspace of their own opens the demo one
-        if (m.isAdmin) {
-          const { organization } = await api<{ organization: string }>("/v1/admin/demo", { method: "POST" });
-          setOrg(organization);
-          return setMe(await api<Me>("/v1/me"));
-        }
-        // everyone else books a demo first, which opens their workspace
-        window.location.replace("/request-access");
+        // the administrator without a workspace of their own opens the demo one
+        const { organization } = await api<{ organization: string }>("/v1/admin/demo", { method: "POST" });
+        setOrg(organization);
+        setMe(await api<Me>("/v1/me"));
       })
       .catch((e) => setError((e as Error).message));
   }, [user]);

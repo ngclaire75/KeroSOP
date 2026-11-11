@@ -18,7 +18,7 @@ def finding_types(u):
 
 # ---------- access ----------
 
-def test_demo_request_opens_workspace_and_emails_admin(client, monkeypatch):
+def test_demo_request_emails_admin_but_opens_no_workspace(client, monkeypatch):
     sent = []
     monkeypatch.setattr("app.mailer.send", lambda to, subject, body, reply_to=None: sent.append((to, subject, reply_to)) or True)
     bob = User(client, "bob", "bob@example.com")
@@ -26,14 +26,24 @@ def test_demo_request_opens_workspace_and_emails_admin(client, monkeypatch):
     assert me["access"] == "none" and me["orgs"] == []
     req = {"name": "Bob", "company": "Bob Co", "companySize": "1-49", "jobTitle": "Owner", "region": "Malaysia"}
     r = bob.post("/v1/access-requests", req)
-    assert r.status_code == 201
+    assert r.status_code == 201 and r.json()["organization"] is None
     me = bob.get("/v1/me").json()
-    assert me["access"] == "approved" and me["orgs"][0]["name"] == "Bob Co" and me["orgs"][0]["role"] == "owner"
-    assert sent == [(["admin@example.com"], "Demo request: Bob Co (Bob)", "bob@example.com")]
-    # sending the form again books another demo (the team is emailed again) but opens the same workspace
-    assert bob.post("/v1/access-requests", req).json()["organization"] == r.json()["organization"]
-    assert len(bob.get("/v1/me").json()["orgs"]) == 1 and len(sent) == 2
+    assert me["access"] == "none" and me["orgs"] == []
+    assert sent == [(["admin@example.com", "alice@acme.example"], "Demo request: Bob Co (Bob)", "bob@example.com")]
+    # sending the form again books another demo (the team is emailed again) and keeps one open request
+    assert bob.post("/v1/access-requests", req).status_code == 201 and len(sent) == 2
+    with system() as conn:
+        assert conn.execute(text("SELECT count(*) FROM access_requests WHERE status = 'pending'")).scalar() == 1
     assert bob.get("/v1/admin/access-requests").status_code == 404
+
+
+def test_only_admins_reach_a_workspace(client, alice):
+    # a non-admin invited into an admin's workspace still cannot open the dashboard
+    alice.post("/v1/members", {"name": "Bob", "email": "bob@example.com", "role": "viewer"})
+    bob = User(client, "bob", "bob@example.com")
+    bob.org = alice.org
+    assert bob.get("/v1/me").json()["access"] == "none"
+    assert bob.get("/v1/workspace").status_code == 403
 
 
 def test_mail_goes_through_resend_when_its_key_is_set(monkeypatch):

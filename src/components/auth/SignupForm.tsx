@@ -121,7 +121,7 @@ export function SignupForm() {
         onSuccess={() => {
           setState("done");
           sendAuth({ type: "success" });
-          window.setTimeout(() => window.location.assign(afterLogin()), 900);
+          window.setTimeout(() => afterLogin().then((to) => window.location.assign(to)), 900);
         }}
       />
 

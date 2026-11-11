@@ -591,6 +591,7 @@ export function Modal({
 }) {
   const ref = useEnter(open, { opacity: [0, 1], translateY: [16, 0] });
   usePanelLock(open, ref, onClose);
+  // text-ink on the panel: a modal opened from a black card must not inherit its white text
   // close only when the whole click happens on the backdrop, not when a press or drag merely ends there
   const downOnBackdrop = useRef(false);
   if (!open) return null;
@@ -605,7 +606,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`flex w-full flex-col overflow-hidden bg-paper shadow-2xl sm:max-h-[92dvh] sm:rounded-[9px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[9px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
+        className={`flex w-full flex-col overflow-hidden bg-paper text-ink shadow-2xl sm:max-h-[92dvh] sm:rounded-[9px] ${fullOnMobile ? "h-dvh max-sm:max-h-none sm:h-auto" : "max-h-[92dvh] rounded-t-[9px]"} ${wide ? "sm:max-w-[860px]" : "sm:max-w-[540px]"}`}
       >
         <header className="flex items-center justify-between gap-4 px-5 pt-5 pb-1">
           <h2 className="text-[17px] font-bold">{title}</h2>
@@ -626,7 +627,7 @@ export function Drawer({ open, onClose, title, children, footer }: { open: boole
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[70] flex justify-end bg-ink/30 backdrop-blur-[1px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={ref} role="dialog" aria-modal="true" className="flex h-full w-full max-w-[640px] flex-col bg-paper shadow-2xl">
+      <div ref={ref} role="dialog" aria-modal="true" className="flex h-full w-full max-w-[640px] flex-col bg-paper text-ink shadow-2xl">
         <header className="flex items-start justify-between gap-4 px-5 py-4">
           <div className="min-w-0 text-[17px] font-bold">{title}</div>
           <button type="button" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-full" aria-label="Close">

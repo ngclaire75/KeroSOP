@@ -9,7 +9,8 @@ os.environ.setdefault("KEROSOP_DATABASE_URL", "postgresql+psycopg://localhost:54
 os.environ.setdefault("KEROSOP_APP_DATABASE_URL", "postgresql+psycopg://kerosop_app:kerosop_app@localhost:5433/kerosop_test")
 os.environ["KEROSOP_ALLOW_TEST_TOKENS"] = "1"
 os.environ.setdefault("KEROSOP_LLM_ENABLED", "0")
-os.environ["KEROSOP_ADMIN_EMAILS"] = "admin@example.com"
+# only administrators reach the dashboard, so the workspace tests sign in as one
+os.environ["KEROSOP_ADMIN_EMAILS"] = "admin@example.com,alice@acme.example"
 os.environ["KEROSOP_STORAGE_DIR"] = tempfile.mkdtemp(prefix="kerosop-test-")
 
 import time  # noqa: E402

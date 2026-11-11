@@ -139,8 +139,14 @@ export async function logOut() {
   await signOut(auth);
 }
 
-/** Where to go after signing in: the page that sent you to login, or the dashboard. */
-export function afterLogin() {
+/** The only account that opens the dashboard; the API checks the same list (KEROSOP_ADMIN_EMAILS). */
+const ADMINS = ["ngclaire75@gmail.com"];
+export const isAdminEmail = (email?: string | null) => !!email && ADMINS.includes(email.trim().toLowerCase());
+
+/** Where to go after signing in: the admin goes on to the dashboard, everyone else books a demo. */
+export async function afterLogin() {
+  const { auth } = await load();
+  if (!isAdminEmail(auth.currentUser?.email)) return "/request-access";
   const next = new URLSearchParams(window.location.search).get("next");
   if (next && next.startsWith("/") && !next.startsWith("//")) return next;
   return window.location.hostname.startsWith("app.") ? "/" : "/app";

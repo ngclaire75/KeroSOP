@@ -4,8 +4,8 @@
  * Where every new account lands after signing up, laid out like the landing
  * page: sections stacked one after another, with anime.js bringing each
  * section's text and items in as it scrolls into view.
- * Sending the form books a demo: the KeroSOP team is emailed, the company's
- * workspace opens straight away and the browser goes on to the dashboard.
+ * Sending the form books a demo: the KeroSOP team is emailed and gets back to
+ * book the walkthrough. Only the KeroSOP administrator goes on to the dashboard.
  */
 import Image from "next/image";
 import Link from "next/link";
@@ -62,6 +62,7 @@ export function RequestAccess() {
   const [me, setMe] = useState<Me | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ name: "", company: "", companySize: "", jobTitle: "", region: "", useCase: "" });
   const [langs, setLangs] = useState<string[]>(["English", "中文"]);
 
@@ -70,8 +71,7 @@ export function RequestAccess() {
     if (!user) return;
     api<Me>("/v1/me")
       .then((m) => {
-        // Book a demo always shows this page, even for people who already have a workspace;
-        // submitting then opens their existing workspace rather than a second one (see the API)
+        // Book a demo always shows this page; only the administrator goes on to the dashboard from it
         setMe(m);
         let company = "";
         try {
@@ -87,7 +87,12 @@ export function RequestAccess() {
     setBusy(true);
     setError("");
     try {
-      const { organization } = await api<{ organization: string }>("/v1/access-requests", { method: "POST", json: { ...form, languages: langs } });
+      const { organization } = await api<{ organization: string | null }>("/v1/access-requests", { method: "POST", json: { ...form, languages: langs } });
+      if (!me?.isAdmin || !organization) {
+        setBusy(false);
+        setSent(true);
+        return;
+      }
       try {
         localStorage.setItem("kerosop:org", organization);
       } catch {}
@@ -131,7 +136,7 @@ export function RequestAccess() {
           <BlurText className="font-mono text-[length:calc(12px*var(--ts))] tracking-[0.18em] text-mute uppercase">Book a demo</BlurText>
           <Heading as="h1" className="mx-auto mt-5 max-w-[980px] text-[length:calc(clamp(3rem,8vw,6.4rem)*var(--ts))]" lines={["See KeroSOP on", <span key="r" className="text-red">your own SOPs.</span>]} />
           <BlurText className="mx-auto mt-6 max-w-[620px] text-[length:calc(17px*var(--ts))] leading-[1.6] text-mute">
-            Tell us about your team and your workspace opens straight away. We will also email you to book a 30-minute walkthrough on your own documents.
+            Tell us about your team and we will email you to book a 30-minute walkthrough on your own documents.
           </BlurText>
           <Reveal className="mt-9 flex flex-wrap justify-center gap-3" delay={500}>
             <a href="#request" className="inline-flex h-12 items-center rounded-full bg-red px-7 text-[length:calc(15px*var(--ts))] font-semibold text-paper hover:bg-red-deep">
@@ -170,13 +175,22 @@ export function RequestAccess() {
             {!me && !error && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-paper/60">Checking your account…</p>}
             {error && !me && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-red">{error}</p>}
 
-            {me && (
+            {me && sent && (
+              <div role="status" className="py-16 text-center">
+                <h2 className="display text-[length:calc(clamp(2.6rem,5vw,4rem)*var(--ts))]">Demo requested</h2>
+                <p className="mx-auto mt-4 max-w-[520px] text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70">
+                  Thanks. We will email {me.user.email} to book your walkthrough.
+                </p>
+              </div>
+            )}
+
+            {me && !sent && (
               <form onSubmit={submit} className="flex flex-col gap-10">
                 <Reveal className="text-center">
                   <h2 className="display text-[length:calc(clamp(2.6rem,5vw,4rem)*var(--ts))]">Book a demo</h2>
-                  <p className="mt-4 text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70 sm:whitespace-nowrap">Tell us about your team. It takes a minute, and your workspace opens as soon as you send it.</p>
+                  <p className="mt-4 text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70 sm:whitespace-nowrap">Tell us about your team. It takes a minute, and we reply by email.</p>
                   <p className="mt-3 text-[length:calc(13px*var(--ts))] leading-[1.6] text-paper/55">
-                    We use these details only to set up your workspace. See our{" "}
+                    We use these details only to arrange your demo. See our{" "}
                     <Link href="/privacy" className="underline underline-offset-4 hover:text-paper">
                       Privacy Policy
                     </Link>
@@ -234,7 +248,7 @@ export function RequestAccess() {
                   <div className="sm:col-span-2">
                     {error && <p className="mb-3 text-[length:calc(14px*var(--ts))] text-red">{error}</p>}
                     <button type="submit" disabled={!valid || busy} className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-red text-[length:calc(16px*var(--ts))] font-semibold text-paper transition-colors hover:bg-red-deep disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-red">
-                      {busy ? "Opening your workspace…" : "Book a demo"}
+                      {busy ? "Sending…" : "Book a demo"}
                     </button>
                   </div>
                 </Reveal>
@@ -254,7 +268,7 @@ export function RequestAccess() {
             </div>
             <ol className="mt-12 grid gap-4 md:grid-cols-3">
               {[
-                ["Your workspace opens", "Send the form and you land in your dashboard, ready to upload documents and invite reviewers."],
+                ["We get in touch", "Send the form and the KeroSOP team emails you to find a time that suits you."],
                 ["A 30-minute walkthrough", "We scan a few of your own documents, in English or Chinese, and go through the findings together."],
                 ["Find the first conflicts", "Run your first scan and keep every finding, with the exact clauses on both sides."],
               ].map(([t, d], i) => (
