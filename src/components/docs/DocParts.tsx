@@ -25,7 +25,7 @@ export function DocHeader() {
             <Logo className="block h-7 w-auto" />
           </Link>
           <Button href="/signup" size="sm" variant="black">
-            Sign up / Log in
+            Sign up
           </Button>
         </div>
       </Container>

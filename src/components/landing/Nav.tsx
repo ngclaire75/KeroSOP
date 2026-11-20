@@ -158,7 +158,7 @@ export function Nav() {
                     onColour ? "text-paper/75 hover:text-paper" : "text-ink/65 hover:text-ink"
                   }`}
                 >
-                  Sign up / Log in
+                  Sign up
                 </a>
                 <Button href="/request-access" size="sm" variant={onColour ? "white" : "black"}>
                   Book a sample audit
