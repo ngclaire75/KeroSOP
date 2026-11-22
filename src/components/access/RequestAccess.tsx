@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Where every new account lands after signing up, laid out like the landing
+ * The public demo request page, laid out like the landing
  * page: sections stacked one after another, with anime.js bringing each
  * section's text and items in as it scrolls into view.
  * Sending the form books a demo: the KeroSOP team is emailed and gets back to
- * book the walkthrough. Only the KeroSOP administrator goes on to the dashboard.
+ * book the walkthrough.
  */
 import Image from "next/image";
 import Link from "next/link";
@@ -17,17 +17,13 @@ import { DocFooter } from "@/components/docs/DocParts";
 import { Container, Logo } from "@/components/ui";
 import { useOnView } from "@/lib/anim";
 import { prefersReducedMotion } from "@/lib/random";
-import { api } from "@/lib/app/api";
-import { useAuthUser } from "@/lib/app/nav";
-import type { Me } from "@/lib/app/types";
-import { logOut } from "@/lib/auth";
+import { API } from "@/lib/app/api";
 import { Dropdown } from "./Dropdown";
 
 const SIZES = ["1-49", "50-199", "200-999", "1000-4999", "5000+"].map((s) => ({ value: s, label: `${s} people` }));
 const REGIONS = ["Singapore", "Malaysia", "Hong Kong", "Taiwan", "Mainland China", "Indonesia", "Other"].map((r) => ({ value: r, label: r }));
 /** Fits the fixed note box on the narrowest phone without scrolling. */
 const NOTE_MAX = 180;
-const dashboard = () => (window.location.hostname.startsWith("app.") ? "/" : "/app");
 const INPUT =
   "quiet-focus h-[52px] w-full rounded-[10px] bg-[#1c1c1c] px-4 text-[15px] text-paper outline-none transition-colors placeholder:text-paper/40 focus:bg-[#262626] focus-visible:outline-none";
 
@@ -58,74 +54,44 @@ function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; 
 }
 
 export function RequestAccess() {
-  const user = useAuthUser();
-  const [me, setMe] = useState<Me | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
-  const [form, setForm] = useState({ name: "", company: "", companySize: "", jobTitle: "", region: "", useCase: "" });
+  const [form, setForm] = useState({ name: "", email: "", company: "", companySize: "", jobTitle: "", region: "", useCase: "" });
   const [langs, setLangs] = useState<string[]>(["English", "中文"]);
-
-  useEffect(() => {
-    if (user === null) window.location.replace("/login?next=/request-access");
-    if (!user) return;
-    api<Me>("/v1/me")
-      .then((m) => {
-        // Book a demo always shows this page; only the administrator goes on to the dashboard from it
-        setMe(m);
-        let company = "";
-        try {
-          company = localStorage.getItem(`kerosop:company:${m.user.email}`) ?? "";
-        } catch {}
-        setForm((f) => ({ ...f, name: f.name || m.user.name, company: f.company || company }));
-      })
-      .catch((e) => setError((e as Error).message));
-  }, [user]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
-      const { organization } = await api<{ organization: string | null }>("/v1/access-requests", { method: "POST", json: { ...form, languages: langs } });
-      if (!me?.isAdmin || !organization) {
-        setBusy(false);
-        setSent(true);
-        return;
+      const response = await fetch(`${API}/v1/demo-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, languages: langs }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error ?? "Could not send your request. Please try again.");
       }
-      try {
-        localStorage.setItem("kerosop:org", organization);
-      } catch {}
-      window.location.replace(dashboard());
+      setSent(true);
+      setBusy(false);
     } catch (err) {
       setError((err as Error).message);
       setBusy(false);
     }
   };
 
-  const valid = form.name && form.company && form.companySize && form.jobTitle && form.region;
-
-  // Logged out (or not known yet): show nothing, so the page never flashes before the move to login
-  if (!user) return <div className="min-h-screen bg-paper" />;
+  const valid = form.name && form.email && form.company && form.companySize && form.jobTitle && form.region;
 
   return (
-    <div data-text-scale className="bg-paper">
+    <div data-text-scale data-demo-page className="bg-paper">
       <header className="relative z-10">
         <Container>
           <div className="flex h-[76px] items-center justify-between gap-4">
             <Link href="/" aria-label="KeroSOP home">
               <Logo className="block h-7 w-auto" />
             </Link>
-            <div className="flex items-center gap-4 text-[length:calc(14px*var(--ts))]">
-              <span className="hidden truncate text-mute sm:inline">{me?.user.email}</span>
-              <button
-                type="button"
-                onClick={() => logOut().then(() => window.location.assign("/login"))}
-                className="inline-flex h-10 items-center rounded-full bg-ink px-5 font-semibold text-paper hover:bg-red"
-              >
-                Log out
-              </button>
-            </div>
           </div>
         </Container>
       </header>
@@ -172,19 +138,16 @@ export function RequestAccess() {
       <section id="request" className="scroll-mt-6 pb-24">
         <Container>
           <div className="on-dark rounded-[22px] bg-[#0b0b0b] px-6 pt-12 pb-6 text-paper sm:p-10 lg:p-14">
-            {!me && !error && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-paper/60">Checking your account…</p>}
-            {error && !me && <p className="py-16 text-center text-[length:calc(15px*var(--ts))] text-red">{error}</p>}
-
-            {me && sent && (
+            {sent && (
               <div role="status" className="py-16 text-center">
                 <h2 className="display text-[length:calc(clamp(2.6rem,5vw,4rem)*var(--ts))]">Demo requested</h2>
                 <p className="mx-auto mt-4 max-w-[520px] text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70">
-                  Thanks. We will email {me.user.email} to book your walkthrough.
+                  Thanks. We will email {form.email} to book your walkthrough.
                 </p>
               </div>
             )}
 
-            {me && !sent && (
+            {!sent && (
               <form onSubmit={submit} className="flex flex-col gap-10">
                 <Reveal className="text-center">
                   <h2 className="display text-[length:calc(clamp(2.6rem,5vw,4rem)*var(--ts))]">Book a demo</h2>
@@ -200,6 +163,9 @@ export function RequestAccess() {
                 <Reveal className="grid gap-5 sm:grid-cols-2" delay={150}>
                   <Field label="Your name">
                     <input className={INPUT} required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" />
+                  </Field>
+                  <Field label="Work email">
+                    <input className={INPUT} type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" />
                   </Field>
                   <Field label="Job title">
                     <input className={INPUT} required value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} autoComplete="organization-title" placeholder="Head of Operations" />
@@ -297,11 +263,9 @@ export function RequestAccess() {
                 <span className="text-red">One conflict.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-[520px] text-[length:calc(16px*var(--ts))] leading-[1.6] text-paper/70">Find it before your customers or your staff do.</p>
-              {me && (
-                <a href="#request" className="mt-9 inline-flex h-12 items-center rounded-full bg-red px-7 text-[length:calc(15px*var(--ts))] font-semibold text-paper hover:bg-red-deep">
-                  Book a demo
-                </a>
-              )}
+              <a href="#request" className="mt-9 inline-flex h-12 items-center rounded-full bg-red px-7 text-[length:calc(15px*var(--ts))] font-semibold text-paper hover:bg-red-deep">
+                Book a demo
+              </a>
             </div>
           </Reveal>
         </Container>

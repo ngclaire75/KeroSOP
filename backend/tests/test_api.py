@@ -37,6 +37,17 @@ def test_demo_request_emails_admin_but_opens_no_workspace(client, monkeypatch):
     assert bob.get("/v1/admin/access-requests").status_code == 404
 
 
+def test_public_demo_request_without_account(client, monkeypatch):
+    sent = []
+    monkeypatch.setattr("app.mailer.send", lambda to, subject, body, reply_to=None: sent.append(reply_to) or True)
+    request = {"name": "Guest", "email": "guest@example.com", "company": "Guest Co", "companySize": "1-49", "jobTitle": "Owner", "region": "Malaysia"}
+    assert client.post("/v1/demo-requests", json=request).status_code == 201
+    assert sent == ["guest@example.com"]
+    with system() as conn:
+        assert conn.execute(text("SELECT count(*) FROM access_requests WHERE user_id IS NULL AND email = 'guest@example.com'")).scalar() == 1
+    assert client.post("/v1/demo-requests", json={**request, "email": "invalid"}).status_code == 422
+
+
 def test_only_admins_reach_a_workspace(client, alice):
     # a non-admin invited into an admin's workspace still cannot open the dashboard
     alice.post("/v1/members", {"name": "Bob", "email": "bob@example.com", "role": "viewer"})

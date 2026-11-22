@@ -111,6 +111,22 @@ class AccessRequest(BaseModel):
     useCase: str = Field(default="", max_length=2000)
 
 
+class PublicDemoRequest(AccessRequest):
+    email: str = Field(min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
+@app.post("/v1/demo-requests", status_code=201)
+def public_demo_request(body: PublicDemoRequest, tasks: BackgroundTasks):
+    """Record a demo request without requiring an account."""
+    fields = {"e": body.email, "n": body.name, "c": body.company, "s": body.companySize,
+              "j": body.jobTitle, "r": body.region, "l": body.languages, "uc": body.useCase}
+    with system() as conn:
+        conn.execute(text("""INSERT INTO access_requests (email, name, company, company_size, job_title, region, languages, use_case)
+                             VALUES (:e,:n,:c,:s,:j,:r,:l,:uc)"""), fields)
+    tasks.add_task(mailer.demo_request, body.model_dump())
+    return {"ok": True}
+
+
 @app.post("/v1/access-requests", status_code=201)
 def request_access(body: AccessRequest, tasks: BackgroundTasks, me: Identity = Depends(identify)):
     """A demo request: emails the KeroSOP team and records it. Only administrators get a workspace from it."""

@@ -490,3 +490,10 @@ canvas {
     padding: 4px 8px;
   }
 }
+
+/* Smoothly navigate between sections on the demo page. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has([data-demo-page]) {
+    scroll-behavior: smooth;
+  }
+}
