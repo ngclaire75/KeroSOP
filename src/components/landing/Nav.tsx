@@ -89,7 +89,7 @@ export function Nav() {
   }, [open]);
 
   const close = () => setOpen(false);
-  const onColour = scrolled || open;
+  const onColour = true;
   const pillColour = onColour ? "bg-white/12" : "bg-ink/[0.06]";
 
   return (
@@ -98,7 +98,7 @@ export function Nav() {
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,color] duration-300 ${
           // The grey bar stays while the menu is open: the menu wipes in from the button, so a
           // transparent header left the logo floating over the page until the wipe reached it.
-          onColour ? "bg-[#141414] text-paper" : "bg-transparent text-ink"
+          scrolled || open ? "bg-[#141414] text-paper" : "bg-transparent text-paper"
         }`}
       >
         <Container>

@@ -2,12 +2,13 @@ import { Fragment } from "react";
 import { Container } from "@/components/ui";
 import { Heading } from "@/components/Heading";
 import { BlurText } from "@/components/BlurText";
-import { HeroVideo } from "@/components/HeroVideo";
+import { HeroWaves } from "./HeroWaves";
 
 export function Hero() {
   return (
-    <section id="top" className="pt-[100px] pb-14 sm:pt-[112px] sm:pb-16 lg:pt-[140px] lg:pb-24">
-      <Container>
+    <section id="top" className="relative isolate flex min-h-[min(580px,85svh)] items-center overflow-hidden pt-[100px] pb-16 sm:min-h-[min(760px,100svh)] sm:pt-[140px] sm:pb-32 lg:min-h-[780px] lg:pt-[160px] lg:pb-40">
+      <HeroWaves className="absolute inset-0 -z-10" />
+      <Container className="relative w-full text-paper">
         <Heading
           as="h1"
           delay={150}
@@ -20,12 +21,10 @@ export function Hero() {
           ]}
         />
 
-        <BlurText className="mt-8 max-w-[38rem] text-lg lg:mt-10 leading-[1.55] text-mute sm:text-xl sm:leading-[1.5]">
+        <BlurText className="mt-8 max-w-[38rem] text-lg lg:mt-10 leading-[1.55] text-paper/85 sm:text-xl sm:leading-[1.5]">
           KeroSOP reads your policies, SOPs and training guides in Chinese and English, finds the instructions that
           conflict, and shows you both clauses word for word. Your policy owner decides which one is right.
         </BlurText>
-
-        <HeroVideo className="mt-10 sm:mt-12 lg:mt-16" />
       </Container>
     </section>
   );
